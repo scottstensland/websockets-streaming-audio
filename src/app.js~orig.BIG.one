@@ -1,0 +1,632 @@
+
+//   HTTPD server from scratch
+
+var httpd = require('http');
+var path = require('path');
+var fs = require('fs');
+
+var WebSocketServer = require("ws").Server; // http://einaros.github.io/ws/
+// var ws = require("ws");
+// var ws = require("nodejs-websocket");   // https://www.npmjs.org/package/nodejs-websocket
+
+// ---
+
+//helper function handles file verification
+function getFile(filePath,res,page404) {
+
+    // console.log('TOP getFile filePath ', filePath);
+
+    //does the requested file exist?
+    fs.exists(filePath,function(exists){
+        //if it does...
+        if(exists){
+            //read the fiule, run the anonymous function
+            fs.readFile(filePath,function(err,contents){
+
+                // console.log('filePath   ', filePath);
+
+                if(!err){
+                    //if there was no error
+                    //send the contents with the default 200/ok header
+
+                    var tmp  = filePath.lastIndexOf(".");
+                    var extension  = filePath.substring((tmp + 1));
+
+                    // if (extension === 'js') {
+
+                    //     res.writeHead(200, {"Content-Type": 'text/javascript'});
+                    // }
+
+                    // to EXTEND below listing of file types see :
+
+                    // https://gist.github.com/rrobe53/976610
+
+                    // set content type
+                    if (extension === 'html') res.writeHeader(200, {"Content-Type": 'text/html'});
+                    else if (extension === 'htm') res.writeHeader(200, {"Content-Type": 'text/html'});
+                    else if (extension === 'css') res.writeHeader(200, {"Content-Type": 'text/css'});
+                    else if (extension === 'js') res.writeHeader(200, {"Content-Type": 'text/javascript'});
+                    else if (extension === 'png') res.writeHeader(200, {"Content-Type": 'image/png'});
+                    else if (extension === 'jpg') res.writeHeader(200, {"Content-Type": 'image/jpg'});
+                    else if (extension === 'jpeg') res.writeHeader(200, {"Content-Type": 'image/jpeg'});
+                    else if (extension === 'ico') res.writeHeader(200, {'Content-Type': 'image/x-icon'});
+                    else if (extension === 'wav') res.writeHeader(200, {'Content-Type': 'audio/x-wav'});
+                    else if (extension === 'ogg') res.writeHeader(200, {'Content-Type': 'audio/ogg'});
+
+
+
+                    else { console.log("ERROR - NO CORRECT EXTENSION")};
+
+                    res.end(contents);
+
+                } else {
+                    //for our own troubleshooting
+                    console.dir(err);
+                };
+            });
+        } else {
+            //if the requested file was not found
+            //serve-up our custom 404 page
+            fs.readFile(page404,function(err,contents){
+                //if there was no error
+                if(!err){
+                    //send the contents with a 404/not found header 
+                    res.writeHead(404, {'Content-Type': 'text/html'});
+                    // res.writeHead(404, {"Content-Type": "text/plain"});
+                    res.write("404 Not Found\n");
+                    res.write(contents);
+                    res.end();
+                } else {
+                    //for our own troubleshooting
+
+                    console.log("ERROR - failed to find file :  " + filePath);
+
+                    console.dir(err);
+                };
+            });
+        };
+    });
+};
+
+// ---  websocket server
+
+
+function is_origin_allowed(origin) {
+  // put logic here to detect whether the specified origin is allowed.
+  return true;
+}
+
+// ---
+
+var received_data_arraybuffer;
+
+function process_my_data(given_data) {
+
+    // multi byte typed array websocket how to reassemble
+
+    // http://www.html5rocks.com/en/tutorials/webgl/typed_arrays/
+
+    // data comes over as Uint8Array - unsigned integer array - we want floating 32 bit array
+
+    // var given_datatype = 'int';
+    var given_datatype = 'float';
+
+
+    console.log('given_datatype is ', given_datatype);
+
+    var size_buff = given_data.length;
+
+    console.log('size_buff is ', size_buff);
+
+    var index_float = 0;
+
+    var big_binary_float = new Float32Array(size_buff/4);// stens TODO assure it divides evenly
+
+    if (given_datatype == 'int') {
+
+        // following is OK for int Uint8Array
+        received_data_arraybuffer = new Uint8Array(given_data, 0, Uint8Array.BYTES_PER_ELEMENT);
+
+        write_json_serialized(received_data_arraybuffer);
+
+    } else if (given_datatype == 'float') {
+
+        received_data_arraybuffer = new Uint8Array(given_data, 0, Uint8Array.BYTES_PER_ELEMENT);
+
+
+        console.log('float received_data_arraybuffer size ', received_data_arraybuffer.length);
+
+
+        var buffer_single_byte_sized = new Buffer(4);   // holds enough to populate a single float
+        var number_float;
+
+        var index_int = 0;
+
+        for (var index = 0; index < size_buff; index += 4) {
+        // for (var index = 0; index < size_buff; index++) {
+
+            // console.log('raw ', index, given_data[index]);
+
+            
+            // for (var inneri = 0; inneri < 4; inneri++) { // take float sized gulps endian
+            for (var inneri = 3; inneri >= 0; inneri--) {  // take float sized gulps other endian
+
+                buffer_single_byte_sized[inneri] = given_data[index_int++];
+
+                // console.log('raw ', index, inneri, buffer_single_byte_sized[inneri]);
+            }
+
+            // var view = new jDataView(buffer_single_byte_sized);
+            var view = new jdataview(buffer_single_byte_sized);
+
+            
+
+
+            number_float = view.getFloat32(0);
+
+            // console.log('binary number_float ', number_float);
+
+            big_binary_float[index_float++] = number_float;
+            
+        }
+
+        // write_json_serialized(big_binary_float);
+        write_buffer_to_file(big_binary_float);
+    }
+}       //      process_my_data
+
+// ---
+
+function done_sending_binary() {
+
+    console.log("COOooooollllLLLLL we are done sending binary to browser");
+}
+
+// ---
+
+function send_answer_back_to_browser(audio_obj, given_socket_conn) {
+
+
+    // https://stackoverflow.com/questions/9546437/how-send-arraybuffer-as-binary-via-websocket/11426037
+
+    // https://www.npmjs.org/package/nodejs-websocket
+
+    // javascript web socket receive binary data
+
+    // https://www.adobe.com/devnet/html5/articles/real-time-data-exchange-in-html5-with-websockets.html
+
+    given_socket_conn.sendText("nobody in here but us chickens");
+
+    // ---
+
+    var blob_8_bit_typed_array_for_socket = {}; // parent object for big data
+
+    copy_properties_across_objects(audio_obj, blob_8_bit_typed_array_for_socket);
+
+    blob_8_bit_typed_array_for_socket.datatype = 'float';
+
+    blob_8_bit_typed_array_for_socket.size_buffer = audio_obj.buffer.length * Float32Array.BYTES_PER_ELEMENT;
+
+    console.log("IN send_answer_back_to_browser blob_8_bit_typed_array_for_socket.size_buffer ", 
+                blob_8_bit_typed_array_for_socket.size_buffer);
+
+    // blob_8_bit_typed_array_for_socket.buffer = new Uint8Array(audio_obj.buffer.length * Float32Array.BYTES_PER_ELEMENT);
+    // blob_8_bit_typed_array_for_socket.buffer = new Uint8Array(blob_8_bit_typed_array_for_socket.size_buffer);
+
+    // blob_8_bit_typed_array_for_socket.buffer = new Buffer(data_length / 2.0);// input buffer is 32 bit we want 16 bit so half it
+    blob_8_bit_typed_array_for_socket.buffer = new Buffer(blob_8_bit_typed_array_for_socket.size_buffer);// input buffer is 32 bit we want 16 bit so half it
+
+    // below gives :     TypeError: Object #<Uint8Array> has no method 'copy'
+    // blob_8_bit_typed_array_for_socket.buffer = new Uint8Array(blob_8_bit_typed_array_for_socket.size_buffer);// input buffer is 32 bit we want 16 bit so half it
+
+
+        // Uint8Array
+
+
+    // convert_8_bit_buffer_from_32_bit_float_to_16_bit_int(blob_8_bit_typed_array_for_socket, audio_obj);
+    // convert_8_bit_buffer_from_32_bit_float_to_16_bit_int(audio_obj, blob_8_bit_typed_array_for_socket);
+
+    console.log("... calling     convert_32bit_float_typed_array_into_4_bytes_ints_typed_array");
+
+    convert_32bit_float_typed_array_into_4_bytes_ints_typed_array(audio_obj, blob_8_bit_typed_array_for_socket);
+
+// bbb
+
+    console.log("about to call write_wav from callback done genetic synth for today");
+
+    show_object_with_buffer(blob_8_bit_typed_array_for_socket, "callbackanswertobrowser");
+
+    // audio_obj.is_buffer_converted_to_ints = true;
+
+    // --- now we need to convert 32 bit float typed array into array of 16 bit ints to output to WAV
+
+    console.log("now we need to convert 32 bit float typed array into array of 16 bit ints to output to WAV");
+
+    var output_16_bit_audio_obj = {};
+
+    copy_properties_across_objects(audio_obj, output_16_bit_audio_obj);
+
+    convert_32_bit_floats_into_16_bit_ints(audio_obj, output_16_bit_audio_obj);
+
+    output_16_bit_audio_obj.filename = "/tmp/genetic_synth_01_output.wav";
+
+    console.log("WARNING - stubbed out writing WAV output file");
+    // write_wav(output_16_bit_audio_obj);
+
+    console.log("AAAAAA bout to send binary from server to client browser");
+
+// bbb
+
+    console.log("AAAAAA typeof buffer is ", typeof blob_8_bit_typed_array_for_socket.buffer);
+
+    /*
+    for (var property in blob_8_bit_typed_array_for_socket) {
+
+        console.log("blob_8_bit_typed_array_for_socket property ", 
+                property, "\t", blob_8_bit_typed_array_for_socket[property]);
+    }
+    */
+
+    show_object_with_buffer(blob_8_bit_typed_array_for_socket, "about_to_send_to_browser");
+
+    // blob_8_bit_typed_array_for_socket.size_buffer = blob_8_bit_typed_array_for_socket.buffer.length;
+
+    var curr_msg = "size_buffer=" + blob_8_bit_typed_array_for_socket.buffer.length;
+
+    console.log("curr_msg ", curr_msg);
+
+    given_socket_conn.sendText(curr_msg);
+
+    // var socket_writable_stream = given_socket_conn.beginBinary().end(blob_8_bit_typed_array_for_socket.buffer);
+    // given_socket_conn.sendBytes(blob_8_bit_typed_array_for_socket.buffer);
+
+    // given_socket_conn.binaryType = "arraybuffer";
+
+    given_socket_conn.sendBinary(blob_8_bit_typed_array_for_socket.buffer, done_sending_binary);
+
+    // given_socket_conn.send(blob_8_bit_typed_array_for_socket.buffer, done_sending_binary);
+
+}       //      send_answer_back_to_browser
+
+function copy_properties_across_objects(input_obj, output_obj) {
+
+    for (var property in input_obj) {
+
+        output_obj[property] = input_obj[property];
+    }
+}
+
+// ---
+
+function process_received_msg(audio_file_obj, given_socket_conn) {
+
+    var given_flavor;
+
+    if (typeof audio_file_obj.flavor == "undefined") {
+
+        var err_msg = "ERROR - web socket did not see flavor property";
+        console.log(err_msg);
+        return;
+
+    } else {
+
+        given_flavor = audio_file_obj.flavor;                    
+    }
+
+    console.log("process_received_msg  seeing flavor ", given_flavor);
+
+    switch (given_flavor) {
+
+        case "genetic_synthesis" : {
+
+            console.log("... OK genetic_synthesis  ");
+
+            for (var property in audio_file_obj) {
+
+                console.log("sssssss genetic_synthesis property ", property, audio_file_obj[property]);
+            }
+
+            console.log("commented out this for now ...");
+
+            // gene_mach.genetic_main(audio_file_obj, given_socket_conn, send_answer_back_to_browser);
+
+            break;
+        }
+
+        case "elephant_roar" : {
+
+            console.log("seeing elephant_roar RRRRRRRRRR");
+
+            // ---
+
+            var wav_input_filename = "/tmp/elephant_roar_synthesized_02_input.wav";
+            var wav_output_filename = "/tmp/elephant_roar_synthesized_02_output.wav";
+
+            var wav_file_input_obj = {};  // create stub object to which we attach .buffer
+
+            wav_file_input_obj.filename = wav_input_filename;
+            wav_file_input_obj.buffer = null;
+
+            wav_file_input_obj.raw_buffer = new Buffer(0);
+
+            console.log('pppprrreeeeeeee read input file ');
+
+            read_file_into_buffer(wav_file_input_obj, parse_wav); // populates field : raw_buffer with file data
+
+            console.log('PPPPPOOOOOOOOst read input file ');
+
+            // ---
+
+            for (var property in audio_file_obj) {
+
+                console.log("server side socket sees ", property, "\t", audio_file_obj[property]);
+            }
+
+            // --- received over socket is 8 bit ints - we need 16 bit ints for WAV format
+
+            var output_16_bit_audio_obj = {};
+
+            copy_properties_across_objects(audio_file_obj, output_16_bit_audio_obj);
+
+            convert_8_bit_ints_into_16_bit_ints(audio_file_obj, output_16_bit_audio_obj);
+
+            // ---
+
+            output_16_bit_audio_obj.filename = wav_output_filename;
+
+            // show_buffer(wav_file_obj.buffer, wav_file_obj.buffer.length, 100);
+
+            console.log("WARNING - stubbed out writing output WAV file : " + output_16_bit_audio_obj.filename);
+            // write_wav(output_16_bit_audio_obj);
+
+            // ---
+
+            break;
+        }
+
+        // --- default
+
+        console.log("ERROR - failed to find matching flavor in process_received_msg");
+        process.exit(1);
+
+        break;
+    }
+}       //      process_received_msg
+
+
+var received_data_arraybuffer;
+
+var count_num_connections = 0;
+
+function socket_server() {
+
+    // var chosen_port_listening = 80;     // change for nodejitsu
+    var chosen_port_listening = 8801;    // OK prior to nodejitsu
+    // var chosen_port_listening = 8888;
+    // var chosen_port_sending   = 8800;
+
+    var server = ws.createServer(function (connection_request) {
+
+        var number_received_properties = 0;
+        var element_token, element_value;
+        count_num_connections++;
+
+        var audio_file_obj = {};    // will pin up file properties like sample_rate
+
+        console.log("New connection          monday 447   count_num_connections ",
+                        count_num_connections);
+
+        var request_flavor;
+
+        if (!is_origin_allowed(connection_request.origin)) {
+          // Make sure we only accept requests from an allowed origin
+          connection_request.reject();
+          console.log((new Date()) + ' Connection from origin ' + connection_request.origin + ' rejected.');
+          return;
+        }
+
+
+        connection_request.on("text", function (received_data) {
+
+            console.log("Received text format : " + received_data);
+
+            var list_text_elements = received_data.split("=");
+
+            if (0 == list_text_elements.length) {
+
+                console.log("ERROR - faild to find text with = to denote conn parms");
+
+            } else {
+
+                // console.log('cool saw = somewhere in this text msg');
+            }
+
+            console.log("length of list_text_elements ", list_text_elements.length);
+
+            if (2 != list_text_elements.length) {
+
+                var err_msg = "ERROR - malformed property - does NOT contain equal sign " + received_data;
+                console.log(err_msg);
+            }
+
+            element_token = list_text_elements[0];
+            element_value = list_text_elements[1];
+
+            // console.log("here is list_text_elements ", list_text_elements);
+
+            console.log("parm token  ", element_token, "parm value  ", element_value);
+
+            connection_request.sendText(received_data.toUpperCase() +
+                                    " was received on server side echo back");
+
+            // ---
+
+            // Received text format : frequency=8000
+            // Received text format : sample_rate=44100
+            // Received text format : bit_depth=16
+            // Received text format : num_channels=1
+            // Received text format : duration=0.00014512471655328798
+            // Received text format : size=51200
+
+            // audio_file_obj.list_text_elements[0] = list_text_elements[1];
+            // audio_file_obj[list_text_elements[0]] = list_text_elements[1];
+            audio_file_obj[element_token] = element_value;
+
+            // ---  manifest_count
+
+            if (element_token == "manifest_count") {
+
+                number_received_properties = Object.keys(audio_file_obj).length;
+
+                console.log("COOL seeing manifest_count of ", element_value);
+                console.log("Object.keys(audio_file_obj).length  ", number_received_properties);
+
+                if (element_value != number_received_properties) {
+
+                    var err_msg = "ERROR - number of TEXT properties received " + 
+                                    number_received_properties +
+                                    " fails to match value of manifest_count " + element_value;
+                    console.log(err_msg);
+                    return;
+                }
+
+                // --- OK all properties received and accounted for in manifest 
+
+                console.log("OK all properties received and accounted for in manifest");
+
+                process_received_msg(audio_file_obj, connection_request);
+            }
+        });
+
+
+      // stens TODO - this works OK for int typed arrays following callback is attempt for floats
+        // Listen for binary event
+        connection_request.on("binary", function (inStream) {
+
+            // Collect all the data in a buffer
+            var data = new Buffer(0);
+
+            // Get all frames of binary data and add to the buffer
+            inStream.on("readable", function () {
+
+                var newData = inStream.read();
+
+                if (newData) {
+
+                    console.log('WWWWWWWWW  websocket binary newData length this callback cycle is ', 
+                                    newData.length);
+
+                    data = Buffer.concat([data, newData], data.length+newData.length)
+                }
+            });
+
+            // Done, process the big data
+            inStream.on("end", function () {
+
+                console.log("now doing binary end callback");
+
+                audio_file_obj.buffer = data;
+
+                process_received_msg(audio_file_obj);
+
+                console.log("WARNING - stubbed out for now");
+
+                // genetic_synthesis
+
+                // process_my_data(data);   // stens TODO put this back its OK
+
+            });
+        });
+
+        connection_request.on("close", function (code, reason) {
+            console.log("Connection closed");
+        });
+
+    }).listen(chosen_port_listening);
+
+    // console.log('chosen_port_listening ', chosen_port_listening);
+
+};      //      socket_server
+
+// ---
+ 
+//a helper function to handle HTTP requests
+function requestHandler(req, res) {
+
+    console.log("------------- TOP requestHandler -----------------");
+
+    console.log('   __dirname   ', __dirname);
+
+
+    // var localFolder = __dirname + '/public/';
+    var localFolder = __dirname + '/';
+    // var localFolder = __dirname + '/../';
+
+    console.log('localFolder ', localFolder);
+
+    console.log('req.url ', req.url);
+
+    var fileName = (req.url == "/") ? "combo.html" : req.url;
+
+    console.log('fileName ', fileName);
+
+    var full_path_file = path.join(localFolder, fileName);
+
+    console.log('full_path_file ', full_path_file);
+
+
+    var page404 = localFolder + '404.html'; // stens TODO - deal with using something for this file
+ 
+    //call our helper function
+    //pass in the path to the file we want,
+    //the response object, and the 404 page path
+    //in case the requestd file is not found
+    // getFile((localFolder + fileName),res,page404);
+    getFile(full_path_file, res, page404);
+};
+
+// ---
+
+socket_server();
+
+// ---
+
+// https://stackoverflow.com/questions/16573668/best-practices-when-running-node-js-with-port-80-ubuntu-linode
+
+console.log("process.env.HOSTING_VENDOR ", process.env.HOSTING_VENDOR);
+console.log("process.env.NODE_ENV ", process.env.NODE_ENV);
+console.log("process.env.SUBDOMAIN ", process.env.SUBDOMAIN);
+console.log("process.env.PORT ", process.env.PORT);
+
+console.log("version: 0.0.46   ");
+
+var serviceUrl;
+var servicePort;
+
+if (process.env.HOSTING_VENDOR == "heroku") {
+
+    serviceUrl = "http://gentle-cliffs-8200.herokuapp.com:";
+               // http://gentle-cliffs-8200.herokuapp.com
+
+    servicePort = process.env.PORT || 3000;
+    // servicePort = 80;
+
+} else if (process.env.NODE_ENV == "production" && process.env.SUBDOMAIN == "webgl-3d-animation") {
+
+    serviceUrl = "http://webgl-3d-animation.jit.su:";   //   http://webgl-3d-animation.jit.su/
+
+    // servicePort = 80;
+
+    servicePort = process.env.PORT || 3000;
+
+} else {
+
+    serviceUrl = "http://localhost:";
+    servicePort = 8888;
+};
+
+console.log("\nPoint your browser at \n\n\t\t", serviceUrl + servicePort, "\n");
+
+httpd.createServer(requestHandler).listen(servicePort, null);
+
+

@@ -1,0 +1,34 @@
+{
+    "author": "Scott Stensland <scottstensland@gmail.com> (http://catfoodnation.com/)",
+    "bugs": {
+        "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
+    },
+    "dependencies": {
+        "ws": "0.4.x",
+        "express": "^4.4.5"
+    },
+    "description": "node.js app which allows browser to launch process on server side which then makes callback to browser streaming binary audio in either direction",
+    "engines": {
+        "node": "0.10.x"
+    },
+    "homepage": "https://github.com/scottstensland",
+    "keywords": [
+        "websockets",
+        "audio",
+        "streaming",
+        "binary"
+    ],
+    "license": "ISC",
+    "main": "src/app.js",
+    "name": "websockets-streaming-audio",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/scottstensland/websockets-streaming-audio.git"
+    },
+    "scripts": {
+        "start": "node src/app.js",
+        "test": "make"
+    },
+    "subdomain": "websockets-streaming-audio",
+    "version": "0.0.46"
+}
