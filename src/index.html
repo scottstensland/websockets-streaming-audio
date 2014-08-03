@@ -18,17 +18,121 @@
     </style>
 
     <script>
-      var host = location.origin.replace(/^http/, 'ws')
-      var ws = new WebSocket(host);
-      ws.onmessage = function (event) {
-        var li = document.createElement('li');
-        li.innerHTML = JSON.parse(event.data);
-        document.querySelector('#pings').appendChild(li);
+
+      function updateStats(memuse) {
+        document.getElementById('rss').innerHTML = memuse.rss;
+        document.getElementById('heapTotal').innerHTML = memuse.heapTotal;
+        document.getElementById('heapUsed').innerHTML = memuse.heapUsed;
+      }
+
+
+      // ---
+
+      var host;
+      var ws;
+      var flag_connected = false;
+
+      // ---------------------
+
+      console.log("create_websocket_connection");
+
+      var create_websocket_connection = function() {
+
+        if (! "WebSocket" in window) {
+
+          alert("Boo Hoo WebSocket is not available on this browser");
+          return;
+        };
+
+        if (flag_connected) {
+
+          return; // already connected
+        }
+
+        console.log('client in browser says ... WebSocket is supported by your browser.');
+
+        host = location.origin.replace(/^http/, 'ws')
+        ws = new WebSocket(host);
+
+        // ---
+
+        ws.onconnection = function (stream) {
+          console.log('WebSocket connect');
+        };
+
+        ws.onconnected = function (stream) {
+          console.log('someone connected!');
+        };
+
+        ws.onmessage = function (event) {
+          updateStats(JSON.parse(event.data));
+        };
+
+        // ws.on('error', function (stream) {
+        //   console.log('ERROR - fault on socket');
+        // });
+
+
+        ws.onerror = function (stream) {
+          console.log('ERROR - fault on socket');
+        };
+
+        // ---
+
+        flag_connected = true;
       };
+
+      // setTimeout(create_websocket_connection, 500);
+
+
+      // ---
+
+      // ws.on('connection', function (stream) {
+      //   console.log('someone connected!');
+      // });
+
+      // ---------------------
+
+      function send_message_to_server() {
+
+        if (! flag_connected) {
+
+          console.log("hit button create_websocket_connection");
+          return;
+        };
+
+        console.log("send_message_to_server");
+
+        ws.send("Hello there server from client browser");
+      };
+
+
+      // ws.onmessage = function (event) {
+      //   var li = document.createElement('li');
+      //   li.innerHTML = JSON.parse(event.data);
+      //   document.querySelector('#pings').appendChild(li);
+      // };
+
+
+
+
     </script>
   </head>
+  <!-- <body onload="create_websocket_connection();" >  stens TODO checkout how to handle page reload -->
   <body>
+
+    <button onclick="create_websocket_connection()">create websocket</button>
+    <button onclick="send_message_to_server()">send message to server</button>
+
+
     <h1>Pings</h1>
     <ul id='pings'></ul>
+
+    <strong>Server Stats</strong><br>
+    RSS: <div id='rss'></div><br>
+    Heap total: <div id='heapTotal'></div><br>
+    Heap used: <div id='heapUsed'></div><br>
+
+
   </body>
 </html>
