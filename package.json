@@ -27,9 +27,8 @@
     },
     "scripts": {
         "start": "node src/app.js",
-        "startbr": "node src/app.js br",
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.1.1"
+    "version": "0.2.0"
 }
