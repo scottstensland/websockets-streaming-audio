@@ -69,18 +69,35 @@ wss.on("connection", function(ws) {
 
     // var ID_write = setInterval(just_sayit, 50);
 
+
     var wrap_stats = function() {
 
         console.log("NOW calling wrap_stats");
 
         var stats_id = setInterval(function() {
 
-            ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
+            ws.send(JSON.stringify(process.memoryUsage()), function() {});
 
         }, 100);
     };
 
-    var ID_timeout = setTimeout(wrap_stats, 2000);
+    var ID_timeout = setTimeout(wrap_stats, 20);
+
+
+    // ---
+
+    // var stats_id;
+
+    // (function run() {
+
+    //     ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
+
+    //     var stats_id = setInterval(run, 100);
+
+    // }());
+
+
+
 
     console.log("websocket connection open");
 
@@ -101,7 +118,8 @@ wss.on("connection", function(ws) {
         console.log("websocket connection close")
         // clearInterval(id)
         clearInterval(wrap_stats.stats_id);
+        // clearInterval(run.stats_id);
         // clearInterval(ID_write);
-        clearTimeout(ID_timeout);
+        // clearTimeout(ID_timeout);
     });
 });
