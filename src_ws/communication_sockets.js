@@ -3,7 +3,7 @@ var communication_sockets = function() {
     // ---
 
     var host;
-    var ws;
+    var web_socket;
     var flag_connected = false;
 
     // ---------------------
@@ -26,28 +26,28 @@ var communication_sockets = function() {
         console.log('client in browser says ... WebSocket is supported by your browser.');
 
         host = location.origin.replace(/^http/, 'ws')
-        ws = new WebSocket(host);
+        web_socket = new WebSocket(host);
 
         // ---
 
-        ws.onconnection = function(stream) {
+        web_socket.onconnection = function(stream) {
             console.log('WebSocket connect');
         };
 
-        ws.onconnected = function(stream) {
+        web_socket.onconnected = function(stream) {
             console.log('someone connected!');
         };
 
-        ws.onmessage = function(event) {
+        web_socket.onmessage = function(event) {
             updateStats(JSON.parse(event.data));
         };
 
-        // ws.on('error', function (stream) {
+        // web_socket.on('error', function (stream) {
         //   console.log('ERROR - fault on socket');
         // });
 
 
-        ws.onerror = function(stream) {
+        web_socket.onerror = function(stream) {
             console.log('ERROR - fault on socket');
         };
 
@@ -61,9 +61,14 @@ var communication_sockets = function() {
 
     // ---
 
-    // ws.on('connection', function (stream) {
+    // web_socket.on('connection', function (stream) {
     //   console.log('someone connected!');
     // });
+
+    function answer_back_from_server() {
+
+        console.log("Oh Yeah ... answer_back_from_server");
+    };
 
     // ---------------------
 
@@ -77,11 +82,11 @@ var communication_sockets = function() {
 
         console.log("send_message_to_server");
 
-        ws.send("Hello there server from client browser");
+        web_socket.send("Hello there server ... coming from client browser");
     };
 
 
-    // ws.onmessage = function (event) {
+    // web_socket.onmessage = function (event) {
     //   var li = document.createElement('li');
     //   li.innerHTML = JSON.parse(event.data);
     //   document.querySelector('#pings').appendChild(li);

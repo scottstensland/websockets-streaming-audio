@@ -1,8 +1,3 @@
-var WebSocketServer = require("ws").Server
-var http = require("http")
-var express = require("express")
-var app = express()
-var port = process.env.PORT || 8888;
 
 var flavor_socket = process.env.FLAVOR_SOCKET || "new";
 
@@ -32,94 +27,21 @@ var working_dir = path.join(parent_dir, dir_suffix, "/");
 
 console.log("here is working_dir ", working_dir);
 
+var working_app = path.join(working_dir, "local_app");
 
-// app.use(express.static(__dirname + "/"));
-app.use(express.static(working_dir));
-
-var server = http.createServer(app);
-
-server.listen(port);
-
-console.log("http server listening on %d", port)
-
-var wss = new WebSocketServer({
-    server: server
-});
-
-console.log("websocket server created");
-
-wss.on("connection", function(ws) {
-
-    // var id = setInterval(function() {
-    //     ws.send(JSON.stringify(new Date()), function() {});
-    // }, 1000);
+console.log("here is working_app ", working_app);
 
 
+// var app_obj = require(working_app);
+var app_obj = require(working_app);
 
-    // var stats_id = setInterval(function() {
+console.log("app_obj ", app_obj);
 
-    //     ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
+// app_obj.local_app.connect_to_server(working_dir);
 
-    // }, 100);
+app_obj.connect_to_server(working_dir);
 
-    // var just_sayit = function() {
-
-    //     console.log("...");
-    // }
-
-    // var ID_write = setInterval(just_sayit, 50);
+app_obj.inside_local_app();
 
 
-    var wrap_stats = function() {
-
-        console.log("NOW calling wrap_stats");
-
-        var stats_id = setInterval(function() {
-
-            ws.send(JSON.stringify(process.memoryUsage()), function() {});
-
-        }, 100);
-    };
-
-    var ID_timeout = setTimeout(wrap_stats, 20);
-
-
-    // ---
-
-    // var stats_id;
-
-    // (function run() {
-
-    //     ws.send(JSON.stringify(process.memoryUsage()), function() { /* ignore errors */ });
-
-    //     var stats_id = setInterval(run, 100);
-
-    // }());
-
-
-
-
-    console.log("websocket connection open");
-
-
-    app.on("text", function(received_data) {
-
-        console.log("Received text format : " + received_data);
-    });
-
-
-    ws.on("message", function(received_data) {
-
-        console.log("Received message : " + received_data);
-    });
-
-
-    ws.on("close", function() {
-        console.log("websocket connection close")
-        // clearInterval(id)
-        clearInterval(wrap_stats.stats_id);
-        // clearInterval(run.stats_id);
-        // clearInterval(ID_write);
-        // clearTimeout(ID_timeout);
-    });
-});
+console.log("version:   0.2.3  ");
