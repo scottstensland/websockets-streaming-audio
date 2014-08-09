@@ -68,7 +68,7 @@ wss.on("connection", function(ws) {
         clearInterval(wrap_stats.stats_id);
         // clearInterval(run.stats_id);
         // clearInterval(ID_write);
-        // clearTimeout(ID_timeout);
+        clearTimeout(ID_timeout);
     });
 });
 
@@ -82,8 +82,8 @@ var inside_local_app = function() {
 
     console.log("TOP inside_local_app");
 };
-
 exports.inside_local_app = inside_local_app;
+
 
     // ---------------------------------------
 /*

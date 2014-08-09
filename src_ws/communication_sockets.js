@@ -28,6 +28,8 @@ var communication_sockets = function() {
         host = location.origin.replace(/^http/, 'ws')
         web_socket = new WebSocket(host);
 
+        console.log("web_socket ", web_socket);
+
         // ---
 
         web_socket.onconnection = function(stream) {
@@ -107,8 +109,17 @@ var communication_sockets = function() {
                     break;
                 }
 
-
             case 2:
+                {
+
+                    console.log('...  socket_client mode two  ... send_message_to_server ');
+
+                    send_message_to_server();
+
+                    break;
+                }
+
+            case 3:
                 {
 
                     console.log('...  socket_client mode two  ... send_message_to_server ');

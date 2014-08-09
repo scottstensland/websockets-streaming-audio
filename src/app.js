@@ -31,17 +31,13 @@ var working_app = path.join(working_dir, "local_app");
 
 console.log("here is working_app ", working_app);
 
-
-// var app_obj = require(working_app);
 var app_obj = require(working_app);
 
 console.log("app_obj ", app_obj);
-
-// app_obj.local_app.connect_to_server(working_dir);
 
 app_obj.connect_to_server(working_dir);
 
 app_obj.inside_local_app();
 
 
-console.log("version:   0.2.3  ");
+console.log("version:   0.2.4  ");
