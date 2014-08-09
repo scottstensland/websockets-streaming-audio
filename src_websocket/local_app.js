@@ -63,7 +63,7 @@ wsServer.on('request', function(request) {
             // ws.send(JSON.stringify(process.memoryUsage()), function() {});
             connection.send(JSON.stringify(process.memoryUsage()), function() {});
 
-        }, 4000);
+        }, 100);
     };
 
     var ID_timeout = setTimeout(wrap_stats, 20);
