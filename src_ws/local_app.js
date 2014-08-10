@@ -4,8 +4,12 @@
 
 console.log("TOP local_app");
 
+var all_connections = {};   //  stens TODO - push into here each connection
+
+// ---
 
 var connect_to_server = function(working_dir) {
+
 
 var WebSocketServer = require("ws").Server
 var http = require("http")
@@ -15,6 +19,21 @@ var port = process.env.PORT || 8888;
 
 
 console.log("TOP local_app working_dir ", working_dir);
+
+// ---
+
+var send_binary_back_to_client = function(given_request, curr_ws) {
+
+    var array = new Float32Array(5);
+
+    for (var i = 0; i < array.length; ++i) array[i] = i / 2;
+
+    console.log("cool about to send a binary Float32Array back to client browser");
+
+    curr_ws.send(array, {binary: true, mask: true});
+};
+
+// ---
 
 
 // app.use(express.static(__dirname + "/"));
@@ -60,7 +79,28 @@ wss.on("connection", function(ws) {
     ws.on("message", function(received_data) {
 
         console.log("Received message : " + received_data);
+
+        var received_json;
+
+        try {
+
+            received_json = JSON.parse(received_data);
+
+            send_binary_back_to_client(received_json, ws);
+
+        } catch (error) {
+
+            // console.error("ERROR " + error);
+            // process.exit(8);
+
+            console.log("Received received_json NON JSON though : ", received_json);
+        }
     });
+
+    // ---
+
+
+    // ---
 
     ws.on("close", function() {
         console.log("websocket connection close")
@@ -84,20 +124,4 @@ var inside_local_app = function() {
 };
 exports.inside_local_app = inside_local_app;
 
-
-    // ---------------------------------------
-/*
-    return { // to make visible to calling reference frame list function here comma delimited,
-
-        connect_to_server : connect_to_server,
-        inside_local_app: inside_local_app
-        // socket_server: socket_server
-
-        // get_size_buffer: get_size_buffer,
-        // get_sampled_buffer: get_sampled_buffer,
-        // get_size_sampled_buffer: get_size_sampled_buffer
-    };
-    */
-
-// }(); //  local_app = function()
-
+// ---------------------------------------

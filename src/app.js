@@ -1,5 +1,7 @@
 
-var flavor_socket = process.env.FLAVOR_SOCKET || "new";
+var fs = require('fs');
+
+var flavor_socket = process.env.FLAVOR_SOCKET || "ws";
 
 console.log("here is flavor_socket ", flavor_socket);
 
@@ -14,18 +16,47 @@ console.log("here is parent_dir ", parent_dir);
 
 var dir_suffix;
 
-if (flavor_socket === "new") {
+// value of process.env.FLAVOR_SOCKET determines where we pull code for both server + client
+// this enables us to try out various npm Libraries as our Web Socket implementation
 
-    dir_suffix = "src_ws";
+switch (flavor_socket) {		// choices :   ws  websocket  nodejs-websocket
 
-} else {
+	case "ws" : {
 
-    dir_suffix = "src_websocket";
+		dir_suffix = "src_ws";
+		break;
+	};
+
+	case "websocket" : {
+
+		dir_suffix = "src_websocket";
+		break;
+	};
+
+	case "nodejs-websocket" : {
+
+		dir_suffix = "src_nodejs-websocket";
+		break;
+	};
+
+	default : {
+
+		dir_suffix = "src_ws"; // just default to using ws
+
+		console.log("NOTICE - just using default Web Socket lib : ws");
+		break;
+	};
 }
 
 var working_dir = path.join(parent_dir, dir_suffix, "/");
 
 console.log("here is working_dir ", working_dir);
+
+if (! fs.existsSync(working_dir)) {
+
+	console.error("ERROR - failed to find working_dir ", working_dir);
+	process.exit(8);
+}
 
 var working_app = path.join(working_dir, "local_app");
 
@@ -40,5 +71,5 @@ app_obj.connect_to_server(working_dir);
 app_obj.inside_local_app();
 
 
-console.log("version:   0.2.5  ");
+console.log("version:   0.2.6  ");
 

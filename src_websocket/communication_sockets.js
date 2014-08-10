@@ -69,15 +69,15 @@ var communication_sockets = function() {
 
             // updateStats(JSON.parse(event.data));
 
-            console.log("here is event  -->");
-            console.log(event);
-            console.log("<-----");
+            // console.log("here is event  -->");
+            // console.log(event);
+            // console.log("<-----");
 
 
 
-            console.log("here is event.data  /////#");
-            console.log(event.data);
-            console.log("#\\\\\\");
+            // console.log("here is event.data  /////#");
+            // console.log(event.data);
+            // console.log("#\\\\\\");
 
 
             var returned_msg = JSON.parse(event.data);
