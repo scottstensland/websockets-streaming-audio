@@ -48,27 +48,50 @@ var communication_sockets = function() {
 
                 // console.log('String message received: ' + event.data);
 
+                // ---
+/*
+                try {
+
+                    received_json = JSON.parse(received_data);
+
+                    route_msg(received_json, received_data, ws);
+
+                } catch (error) {
+
+                    // console.error("ERROR " + error);
+                    // process.exit(8);
+
+                    console.log("Received received_json NON JSON though : ", received_data);
+                }
+*/
+
+                // ---
+
                 updateStats(JSON.parse(event.data));    // send received data directly to browser screen
 
             } else if (event.data instanceof ArrayBuffer) {
 
-                console.log("ArrayBuffer received: " + event.data,
-                    " received size ", event.data.size,
-                    " size ", event.size);
+                console.log("ArrayBuffer received: " + event.data);
 
-                // var binary_bytes = new ArrayBuffer(e.data);
+                // var server_buffer = new ArrayBuffer(e.data);
 
-                var binary_bytes = new Uint8Array(event.data);
+                // var server_buffer = new Uint8Array(event.data);
+                var server_buffer = new Float32Array(event.data);
 
-                var default_max_index = 20;
+                var server_buffer_len = server_buffer.length;
+
+                console.log("received_buffer.length ", server_buffer_len);
+
+                var default_max_index = 50;
                 // var max_index = (event.size > default_max_index) ? default_max_index : event.size;
-                var max_index = (typeof event.size !== "undefined" && event.size < default_max_index) ? event.size : default_max_index;
+                var max_index = (typeof server_buffer_len !== "undefined" && 
+                                 server_buffer_len < default_max_index) ? server_buffer_len : default_max_index;
 
                 console.log("max_index ", max_index);
 
                 for (var i = 0; i < max_index; i++) {
 
-                    console.log(i, binary_bytes[i]);
+                    console.log(i, server_buffer[i]);
                 }
 
             } else if (event.data instanceof Blob) { // binary    bbb
@@ -81,11 +104,11 @@ var communication_sockets = function() {
 
                 // var binary_bytes = new Uint8Array(e.data);
                 // var binary_bytes = new ArrayBuffer(e.data);
-                var binary_bytes = new Blob(event.data);
+                var server_buffer = new Blob(event.data);
                 // var image = context.createImageData(canvas.width, canvas.height);
                 for (var i = 0; i < 200; i++) {
 
-                    console.log(binary_bytes[i]);
+                    console.log(server_buffer[i]);
                 }
 
                 // ---
@@ -94,6 +117,9 @@ var communication_sockets = function() {
 
                     console.log("Blob property ", property, " value ", Blob[property]);
                 }
+            } else {
+
+                console.log("Who Knows ", event.data);
             }
 
         };
@@ -155,68 +181,52 @@ var communication_sockets = function() {
 
         console.log("request_server_send_binary");
 
-        // aaa
-
         // web_socket.send("Hello there server ... coming from client browser");
-
-
         // web_socket.send('mode : "apple"');
+
         web_socket.send(JSON.stringify({
 
             mode : "apple",
             datatype : "float",
             callback : "display_binary_from_server"
         }));
-
     };
-
-
-
-    // web_socket.onmessage = function (event) {
-    //   var li = document.createElement('li');
-    //   li.innerHTML = JSON.parse(event.data);
-    //   document.querySelector('#pings').appendChild(li);
-    // };
-
 
     function socket_client(given_mode) {
 
         switch (given_mode) {
 
-            case 1:
-                {
+            case 1 : {
 
-                    console.log('...  socket_client mode one ...  create_websocket_connection');
+                console.log('...  socket_client mode one ...  create_websocket_connection');
 
-                    create_websocket_connection();
+                create_websocket_connection();
 
-                    break;
-                }
+                break;
+            }
 
-            case 2:
-                {
+            case 2 : {
 
-                    console.log('...  socket_client mode two  ... send_message_to_server ');
+                console.log('...  socket_client mode two  ... send_message_to_server ');
 
-                    send_message_to_server();
+                send_message_to_server();
 
-                    break;
-                }
+                break;
+            }
 
-            case 3:
-                {
+            case 3 : {
 
-                    console.log('...  socket_client mode three  ... request server send binary float ');
+                console.log('...  socket_client mode three  ... request server send binary float ');
 
-                    request_server_send_binary();
+                request_server_send_binary();
 
-                    break;
-                }
+                break;
+            }
 
-            default:
-                {
-                    console.log('...  socket_client mode NONE doing default  ');
-                }
+            default : {
+
+                console.log('...  socket_client mode NONE doing default  ');
+            }
         }
     }; //		socket_client
 

@@ -7,6 +7,7 @@
         "ws": "0.4.x",
         "express": "^4.4.5",
 		"websocket" : "1.0.x"
+
     },
     "description": "node.js app which allows browser to launch process on server side which then makes callback to browser streaming binary audio in either direction",
     "engines": {
@@ -31,5 +32,5 @@
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.2.6"
+    "version": "0.2.6-1"
 }

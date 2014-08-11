@@ -68,8 +68,8 @@ console.log("app_obj ", app_obj);
 
 app_obj.connect_to_server(working_dir);
 
-app_obj.inside_local_app();
+// app_obj.inside_local_app();
 
 
-console.log("version:   0.2.6  ");
+console.log("version:   0.2.6-1  ");
 
