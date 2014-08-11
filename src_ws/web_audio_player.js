@@ -112,7 +112,7 @@ var web_audio_player = function() {
 
         console.log('here is url ', url);
 
-        var MAXIMUM_WAITING_TIME = 2000;
+        var MAXIMUM_WAITING_TIME = 200000;
 
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
