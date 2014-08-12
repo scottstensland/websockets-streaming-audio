@@ -140,8 +140,8 @@ var web_audio_player = function() {
 
                 return;
             }
-            // var serverResponse = request.responseText;
-            // console.log("serverResponse ", serverResponse);
+            var serverResponse = request.responseText;
+            console.log("serverResponse ", serverResponse);
         };
 
         // --- above added as error checking --- //
