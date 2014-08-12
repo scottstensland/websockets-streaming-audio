@@ -20,6 +20,24 @@ var audio_utils = audio_obj.audio_utils("dev");
 
 console.log("TOP local_app working_dir ", working_dir);
 
+var send_object_properties_to_client = function(given_obj, curr_socket) {
+
+    // iterate across object sending each property back to client (browser)
+
+    for (var curr_property in given_obj) {
+
+        var curr_value = given_obj.curr_property;
+
+        switch (curr_property) {
+
+            case "buffer" : {
+
+                
+            }
+        }
+    }
+}
+
 // ---
 
 var send_binary_back_to_client = function(received_json, given_request, curr_ws) {
@@ -119,20 +137,12 @@ wss.on("connection", function(ws) {
 
             ws.send(JSON.stringify(process.memoryUsage()), function() {});
 
-        }, 100);
+        }, 500);    //  server sends message to browser twice per second
     };
 
     var ID_timeout = setTimeout(wrap_stats, 20);
 
-
     console.log("websocket connection open");
-
-/*
-    app.on("text", function(received_data) { // stens TODO - does this app.on belong here ???
-
-        console.log("Received text format : " + received_data);
-    });
-*/
 
     ws.on("message", function(received_data) {
 
@@ -157,16 +167,11 @@ wss.on("connection", function(ws) {
 
     // ---
 
-
     ws.on("error", function(event) {
 
         console.log("ERROR on on on error : " + event);
 
     });
-
-
-    // ---
-
 
     // ---
 
@@ -185,14 +190,4 @@ wss.on("connection", function(ws) {
 exports.connect_to_server = connect_to_server;
 
 // ---
-
-/*
-var inside_local_app = function() {
-
-    console.log("TOP inside_local_app");
-};
-exports.inside_local_app = inside_local_app;
-*/
-
-// ---------------------------------------
 

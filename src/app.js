@@ -23,7 +23,7 @@ switch (flavor_socket) {		// choices :   ws  websocket  nodejs-websocket
 
 	case "ws" : {
 
-		dir_suffix = "src_ws";
+		dir_suffix = "src_ws"; // this is the active flavor - other socket implementations set aside for now
 		break;
 	};
 

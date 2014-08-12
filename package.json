@@ -18,6 +18,7 @@
     "homepage": "https://github.com/scottstensland",
     "keywords": [
         "websockets",
+        "webaudio",
         "audio",
         "streaming",
         "binary"
@@ -34,5 +35,5 @@
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.2.6-5"
+    "version": "0.2.6-6"
 }

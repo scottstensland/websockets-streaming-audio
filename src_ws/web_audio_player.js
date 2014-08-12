@@ -120,6 +120,7 @@ var web_audio_player = function() {
 
         // --- below added as error checking --- //
 
+        /*
         var requestTimer = setTimeout(function() {
             request.abort();
             // Handle timeout situation, e.g. Retry or inform user
@@ -140,9 +141,10 @@ var web_audio_player = function() {
 
                 return;
             }
-            var serverResponse = request.responseText;
-            console.log("serverResponse ", serverResponse);
+            // var serverResponse = request.responseText;
+            // console.log("serverResponse ", serverResponse);
         };
+        */
 
         // --- above added as error checking --- //
 
@@ -724,7 +726,10 @@ function launch_synth() {
         // var chosen_audio_file = "Chopin_Fantasie_Impromptu_opus_66-APQ2RKECMW8.ogg";
         // var chosen_audio_file = "Chopin_Fantasie_Impromptu_opus_66-APQ2RKECMW8_mono.wav";
         // var chosen_audio_file = "Chopin_Fantasie_Impromptu_opus_66-APQ2RKECMW8_mono_8000_16.wav";
-        var chosen_audio_file = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
+        // var chosen_audio_file = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
+        var chosen_audio_file = "Justice_Genesis_first_30_seconds.wav";
+
+
 
 /*
 
