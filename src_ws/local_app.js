@@ -44,16 +44,20 @@ function resolvePath(str) {
 
 // ---
 
-// GITHUB_REPO_PARENT
+var shared_utils;
 
-// var shared_utils = require("shared-utils");
+if (process.env.GITHUB_REPO_PARENT) {
 
-// var local_shared_utils_filename = process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js";
+    shared_utils = require(resolvePath(process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js"));
 
-// console.log("local_shared_utils_filename ", local_shared_utils_filename);
+} else {
 
+    shared_utils = require("shared-utils");
+}
 
-var shared_utils = require(resolvePath(process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js")) || require("shared-utils");
+console.log("shared_utils ", shared_utils);
+
+// ---
 
 console.log("TOP local_app working_dir ", working_dir);
 
