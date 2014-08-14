@@ -127,7 +127,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
     // bbb
 
-    var source_obj = {};
+    // var source_obj = {};
 
     // try {
 
@@ -139,6 +139,8 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
             shared_utils.show_object(audio_obj,
                 "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
+
+            curr_ws.send(audio_obj.buffer, {binary: true, mask: true}); // OK good one
         }));
 
     // } catch (ex) {
@@ -146,7 +148,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
     //     console.error("ERROR - failed to read input WAV file : ", requested_input_filename, " : ", ex);
     //     process.exit(8);
     // }
-
+/*
     return; // stub to avoid going into below 
 
     var max_index = 5;
@@ -160,6 +162,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
     // curr_ws.send(array, {binary: true, mask: true});
     curr_ws.send(source_obj.buffer, {binary: true, mask: true}); // OK good one
+    */
 
 };      //      send_binary_back_to_client
 
