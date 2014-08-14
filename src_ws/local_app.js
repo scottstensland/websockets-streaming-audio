@@ -14,9 +14,48 @@ var express = require("express");
 var app = express();
 var port = process.env.PORT || 8888;
 
-var audio_obj = require("audio-utils");
-var audio_utils = audio_obj.audio_utils("dev");
+// var audio_obj = require("audio-utils");
+// var audio_utils = audio_obj.audio_utils("dev");
 
+
+// var audio_utils = require("audio-utils").audio_utils("dev");
+var audio_utils = require("audio-utils").audio_utils();
+
+
+
+var cfg = require("../config");
+
+console.log("here is cfg ", cfg);
+
+
+var media_dir = cfg.media_dir;
+
+console.log("here is media_dir ", media_dir);
+
+
+// ---
+
+var path = require('path');
+
+function resolvePath(str) {
+  if (str.substr(0, 2) === '~/') {
+    str = (process.env.HOME || process.env.HOMEPATH || process.env.HOMEDIR || process.cwd()) + str.substr(1);
+  }
+  return path.resolve(str);
+}
+
+// ---
+
+// GITHUB_REPO_PARENT
+
+// var shared_utils = require("shared-utils");
+
+// var local_shared_utils_filename = process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js";
+
+// console.log("local_shared_utils_filename ", local_shared_utils_filename);
+
+
+var shared_utils = require(resolvePath(process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js")) || require("shared-utils");
 
 console.log("TOP local_app working_dir ", working_dir);
 
@@ -32,7 +71,7 @@ var send_object_properties_to_client = function(given_obj, curr_socket) {
 
             case "buffer" : {
 
-                
+
             }
         }
     }
@@ -42,8 +81,8 @@ var send_object_properties_to_client = function(given_obj, curr_socket) {
 
 var send_binary_back_to_client = function(received_json, given_request, curr_ws) {
 
-    // var SIZE_BUFFER_SOURCE = 512;
-    var SIZE_BUFFER_SOURCE = 1048576;
+    var SIZE_BUFFER_SOURCE = 512;
+    // var SIZE_BUFFER_SOURCE = 1048576;
     var samples_per_cycle = 64;
 
         /*
@@ -72,40 +111,97 @@ var send_binary_back_to_client = function(received_json, given_request, curr_ws)
 
 };      //      send_binary_back_to_client
 
+// ---
+
+var read_file_pop_buffer_send_back_to_client = function(received_json, given_request, curr_ws) {
+
+    console.log("about to parse wav file, pop buffer to send back to client browser");
+
+    console.log("__dirname ", __dirname);
+
+    // var requested_input_filename = __dirname + "/" + media_dir + received_json.requested_source;
+    var requested_input_filename = __dirname + "/" + media_dir + "/" + received_json.requested_source;
+
+    console.log("requested_input_filename ", requested_input_filename);
+
+    // bbb
+
+    var source_obj = {};
+
+    try {
+
+        shared_utils.read_wav_file(requested_input_filename, (function(audio_obj) {
+
+            console.log("cb_read_file_done ");
+
+            console.log("populated buffer size ", audio_obj.buffer.length);
+
+            shared_utils.show_object(audio_obj,
+                "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
+        }));
+
+    } catch (ex) {
+
+        console.error("ERROR - failed to read input WAV file : ", requested_input_filename, " : ", ex);
+        process.exit(8);
+    }
+
+    return; // stub to avoid going into below 
+
+    var max_index = 5;
+    for (var index = 0; index < max_index; index++) {
+
+        console.log(index, " requested_input WAV buffer ", source_obj.buffer[index]);
+    }
+
+    // curr_ws.send(given_request, {binary: false, mask: true});
+    // curr_ws.send(given_request, {binary: false, mask: true});
+
+    // curr_ws.send(array, {binary: true, mask: true});
+    curr_ws.send(source_obj.buffer, {binary: true, mask: true}); // OK good one
+
+};      //      send_binary_back_to_client
+
 
 var route_msg = function(received_json, received_data, curr_ws) {
 
     console.log("received_json ", received_json);
 
-    var requested_datetype = received_json.datatype;
+    var requested_action = received_json.requested_action;
 
-    if (typeof requested_datetype == "undefined") {
+    if (typeof requested_action == "undefined") {
 
-        console.error("ERROR - failed to see property : datatype in client JSON msg");
+        console.error("ERROR - failed to see property : requested_action in client JSON msg");
         process.exit(8);
     };
 
-    switch (requested_datetype) {
+    // callback
+    // requested_source
 
-        case "float" : {
+    console.log("requested_action ", requested_action);
 
-            console.log("OOKKK seeing datatype float");
+    switch (requested_action) {
 
-            send_binary_back_to_client(received_json, received_data, curr_ws);
+        case "get_audio_buffer_from_server" : {
+
+            console.log("OOKKK seeing get_audio_buffer_from_server");
+
+            read_file_pop_buffer_send_back_to_client(received_json, received_data, curr_ws);
 
             break;
         };
 
-        case "integer" : {
+        case null : {
 
-            console.log("OOKKK seeing datatype integer");
+            console.log("OOKKK seeing null  requested_action");
+            send_binary_back_to_client(received_json, received_data, curr_ws);
             break;
         };
 
         default : {
 
-            console.log("ERROR - failed to recognize client requested datatype : ",
-                            requested_datetype);            
+            console.log("ERROR - failed to recognize client requested_action : ",
+                            requested_action);            
             process.exit(8);
         }
     }
@@ -154,15 +250,18 @@ wss.on("connection", function(ws) {
 
             received_json = JSON.parse(received_data);
 
-            route_msg(received_json, received_data, ws);
-
         } catch (error) {
 
             // console.error("ERROR " + error);
             // process.exit(8);
 
-            console.log("Received received_json NON JSON though : ", received_data);
+            console.log("Received received_json NON JSON though : error -->", error, "<--");
+            console.log("received_data : ", received_data);
+            // process.exit(8);
+            return;
         };
+
+        route_msg(received_json, received_data, ws);
     });
 
     // ---

@@ -168,10 +168,15 @@ var communication_sockets = function() {
 
     function display_binary_from_server(given_data) {
 
-        console.log("Haa Yoo ... display_binary_from_server")
+        console.log("Haa Yoo ... display_binary_from_server");
     }
 
-    function request_server_send_binary() {
+    function forward_audio_buffer_to_player() {
+
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    }
+
+    function request_server_send_binary(requested_action, requested_source, given_callback) {
 
         if (!flag_connected) {
 
@@ -179,17 +184,30 @@ var communication_sockets = function() {
             return;
         };
 
-        console.log("request_server_send_binary");
+        console.log("request_server_send_binary - requested_source ", requested_source);
+        console.log("request_server_send_binary -   given_callback ", given_callback);
 
         // web_socket.send("Hello there server ... coming from client browser");
         // web_socket.send('mode : "apple"');
 
-        web_socket.send(JSON.stringify({
+        var request_msg;
+        try {
 
-            mode : "apple",
-            datatype : "float",
-            callback : "display_binary_from_server"
-        }));
+            request_msg = JSON.stringify({
+
+                    mode : "CatFoodNation",
+                    datatype : "float",
+                    requested_action : requested_action,
+                    requested_source : requested_source,
+                    callback : given_callback
+            });
+
+        } catch (exception) {
+
+            new Error("ERROR - failed to stringify msg to send to server : ", exception);
+        }
+
+        web_socket.send(request_msg);
     };
 
     function socket_client(given_mode) {
@@ -218,7 +236,24 @@ var communication_sockets = function() {
 
                 console.log('...  socket_client mode three  ... request server send binary float ');
 
-                request_server_send_binary();
+                var requested_action = null;
+                var requested_source = null; // have server just synthesize some audio data
+                var local_callback = "display_binary_from_server";
+
+                request_server_send_binary(requested_action, requested_source, local_callback);
+
+                break;
+            }
+
+            case 4 : {
+
+                console.log('...  socket_client mode four  ... get audio buffer from server ');
+
+                var requested_action = "get_audio_buffer_from_server";
+                var requested_source = "Justice_Genesis_first_30_seconds.wav"; // get buffer of this from svr
+                var local_callback = "forward_audio_buffer_to_player";
+
+                request_server_send_binary(requested_action, requested_source, local_callback);
 
                 break;
             }

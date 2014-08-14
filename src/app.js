@@ -1,4 +1,7 @@
 
+
+console.log("websockets-streaming-audio  version ", require('../package.json').version);
+
 var fs = require('fs');
 
 var flavor_socket = process.env.FLAVOR_SOCKET || "ws";
@@ -13,6 +16,8 @@ console.log("here is __dirname ", __dirname);
 var parent_dir = path.join(__dirname, "/../");
 
 console.log("here is parent_dir ", parent_dir);
+
+// ---
 
 var dir_suffix;
 
@@ -68,8 +73,4 @@ console.log("app_obj ", app_obj);
 
 app_obj.connect_to_server(working_dir);
 
-// app_obj.inside_local_app();
-
-
-console.log("version:   0.2.6-5  ");
 
