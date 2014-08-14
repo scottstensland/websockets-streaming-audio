@@ -21,17 +21,15 @@ var port = process.env.PORT || 8888;
 // var audio_utils = require("audio-utils").audio_utils("dev");
 var audio_utils = require("audio-utils").audio_utils();
 
-
+// ---
 
 var cfg = require("../config");
 
-console.log("here is cfg ", cfg);
-
+// console.log("here is cfg ", cfg);
 
 var media_dir = cfg.media_dir;
 
 console.log("here is media_dir ", media_dir);
-
 
 // ---
 
@@ -119,8 +117,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
     console.log("__dirname ", __dirname);
 
-    // var requested_input_filename = __dirname + "/" + media_dir + received_json.requested_source;
-    var requested_input_filename = __dirname + "/" + media_dir + "/" + received_json.requested_source;
+    var requested_input_filename = path.join(__dirname, media_dir, received_json.requested_source);
 
     console.log("requested_input_filename ", requested_input_filename);
 
