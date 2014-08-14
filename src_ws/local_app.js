@@ -129,7 +129,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
     var source_obj = {};
 
-    try {
+    // try {
 
         shared_utils.read_wav_file(requested_input_filename, (function(audio_obj) {
 
@@ -141,11 +141,11 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
                 "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
         }));
 
-    } catch (ex) {
+    // } catch (ex) {
 
-        console.error("ERROR - failed to read input WAV file : ", requested_input_filename, " : ", ex);
-        process.exit(8);
-    }
+    //     console.error("ERROR - failed to read input WAV file : ", requested_input_filename, " : ", ex);
+    //     process.exit(8);
+    // }
 
     return; // stub to avoid going into below 
 
@@ -247,20 +247,20 @@ wss.on("connection", function(ws) {
 
         var received_json;
 
-        try {
+        // try {
 
             received_json = JSON.parse(received_data);
 
-        } catch (error) {
+        // } catch (error) {
 
-            // console.error("ERROR " + error);
-            // process.exit(8);
+        //     // console.error("ERROR " + error);
+        //     // process.exit(8);
 
-            console.log("Received received_json NON JSON though : error -->", error, "<--");
-            console.log("received_data : ", received_data);
-            // process.exit(8);
-            return;
-        };
+        //     console.log("Received received_json NON JSON though : error -->", error, "<--");
+        //     console.log("received_data : ", received_data);
+        //     // process.exit(8);
+        //     return;
+        // };
 
         route_msg(received_json, received_data, ws);
     });

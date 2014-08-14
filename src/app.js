@@ -1,6 +1,6 @@
 
 
-console.log("websockets-streaming-audio  version ", require('../package.json').version);
+console.log(require('../package.json').name, require('../package.json').version);
 
 var fs = require('fs');
 
