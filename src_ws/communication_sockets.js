@@ -6,6 +6,21 @@ var communication_sockets = function() {
     var web_socket;
     var flag_connected = false;
 
+    // var cb_from_client_to_server_back_to_client;
+
+    var cb_for_client;
+
+    // ---
+
+    // function forward_audio_buffer_to_player() {
+
+    //     console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    //     console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    //     console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    //     console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    //     console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+    // }
+
     // ---------------------
 
     console.log("create_websocket_connection");
@@ -32,6 +47,10 @@ var communication_sockets = function() {
 
         web_socket.binaryType = "arraybuffer"; // stens TODO - added April 30 2014
 
+        // var property_key_callback = "callback_in_client_back_from_server";
+
+        // var cb_for_client;
+
         // ---
 
         web_socket.onconnection = function(stream) {
@@ -49,25 +68,42 @@ var communication_sockets = function() {
                 // console.log('String message received: ' + event.data);
 
                 // ---
-/*
+
                 try {
 
-                    received_json = JSON.parse(received_data);
+                    var received_json = JSON.parse(event.data);
 
-                    route_msg(received_json, received_data, ws);
+                    console.log("received_json ", received_json);
+
+                    if (typeof received_json.rss !== "undefined") {
+
+                        updateStats(received_json);    // send received data directly to browser screen
+
+                    } else {
+
+                        // this.cb_from_client_to_server_back_to_client.retrieved_cb = received_json.cb_client_to_server_to_client;
+                    
+                        // console.log("received_json.cb_client_to_server_to_client ", 
+                        //              received_json.cb_client_to_server_to_client);
+
+                        // cb_for_client =  received_json.cb_client_to_server_to_client;
+
+                        // console.log("cb_for_client ", cb_for_client);
+
+                        // cb_for_client();
+                    }
 
                 } catch (error) {
 
                     // console.error("ERROR " + error);
                     // process.exit(8);
 
-                    console.log("Received received_json NON JSON though : ", received_data);
+                    console.log("Received received_json NON JSON though : ", event.data);
                 }
-*/
 
                 // ---
 
-                updateStats(JSON.parse(event.data));    // send received data directly to browser screen
+                // updateStats(JSON.parse(event.data));    // send received data directly to browser screen
 
             } else if (event.data instanceof ArrayBuffer) {
 
@@ -93,6 +129,14 @@ var communication_sockets = function() {
 
                     console.log(i, server_buffer[i]);
                 }
+
+                cb_for_client(server_buffer);
+
+                // forward_audio_buffer_to_player();
+
+                // cb_from_client_to_server_back_to_client.callback();
+
+                // console.log("cb_from_client_to_server_back_to_client ", this.cb_from_client_to_server_back_to_client);
 
             } else if (event.data instanceof Blob) { // binary    bbb
 
@@ -171,11 +215,6 @@ var communication_sockets = function() {
         console.log("Haa Yoo ... display_binary_from_server");
     }
 
-    function forward_audio_buffer_to_player() {
-
-        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
-    }
-
     function request_server_send_binary(requested_action, requested_source, given_callback) {
 
         if (!flag_connected) {
@@ -190,6 +229,8 @@ var communication_sockets = function() {
         // web_socket.send("Hello there server ... coming from client browser");
         // web_socket.send('mode : "apple"');
 
+        // this.cb_from_client_to_server_back_to_client.callback = given_callback;
+
         var request_msg;
         try {
 
@@ -199,7 +240,7 @@ var communication_sockets = function() {
                     datatype : "float",
                     requested_action : requested_action,
                     requested_source : requested_source,
-                    callback : given_callback
+                    cb_client_to_server_to_client : given_callback
             });
 
         } catch (exception) {
@@ -210,7 +251,7 @@ var communication_sockets = function() {
         web_socket.send(request_msg);
     };
 
-    function socket_client(given_mode) {
+    function socket_client(given_mode, given_binary_data, given_callback) {
 
         switch (given_mode) {
 
@@ -249,11 +290,22 @@ var communication_sockets = function() {
 
                 console.log('...  socket_client mode four  ... get audio buffer from server ');
 
+                cb_for_client = given_callback;
+
                 var requested_action = "get_audio_buffer_from_server";
                 var requested_source = "Justice_Genesis_first_30_seconds.wav"; // get buffer of this from svr
-                var local_callback = "forward_audio_buffer_to_player";
 
-                request_server_send_binary(requested_action, requested_source, local_callback);
+                // var local_callback = "forward_audio_buffer_to_player";
+
+                // console.log("EARLY DAYS ");
+                // console.log("EARLY DAYS ");
+                // console.log("EARLY DAYS ");
+                // forward_audio_buffer_to_player();
+                // console.log("EARLY DAYS ");
+                // console.log("EARLY DAYS ");
+                // console.log("EARLY DAYS ");
+
+                request_server_send_binary(requested_action, requested_source, given_callback);
 
                 break;
             }

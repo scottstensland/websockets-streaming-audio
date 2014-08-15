@@ -40,7 +40,26 @@ var web_audio_player = function() {
 
         gain_node = audio_context.createGain(); // Declare gain node
         gain_node.connect(audio_context.destination); // Connect gain node to speakers
+    };
+
+    // ---
+
+
+    function forward_audio_buffer_to_player(audio_obj_from_server) {
+
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
+
+        if (typeof audio_obj_from_server !== "undefined") {
+
+            console.log("audio_obj_from_server.length ", audio_obj_from_server.length);
+        }
     }
+
+    // ---
 
     var gain_node;
 
@@ -874,6 +893,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
     */
     } //      render_audio_buffer
 
+
     var in_middle_of_playback = false;
 
     function set_false_in_middle_of_playback() {
@@ -898,7 +918,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
         // var local_buffer = audio_process_obj.get_buffer(given_flavor);
         // var size_buffer = audio_process_obj.get_size_buffer(given_flavor);
 
-        var desired_buffer_obj = audio_process_obj.get_buffer(given_flavor);
+        // var desired_buffer_obj = audio_process_obj.get_buffer(given_flavor);
+        var desired_buffer_obj = {};
 
         // if (desired_buffer_obj && desired_buffer_obj.buffer) {
 
@@ -930,50 +951,61 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
             switch (given_flavor) {
 
-                case 3:
-                    {
+                case 3 : {
 
-                        console.log('about to send ELEPHANT Roar to server side size ',
-                            desired_buffer_obj.buffer.length);
+                    console.log('about to send ELEPHANT Roar to server side size ',
+                        desired_buffer_obj.buffer.length);
 
-                        // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
-                        communication_sockets_obj.socket_client(3, desired_buffer_obj);
+                    // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
+                    communication_sockets.socket_client(3, desired_buffer_obj);
 
-                        // ---
+                    // ---
 
-                        in_middle_of_playback = true;
+                    in_middle_of_playback = true;
 
-                        // ---
+                    // ---
 
-                        var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                    var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
 
-                        // init_synth_settings(this_glob_02);
-                        setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
-                            desired_buffer_obj.size, set_false_in_middle_of_playback);
+                    // init_synth_settings(this_glob_02);
+                    setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
+                        desired_buffer_obj.size, set_false_in_middle_of_playback);
 
-                        followup_fft(this_glob_02);
+                    followup_fft(this_glob_02);
 
-                        // ---
+                    // ---
 
-                        break;
-                    }
+                    break;
+                }
 
-                case 4:
-                    {
+                case 4 : {
 
-                        console.log('about to send genetic synth to server side size ',
-                            desired_buffer_obj.size_buffer);
+                    console.log('about to send genetic synth to server side size ',
+                        desired_buffer_obj.size_buffer);
 
-                        communication_sockets_obj.socket_client(4, desired_buffer_obj);
+                    communication_sockets.socket_client(4, desired_buffer_obj);
 
-                        break;
-                    }
+                    break;
+                }
 
-                    // --- default
+
+                case 5 : {
+
+                    console.log("get audio buffer from server");
+
+                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
+
+                    break;
+                }
+
+
+                default : {
 
                     console.error("ERROR - failed to match given_flavor ", given_flavor);
 
                     break;
+                }
+
             }
 
             // ---
@@ -1043,6 +1075,58 @@ The buffer passed to decodeAudioData contains an unknown content type.
     }
 
 
+
+
+    function setup_streaming_onaudioprocess_callback(given_node) {
+
+        given_node.onaudioprocess = (function() {
+
+            return function(event) {
+
+                if (allow_synth) {
+
+                    // console.log('inside main_glob callback   onaudioprocess   BUFF_SIZE ', BUFF_SIZE);
+
+                    var synthesized_output_buffer;
+
+                    // stens TODO - how to pass in own buffer instead of being given object: out so I can do a circular ring of such buffers
+
+                    synthesized_output_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
+
+                    var phi = 0,
+                        dphi = 2.0 * Math.PI * given_node.sample_freq /
+                        given_node.sample_rate;
+
+                    for (var curr_sample = 0; curr_sample < given_node.BUFF_SIZE; curr_sample++, phi += dphi) {
+
+                        synthesized_output_buffer[curr_sample] = Math.sin(phi);
+                    }
+
+                    given_node.sample_freq *= given_node.freq_factor;
+
+                    if (given_node.sample_freq <
+                        given_node.MIN_FREQ) {
+
+                        given_node.freq_factor = given_node.increasing_freq_factor;
+
+                    } else if (given_node.sample_freq > given_node.MAX_FREQ) {
+
+                        given_node.freq_factor = given_node.decreasing_freq_factor;
+                    }
+
+                    // ---
+
+                    // stens TODO - commented out below 20140811
+
+                    // audio_display_obj.pipeline_buffer_for_time_domain_cylinder(synthesized_output_buffer,
+                    //     BUFF_SIZE, "providence_2");
+                }
+            };
+
+        }());
+    }       //      setup_streaming_onaudioprocess_callback
+
+    // ---
     function setup_onaudioprocess_callback(given_node) {
 
         given_node.onaudioprocess = (function() {
@@ -1090,7 +1174,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
             };
 
         }());
-    }
+    }       //      setup_onaudioprocess_callback
 
     function setup_onaudioprocess_callback_render(given_node, render_this_buffer, render_size_buffer, done_callback) {
 
@@ -1216,7 +1300,9 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
 
             setup_onaudioprocess_callback(this_glob_01);
-            followup_fft(this_glob_01);
+            // followup_fft(this_glob_01);
+
+            this_glob_01.connect(gain_node);
 
 
             was_anything_stopped = false; // reset for any possible subsequent playback

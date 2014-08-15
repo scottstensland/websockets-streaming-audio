@@ -135,10 +135,24 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
             console.log("cb_read_file_done ");
 
+            console.log("received_json.cb_client_to_server_to_client ", received_json.cb_client_to_server_to_client);
+            console.log("received_json.cb_client_to_server_to_client ", received_json.cb_client_to_server_to_client);
+            console.log("received_json.cb_client_to_server_to_client ", received_json.cb_client_to_server_to_client);
+            console.log("received_json.cb_client_to_server_to_client ", received_json.cb_client_to_server_to_client);
+            console.log("received_json.cb_client_to_server_to_client ", received_json.cb_client_to_server_to_client);
+
+
+
             console.log("populated buffer size ", audio_obj.buffer.length);
 
             shared_utils.show_object(audio_obj,
                 "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
+
+            // curr_ws.send(received_json, {binary: false, mask: true}); // send text
+            curr_ws.send(given_request, {binary: false, mask: true}); // send text
+
+            // JSON.stringify
+
 
             curr_ws.send(audio_obj.buffer, {binary: true, mask: true}); // OK good one
         }));
@@ -229,18 +243,14 @@ console.log("websocket server created");
 
 wss.on("connection", function(ws) {
 
-    var wrap_stats = function() {
+    var ID_timeout;
+    (function run() {  //  run immediately ... then repeat after delay
+        // code here
 
-        console.log("NOW calling wrap_stats");
+        ws.send(JSON.stringify(process.memoryUsage()), function() {});
 
-        var stats_id = setInterval(function() {
-
-            ws.send(JSON.stringify(process.memoryUsage()), function() {});
-
-        }, 500);    //  server sends message to browser twice per second
-    };
-
-    var ID_timeout = setTimeout(wrap_stats, 20);
+        ID_timeout = setTimeout(run, 2500);
+    }());
 
     console.log("websocket connection open");
 
@@ -279,11 +289,8 @@ wss.on("connection", function(ws) {
     // ---
 
     ws.on("close", function() {
-        console.log("websocket connection close")
-        // clearInterval(id)
-        clearInterval(wrap_stats.stats_id);
-        // clearInterval(run.stats_id);
-        // clearInterval(ID_write);
+
+        console.log("websocket connection close");
         clearTimeout(ID_timeout);
     });
 });
