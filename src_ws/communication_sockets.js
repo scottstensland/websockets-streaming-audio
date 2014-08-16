@@ -112,9 +112,12 @@ var communication_sockets = function() {
                 // var server_buffer = new ArrayBuffer(e.data);
 
                 // var server_buffer = new Uint8Array(event.data);
-                var server_buffer = new Float32Array(event.data);
 
-                var server_buffer_len = server_buffer.length;
+                var server_side_buffer_obj = {};
+
+                server_side_buffer_obj.buffer = new Float32Array(event.data);
+
+                var server_buffer_len = server_side_buffer_obj.buffer.length;
 
                 console.log("received_buffer.length ", server_buffer_len);
 
@@ -127,10 +130,15 @@ var communication_sockets = function() {
 
                 for (var i = 0; i < max_index; i++) {
 
-                    console.log(i, server_buffer[i]);
-                }
+                    console.log(i, server_side_buffer_obj.buffer[i]);
+                };
 
-                cb_for_client(server_buffer);
+                shared_utils.show_object(server_side_buffer_obj,
+                    "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
+
+                console.log("about to call cb_for_client with name of ", cb_for_client.name);
+
+                cb_for_client(server_side_buffer_obj);
 
                 // forward_audio_buffer_to_player();
 

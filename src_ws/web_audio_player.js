@@ -12,6 +12,12 @@ var web_audio_player = function() {
 
     var microphone_data = {};
 
+    var server_side_audio_obj;
+
+
+
+  console.log("TOP web_audio_player ... here is shared_utils ", shared_utils);
+
     function init_context_audio(given_buffer_size, given_buffer_size_time_domain) {
 
         BUFF_SIZE = given_buffer_size;
@@ -47,6 +53,8 @@ var web_audio_player = function() {
 
     function forward_audio_buffer_to_player(audio_obj_from_server) {
 
+        server_side_audio_obj = audio_obj_from_server;
+
         console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
         console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
         console.log("Corinde where U at ... here I am ... forward_audio_buffer_to_player");
@@ -55,7 +63,17 @@ var web_audio_player = function() {
 
         if (typeof audio_obj_from_server !== "undefined") {
 
-            console.log("audio_obj_from_server.length ", audio_obj_from_server.length);
+            console.log("server_side_audio_obj ", server_side_audio_obj);
+            console.log("shared_utils.show_object ", shared_utils.show_object);
+
+            // bbb
+
+            shared_utils.show_object(server_side_audio_obj,
+                "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
+
+
+            // shared_utils.show_object();
+
         }
     }
 
@@ -903,120 +921,6 @@ The buffer passed to decodeAudioData contains an unknown content type.
         // console.log('just set false to in_middle_of_playback');
     }
 
-    function render_buffer(given_flavor) {
-
-        console.log('\n\ncw + ss    thursday          310   \n\n');
-
-        if (true == in_middle_of_playback) {
-
-            console.log('currently in MIDDLE of a playback try later ...');
-            return;
-        }
-
-        console.log('launching playback in render_buffer in MIDDLE of playback given_flavor ', given_flavor);
-
-        // var local_buffer = audio_process_obj.get_buffer(given_flavor);
-        // var size_buffer = audio_process_obj.get_size_buffer(given_flavor);
-
-        // var desired_buffer_obj = audio_process_obj.get_buffer(given_flavor);
-        var desired_buffer_obj = {};
-
-        // if (desired_buffer_obj && desired_buffer_obj.buffer) {
-
-        if (desired_buffer_obj) {
-
-            console.log('!!!!!!!  !!!!!!! OK about to playback buffer given_flavor ', given_flavor);
-
-            // stens TODO - drill in to see if below is or can be async to followup audio rendering
-            /*
-        if (3 == given_flavor) {    // elephant roar
-
-            console.log('about to send ELEPHANT Roar to server side size ',
-                desired_buffer_obj.buffer.length);
-
-            // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
-            communication_sockets_obj.socket_client(3, desired_buffer_obj);
-
-        } else {
-
-
-            console.log('about to send ELEPHANT Roar to server side size ',
-                desired_buffer_obj.buffer.length);
-
-
-            communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
-        }
-*/
-            // ---
-
-            switch (given_flavor) {
-
-                case 3 : {
-
-                    console.log('about to send ELEPHANT Roar to server side size ',
-                        desired_buffer_obj.buffer.length);
-
-                    // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
-                    communication_sockets.socket_client(3, desired_buffer_obj);
-
-                    // ---
-
-                    in_middle_of_playback = true;
-
-                    // ---
-
-                    var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
-
-                    // init_synth_settings(this_glob_02);
-                    setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
-                        desired_buffer_obj.size, set_false_in_middle_of_playback);
-
-                    followup_fft(this_glob_02);
-
-                    // ---
-
-                    break;
-                }
-
-                case 4 : {
-
-                    console.log('about to send genetic synth to server side size ',
-                        desired_buffer_obj.size_buffer);
-
-                    communication_sockets.socket_client(4, desired_buffer_obj);
-
-                    break;
-                }
-
-
-                case 5 : {
-
-                    console.log("get audio buffer from server");
-
-                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
-
-                    break;
-                }
-
-
-                default : {
-
-                    console.error("ERROR - failed to match given_flavor ", given_flavor);
-
-                    break;
-                }
-
-            }
-
-            // ---
-
-        } else {
-
-            console.log('no playback buffer available');
-        }
-    } //      render_buffer
-
-
     function do_another_sampling(given_mode, stop_callback) {
 
         if (allow_synth) {
@@ -1326,6 +1230,133 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
         console.log("inside pause_tune ");
     }
+
+    // ---------------------------------------------------------------------------  //
+
+
+    function render_buffer(given_flavor) {
+
+        console.log('\n\ncw + ss    thursday          310   \n\n');
+
+        if (true == in_middle_of_playback) {
+
+            console.log('currently in MIDDLE of a playback try later ...');
+            return;
+        }
+
+        console.log('launching playback in render_buffer in MIDDLE of playback given_flavor ', given_flavor);
+
+        // var local_buffer = audio_process_obj.get_buffer(given_flavor);
+        // var size_buffer = audio_process_obj.get_size_buffer(given_flavor);
+
+        // var desired_buffer_obj = audio_process_obj.get_buffer(given_flavor);
+        var desired_buffer_obj = {};
+
+        // if (desired_buffer_obj && desired_buffer_obj.buffer) {
+
+        if (desired_buffer_obj) {
+
+            console.log('!!!!!!!  !!!!!!! OK about to playback buffer given_flavor ', given_flavor);
+
+            // stens TODO - drill in to see if below is or can be async to followup audio rendering
+            /*
+        if (3 == given_flavor) {    // elephant roar
+
+            console.log('about to send ELEPHANT Roar to server side size ',
+                desired_buffer_obj.buffer.length);
+
+            // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
+            communication_sockets_obj.socket_client(3, desired_buffer_obj);
+
+        } else {
+
+
+            console.log('about to send ELEPHANT Roar to server side size ',
+                desired_buffer_obj.buffer.length);
+
+
+            communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
+        }
+*/
+            // ---
+
+            switch (given_flavor) {
+
+                case 3 : {
+
+                    console.log('about to send ELEPHANT Roar to server side size ',
+                        desired_buffer_obj.buffer.length);
+
+                    // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
+                    communication_sockets.socket_client(3, desired_buffer_obj);
+
+                    // ---
+
+                    in_middle_of_playback = true;
+
+                    // ---
+
+                    var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+
+                    // init_synth_settings(this_glob_02);
+                    setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
+                        desired_buffer_obj.size, set_false_in_middle_of_playback);
+
+                    followup_fft(this_glob_02);
+
+                    // ---
+
+                    break;
+                }
+
+                case 4 : {
+
+                    console.log('about to send genetic synth to server side size ',
+                        desired_buffer_obj.size_buffer);
+
+                    communication_sockets.socket_client(4, desired_buffer_obj);
+
+                    break;
+                }
+
+
+                case 5 : {
+
+                    console.log("get audio buffer from server");
+
+                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
+
+                    break;
+                }
+
+                case 6 : {
+
+                    console.log("show audio data");
+
+                    shared_utils.show_object(server_side_audio_obj,
+                        "server_side_audio_obj 32 bit signed float render_buffer", "total", 100);
+
+                    break;
+                }
+
+                default : {
+
+                    console.error("ERROR - failed to match given_flavor ", given_flavor);
+
+                    break;
+                }
+
+            }
+
+            // ---
+
+        } else {
+
+            console.log('no playback buffer available');
+        }
+    } //      render_buffer
+
+    // -----------------------------------------------------------------------  //
 
     return { // to make visible to calling reference frame list function here
 

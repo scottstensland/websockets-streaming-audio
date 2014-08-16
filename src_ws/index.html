@@ -1,7 +1,13 @@
 <html>
   <head>
+
+  <script type="text/javascript" src="shared_utils.js"></script>
+
   <script type="text/javascript" src="communication_sockets.js"></script>
   <script type="text/javascript" src="web_audio_player.js"></script>
+
+
+
 
     <style>
       body {
@@ -42,6 +48,8 @@ var stens = function() {
 function internal_webGLStart() {
 
   console.log("TOP internal_webGLStart");
+
+  // console.log("here is shared_utils ", shared_utils);
 
   communication_sockets.socket_client(1); // create websocket connection from browser to server
 
@@ -91,6 +99,7 @@ return {
     <button onclick="web_audio_player.play_tune_jam(1)">play jam</button>
     <!-- <button onclick="communication_sockets.socket_client(4)">get audio buffer from server</button> -->
     <button onclick="web_audio_player.render_buffer(5)">get audio buffer from server</button>
+    <button onclick="web_audio_player.render_buffer(6)">show audio data</button>
 
         <br>     <!-- .....................  -->
 
