@@ -765,10 +765,7 @@ function launch_synth() {
         // var chosen_audio_file = "Chopin_Fantasie_Impromptu_opus_66-APQ2RKECMW8_mono_8000_16.wav";
         // var chosen_audio_file = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
         // var chosen_audio_file = "Justice_Genesis_first_30_seconds.wav";
-        var chosen_audio_file = "Justice_Genesis_first_30_seconds.wav";
-
-
-
+        var chosen_audio_file = "Justice_Genesis_first_30_seconds_tight.wav";
 
 /*
 
@@ -918,7 +915,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
         in_middle_of_playback = false;
 
-        // console.log('just set false to in_middle_of_playback');
+        console.log('just set false to in_middle_of_playback');
     }
 
     function do_another_sampling(given_mode, stop_callback) {
@@ -1324,7 +1321,10 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     console.log("get audio buffer from server");
 
-                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
+                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player
+
+                        // Justice_Genesis_first_30_seconds_tight.wav
+                    );
 
                     break;
                 }
@@ -1335,6 +1335,28 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     shared_utils.show_object(server_side_audio_obj,
                         "server_side_audio_obj 32 bit signed float render_buffer", "total", 100);
+
+                    break;
+                }
+
+
+                case 7 : {
+
+                    console.log("render audio from server");
+
+                    // BUFF_SIZE = server_side_audio_obj.buffer.length;
+                    // BUFF_SIZE = 16384;
+                    BUFF_SIZE = 1024;
+
+                    console.log("BUFF_SIZE ", BUFF_SIZE);
+
+
+                    var server_side_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+
+                    setup_onaudioprocess_callback_render(server_side_node, server_side_audio_obj.buffer,
+                        server_side_audio_obj.buffer.length, set_false_in_middle_of_playback);
+
+                    followup_fft(server_side_node);
 
                     break;
                 }

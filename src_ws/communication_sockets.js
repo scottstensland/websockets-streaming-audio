@@ -301,17 +301,7 @@ var communication_sockets = function() {
                 cb_for_client = given_callback;
 
                 var requested_action = "get_audio_buffer_from_server";
-                var requested_source = "Justice_Genesis_first_30_seconds.wav"; // get buffer of this from svr
-
-                // var local_callback = "forward_audio_buffer_to_player";
-
-                // console.log("EARLY DAYS ");
-                // console.log("EARLY DAYS ");
-                // console.log("EARLY DAYS ");
-                // forward_audio_buffer_to_player();
-                // console.log("EARLY DAYS ");
-                // console.log("EARLY DAYS ");
-                // console.log("EARLY DAYS ");
+                var requested_source = "Justice_Genesis_first_30_seconds_tight.wav"; // get buffer of this from svr
 
                 request_server_send_binary(requested_action, requested_source, given_callback);
 
