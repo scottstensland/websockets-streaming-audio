@@ -50,6 +50,8 @@ if (process.env.GITHUB_REPO_PARENT) {
 
     shared_utils = require(resolvePath(process.env.GITHUB_REPO_PARENT + "shared-utils/src/node_utils.js"));
 
+    console.log("OK so env var GITHUB_REPO_PARENT is defined so shared_utils");
+
 } else {
 
     shared_utils = require("shared-utils");

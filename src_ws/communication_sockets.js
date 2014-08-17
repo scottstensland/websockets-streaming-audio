@@ -231,8 +231,8 @@ var communication_sockets = function() {
             return;
         };
 
-        console.log("request_server_send_binary - requested_source ", requested_source);
-        console.log("request_server_send_binary -   given_callback ", given_callback);
+        // console.log("request_server_send_binary - requested_source ", requested_source);
+        // console.log("request_server_send_binary -   given_callback ", given_callback);
 
         // web_socket.send("Hello there server ... coming from client browser");
         // web_socket.send('mode : "apple"');
@@ -260,6 +260,19 @@ var communication_sockets = function() {
     };
 
     function socket_client(given_mode, given_binary_data, given_callback) {
+    // function socket_client(browser_request_obj) {
+
+        /*
+        console.log("browser_request_obj ", browser_request_obj);
+
+        var given_mode         = browser_request_obj.given_mode;
+        var desired_buffer_obj = browser_request_obj.desired_buffer_obj;
+        var given_callback     = browser_request_obj.given_callback;
+
+        console.log("given_mode ", given_mode);
+        console.log("desired_buffer_obj ", desired_buffer_obj);
+        console.log("given_callback ", given_callback);
+        */
 
         switch (given_mode) {
 

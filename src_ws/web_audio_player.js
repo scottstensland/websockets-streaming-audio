@@ -16,7 +16,7 @@ var web_audio_player = function() {
 
 
 
-  console.log("TOP web_audio_player ... here is shared_utils ", shared_utils);
+  // console.log("TOP web_audio_player ... here is shared_utils ", shared_utils);
 
     function init_context_audio(given_buffer_size, given_buffer_size_time_domain) {
 
@@ -66,7 +66,7 @@ var web_audio_player = function() {
             console.log("server_side_audio_obj ", server_side_audio_obj);
             console.log("shared_utils.show_object ", shared_utils.show_object);
 
-            // bbb
+            // 
 
             shared_utils.show_object(server_side_audio_obj,
                 "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
@@ -693,7 +693,7 @@ function launch_synth() {
 
     function play_tune_jam(flag_loop) {
 
-        // bbb
+        // 
 
         switch (flag_loop) {
 
@@ -800,7 +800,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
         console.log('TOP of render_audio_buffer    render_size_buffer', render_size_buffer,
             ' BUFF_SIZE ', BUFF_SIZE);
 
-// bbb
+// 
         // ---
 
         // setup_fft();
@@ -1079,7 +1079,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
     function setup_onaudioprocess_callback_render(given_node, render_this_buffer, render_size_buffer, done_callback) {
 
-        // bbb
+        // 
         var curr_index_synth_buffer = 0; // keep playing until this reaches size of synth buffer
 
         given_node.onaudioprocess = (function() {
@@ -1286,6 +1286,11 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
                     communication_sockets.socket_client(3, desired_buffer_obj);
+                    // communication_sockets.socket_client({
+
+                    //     given_mode : 3, 
+                    //     desired_buffer_obj : desired_buffer_obj
+                    // });
 
                     // ---
 
@@ -1313,6 +1318,12 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     communication_sockets.socket_client(4, desired_buffer_obj);
 
+                    // communication_sockets.socket_client({
+
+                    //     given_mode : 4,
+                    //     desired_buffer_obj : desired_buffer_obj
+                    // });
+
                     break;
                 }
 
@@ -1321,10 +1332,17 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     console.log("get audio buffer from server");
 
-                    communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player
+                    // communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
+                    communication_sockets.socket_client(4, null, forward_audio_buffer_to_player);
+
+                    // communication_sockets.socket_client({
+
+                    //     given_mode : 4, 
+                    //     desired_buffer_obj : desired_buffer_obj,
+                    //     given_callback : forward_audio_buffer_to_player
+                    // });
 
                         // Justice_Genesis_first_30_seconds_tight.wav
-                    );
 
                     break;
                 }
@@ -1359,6 +1377,15 @@ The buffer passed to decodeAudioData contains an unknown content type.
                     followup_fft(server_side_node);
 
                     break;
+                }
+
+                case 8 : {
+
+                    console.log("stream audio from server to client browser");
+
+                    
+
+
                 }
 
                 default : {
