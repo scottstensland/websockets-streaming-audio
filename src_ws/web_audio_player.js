@@ -3,8 +3,16 @@ var web_audio_player = function() {
 
     var audio_context;
 
-    var BUFF_SIZE;
-    var BUFF_SIZE_TIME_DOMAIN;
+    // var BUFF_SIZE;
+
+    // BUFF_SIZE_AUDIO_RENDERER must be in units of sample frames, i.e., one of:
+    // 256, 512, 1024, 2048, 4096, 8192, or 16384
+    var BUFF_SIZE_AUDIO_RENDERER = 16384;
+
+    var BUFF_SIZE_TIME_DOMAIN = BUFF_SIZE_AUDIO_RENDERER;
+
+    var cushion_factor = 10; // delay start of audio rendering until we have buffered up a hefty cache of audio
+    var count_num_buffers_received_from_server = 0;
 
     var did_one_draw = false;
 
@@ -20,9 +28,10 @@ var web_audio_player = function() {
         index_stream : 0
     };
 
-    var streaming_status_ready = "streaming_status_ready";
-    var streaming_status_active = "streaming_status_active";
-    var streaming_status_done = "streaming_status_done";
+    var streaming_status_ready      = "streaming_status_ready";
+    var streaming_status_preloading = "streaming_status_preloading";
+    var streaming_status_active     = "streaming_status_active";
+    var streaming_status_done       = "streaming_status_done";
 
     var flag_streaming_status = streaming_status_ready; // when server side signals stream is done this becomes false
 
@@ -30,11 +39,12 @@ var web_audio_player = function() {
 
   // console.log("TOP web_audio_player ... here is shared_utils ", shared_utils);
 
-    function init_context_audio(given_buffer_size, given_buffer_size_time_domain) {
+    // function init_context_audio(given_buffer_size, given_buffer_size_time_domain) {
+    function init_context_audio() {
 
-        BUFF_SIZE = given_buffer_size;
+        // BUFF_SIZE = given_buffer_size;
 
-        BUFF_SIZE_TIME_DOMAIN = given_buffer_size_time_domain;
+        // BUFF_SIZE_TIME_DOMAIN = given_buffer_size_time_domain;
 
         try {
 
@@ -61,7 +71,6 @@ var web_audio_player = function() {
     };
 
     // ---
-
 
     function forward_audio_buffer_to_player(audio_obj_from_server) {
 
@@ -117,11 +126,6 @@ var web_audio_player = function() {
 
         streaming_audio_obj.index_stream = curr_index;
 
-
-        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
-        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
-        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
-        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
         console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
 
         if (typeof audio_obj_from_server !== "undefined") {
@@ -139,11 +143,10 @@ var web_audio_player = function() {
 
             case streaming_status_ready : {
 
-                BUFF_SIZE = 1024;
+                console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
 
-                console.log("BUFF_SIZE ", BUFF_SIZE);
-
-                var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                // var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
                 setup_onaudioprocess_callback_stream(streaming_node, streaming_audio_obj.buffer,
                     streaming_audio_obj.buffer.length, set_false_in_middle_of_playback);
@@ -179,8 +182,124 @@ var web_audio_player = function() {
                 console.error("ERROR - invalid value of flag_streaming_status : ", flag_streaming_status);
             }
         };
-    };
+    };      //      cb_stream_audio_buffer_to_player
 
+    // ---
+
+    function cb_stream_audio_buffer_to_web_audio_player(audio_obj_from_server) { // stream the right way
+
+        count_num_buffers_received_from_server++;
+
+        var curr_index = streaming_audio_obj.index_stream;
+        var max_index = streaming_audio_obj.max_index;
+
+        var local_index_max = audio_obj_from_server.buffer.length;
+
+        console.log(curr_index + " out of " + max_index, " local_index_max " + local_index_max);
+
+        for (var local_index = 0; local_index < local_index_max && curr_index < max_index;) {
+
+            streaming_audio_obj.buffer[curr_index] = audio_obj_from_server.buffer[local_index];
+            local_index++;
+            curr_index++;
+        };
+
+        streaming_audio_obj.index_stream = curr_index;
+
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_web_audio_player");
+
+        if (typeof audio_obj_from_server !== "undefined") {
+
+            console.log("streaming_audio_obj ", streaming_audio_obj);
+            console.log("shared_utils.show_object ", shared_utils.show_object);
+
+            shared_utils.show_object(streaming_audio_obj,
+                "... streaming_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 3);
+        }
+
+        // ---
+
+        console.log("flag_streaming_status ", flag_streaming_status);
+        console.log("count_num_buffers_received_from_server ", count_num_buffers_received_from_server);
+        console.log("cushion_factor ", cushion_factor);
+
+        switch (flag_streaming_status) {
+
+            case streaming_status_ready : {
+
+                // BUFF_SIZE = 1024;
+
+                // console.log("BUFF_SIZE ", BUFF_SIZE);
+
+                // var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+
+                // setup_onaudioprocess_callback_stream(streaming_node, streaming_audio_obj.buffer,
+                //     streaming_audio_obj.buffer.length, set_false_in_middle_of_playback);
+
+                // followup_fft(streaming_node);
+
+
+                flag_streaming_status = streaming_status_preloading;
+
+                communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_web_audio_player);
+
+                break;
+            }
+
+            case streaming_status_preloading : {
+
+                if (count_num_buffers_received_from_server > cushion_factor) {
+
+                    // stens TODO - verify above is OK if and when source audio is tiny IE. will never reach above
+
+
+                    console.log("OK cool launching web audio rendering ... ");
+
+
+                    // BUFF_SIZE = 1024;
+
+                    console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
+
+                    var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
+
+                    setup_onaudioprocess_callback_stream(streaming_node, streaming_audio_obj.buffer,
+                        streaming_audio_obj.buffer.length, set_false_in_middle_of_playback);
+
+                    followup_fft(streaming_node);
+
+                    // ---
+
+                    flag_streaming_status = streaming_status_active;
+                }
+
+                communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_web_audio_player);
+
+                break;
+            }
+
+            case streaming_status_active : {
+
+                communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_web_audio_player);
+
+                break;
+            };
+
+            case streaming_status_done : {
+
+                console.log("OK ... this current streaming is done ... ready for next time");
+
+                flag_streaming_status = streaming_status_ready;
+
+                break;
+            };
+
+            default : {
+
+                console.error("ERROR - invalid value of flag_streaming_status : ", flag_streaming_status);
+            }
+        };
+
+    };      //      cb_stream_audio_buffer_to_web_audio_player
 
     // ---
 
@@ -708,7 +827,8 @@ function launch_synth() {
 
         // setup js processor
 
-        microphone_data.script_processor_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+        // microphone_data.script_processor_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+        microphone_data.script_processor_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
         microphone_data.script_processor_node.onaudioprocess = process_microphone_buffer;
 
@@ -903,7 +1023,10 @@ The buffer passed to decodeAudioData contains an unknown content type.
     function render_audio_buffer(render_this_buffer, render_size_buffer, done_callback) {
 
         console.log('TOP of render_audio_buffer    render_size_buffer', render_size_buffer,
-            ' BUFF_SIZE ', BUFF_SIZE);
+            // ' BUFF_SIZE ', BUFF_SIZE);
+            ' BUFF_SIZE_AUDIO_RENDERER ', BUFF_SIZE_AUDIO_RENDERER);
+
+
 
 // 
         // ---
@@ -914,7 +1037,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
         var script_processor_synth_from_sample_node;
 
-        script_processor_synth_from_sample_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+        // script_processor_synth_from_sample_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+        script_processor_synth_from_sample_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
         var curr_index_synth_buffer = 0; // keep playing until this reaches size of synth buffer
 
@@ -930,7 +1054,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                 synthesized_output_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
 
-                for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                // for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                for (var curr_sample = 0; curr_sample < BUFF_SIZE_AUDIO_RENDERER; curr_sample++) {
 
                     synthesized_output_buffer[curr_sample] = render_this_buffer[curr_index_synth_buffer];
 
@@ -1058,7 +1183,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
         given_node.MAX_FREQ = 300;
 
         given_node.sample_freq = given_node.MIN_FREQ; // Hertz
-        given_node.BUFF_SIZE = BUFF_SIZE;
+        // given_node.BUFF_SIZE = BUFF_SIZE;
+        given_node.BUFF_SIZE = BUFF_SIZE_AUDIO_RENDERER;
 
         given_node.sample_rate = audio_context.sampleRate / (2 * Math.PI); // sample rate
         given_node.decreasing_freq_factor = 0.98;
@@ -1070,6 +1196,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
         given_node.MIN_FREQ = g_MIN_FREQ;
         given_node.MAX_FREQ = g_MAX_FREQ;
+
+        // bbb
 
         given_node.sample_freq = given_node.MIN_FREQ; // Hertz
         given_node.BUFF_SIZE = g_BUFF_SIZE;
@@ -1198,7 +1326,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                 synthesized_output_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
 
-                for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                // for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                for (var curr_sample = 0; curr_sample < BUFF_SIZE_AUDIO_RENDERER; curr_sample++) {
 
                     synthesized_output_buffer[curr_sample] = render_this_buffer[curr_index_synth_buffer];
 
@@ -1261,7 +1390,8 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                 synthesized_output_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
 
-                for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                // for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+                for (var curr_sample = 0; curr_sample < BUFF_SIZE_AUDIO_RENDERER; curr_sample++) {
 
                     synthesized_output_buffer[curr_sample] = render_this_buffer[curr_index_synth_buffer];
 
@@ -1361,14 +1491,16 @@ The buffer passed to decodeAudioData contains an unknown content type.
             // launch_synth();
             // main_glob();
 
-            var this_glob_01 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+            // var this_glob_01 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+            var this_glob_01 = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
             // init_synth_settings(this_glob_01);
 
             // (given_node, g_MIN_FREQ, g_MAX_FREQ, g_BUFF_SIZE, g_decreasing_freq_factor, g_increasing_freq_factor) {
 
 
-            init_synth_settings(this_glob_01, 20, 300, BUFF_SIZE, 0.98, 1.01);
+            // init_synth_settings(this_glob_01, 20, 300, BUFF_SIZE, 0.98, 1.01);
+            init_synth_settings(this_glob_01, 20, 300, BUFF_SIZE_AUDIO_RENDERER, 0.98, 1.01);
 
 
             setup_onaudioprocess_callback(this_glob_01);
@@ -1450,58 +1582,58 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
             switch (given_flavor) {
 
-                case 3 : {
+                // case 3 : {
 
-                    console.log('about to send ELEPHANT Roar to server side size ',
-                        desired_buffer_obj.buffer.length);
+                //     console.log('about to send ELEPHANT Roar to server side size ',
+                //         desired_buffer_obj.buffer.length);
 
-                    // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
-                    communication_sockets.socket_client(3, desired_buffer_obj);
-                    // communication_sockets.socket_client({
+                //     // communication_sockets_obj.socket_client(3, desired_buffer_obj.buffer);
+                //     communication_sockets.socket_client(3, desired_buffer_obj);
+                //     // communication_sockets.socket_client({
 
-                    //     given_mode : 3, 
-                    //     desired_buffer_obj : desired_buffer_obj
-                    // });
+                //     //     given_mode : 3, 
+                //     //     desired_buffer_obj : desired_buffer_obj
+                //     // });
 
-                    // ---
+                //     // ---
 
-                    in_middle_of_playback = true;
+                //     in_middle_of_playback = true;
 
-                    // ---
+                //     // ---
 
-                    var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                //     var this_glob_02 = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
 
-                    // init_synth_settings(this_glob_02);
-                    setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
-                        desired_buffer_obj.size, set_false_in_middle_of_playback);
+                //     // init_synth_settings(this_glob_02);
+                //     setup_onaudioprocess_callback_render(this_glob_02, desired_buffer_obj.buffer,
+                //         desired_buffer_obj.size, set_false_in_middle_of_playback);
 
-                    followup_fft(this_glob_02);
+                //     followup_fft(this_glob_02);
 
-                    // ---
+                //     // ---
 
-                    break;
-                }
+                //     break;
+                // }
 
-                case 4 : {
+                // case 4 : {
 
-                    console.log('about to send genetic synth to server side size ',
-                        desired_buffer_obj.size_buffer);
+                //     console.log('about to send genetic synth to server side size ',
+                //         desired_buffer_obj.size_buffer);
 
-                    communication_sockets.socket_client(4, desired_buffer_obj);
+                //     communication_sockets.socket_client(4, desired_buffer_obj);
 
-                    // communication_sockets.socket_client({
+                //     // communication_sockets.socket_client({
 
-                    //     given_mode : 4,
-                    //     desired_buffer_obj : desired_buffer_obj
-                    // });
+                //     //     given_mode : 4,
+                //     //     desired_buffer_obj : desired_buffer_obj
+                //     // });
 
-                    break;
-                }
+                //     break;
+                // }
 
 
                 case 5 : {
 
-                    console.log("get audio buffer from server");
+                    console.log("get audio buffer from server using Web Sockets in one big wallup ... alas not streaming");
 
                     // communication_sockets.socket_client(4, desired_buffer_obj, forward_audio_buffer_to_player);
                     communication_sockets.socket_client(4, null, forward_audio_buffer_to_player);
@@ -1520,7 +1652,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                 case 6 : {
 
-                    console.log("show audio data");
+                    console.log("show audio data pulled from server");
 
                     shared_utils.show_object(server_side_audio_obj,
                         "server_side_audio_obj 32 bit signed float render_buffer", "total", 100);
@@ -1531,16 +1663,17 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                 case 7 : {
 
-                    console.log("render audio from server");
+                    console.log("render audio previously retrieved from server");
 
                     // BUFF_SIZE = server_side_audio_obj.buffer.length;
                     // BUFF_SIZE = 16384;
-                    BUFF_SIZE = 1024;
+                    // BUFF_SIZE = 1024;
 
-                    console.log("BUFF_SIZE ", BUFF_SIZE);
+                    console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
 
 
-                    var server_side_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                    // var server_side_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+                    var server_side_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
                     setup_onaudioprocess_callback_render(server_side_node, server_side_audio_obj.buffer,
                         server_side_audio_obj.buffer.length, set_false_in_middle_of_playback);
@@ -1587,6 +1720,30 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     break;
                 }
+
+                case 9 : {
+
+                    console.log("stream audio from server to client browser the right way");
+
+                    if (flag_streaming_status !== streaming_status_ready) {
+
+                        console.error("NOTICE - currently is middle of previous streaming request ... try later");
+                        return;
+                    }
+
+                    // ---
+
+                    streaming_audio_obj.buffer = new Float32Array(BUFFER_SIZE_STREAM_QUEUE);
+                    streaming_audio_obj.max_index = BUFFER_SIZE_STREAM_QUEUE;
+
+
+                    communication_sockets.set_stream_is_complete_cb(cb_stream_is_complete);
+
+                    communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_web_audio_player);
+
+                    break;
+                }
+
 
                 default : {
 

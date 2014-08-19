@@ -235,7 +235,8 @@ var communication_sockets = function() {
 
         console.log("send_message_to_server");
 
-        web_socket.send("Hello there server ... coming from client browser");
+        // web_socket.send("Hello there server ... coming from client browser");
+        web_socket.send(JSON.stringify({requested_action : null, hello : "from client browser"}));
     };
 
     function display_binary_from_server(given_data) {

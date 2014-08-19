@@ -54,10 +54,11 @@ function internal_webGLStart() {
 
   communication_sockets.socket_client(1); // create websocket connection from browser to server
 
-  var BUFF_SIZE = 512;
-  var BUFF_SIZE_TIME_DOMAIN = 512;
+  // var BUFF_SIZE = 512;
+  // var BUFF_SIZE_TIME_DOMAIN = 512;
 
-  web_audio_player.init_context_audio(BUFF_SIZE, BUFF_SIZE_TIME_DOMAIN);
+  // web_audio_player.init_context_audio(BUFF_SIZE, BUFF_SIZE_TIME_DOMAIN);
+  web_audio_player.init_context_audio();
 
   // shim layer with setTimeout fallback
 window.requestAnimFrame = (function(){
@@ -94,24 +95,30 @@ return {
 
     <p>  
 
+    <button onclick="web_audio_player.render_buffer(9)">stream audio from server the right way</button>
+
+        <br>     <!-- .....................  -->
+
+    <button onclick="web_audio_player.render_buffer(8)">stream audio from server</button>
+
+        <br>     <!-- .....................  -->
+
+    <button onclick="web_audio_player.render_buffer(5)">get audio buffer from server using web sockets</button>
+    <button onclick="web_audio_player.render_buffer(6)">show audio data</button>
+    <button onclick="web_audio_player.render_buffer(7)">render audio from server</button>
+
+        <br>     <!-- .....................  -->
+
     <button onclick="communication_sockets.socket_client(2)">send message to server</button>
     <button onclick="communication_sockets.socket_client(3)">request server send binary float</button>
 
         <br>     <!-- .....................  -->
 
-    <button onclick="web_audio_player.play_tune_jam(1)">play jam</button>
+    <button onclick="web_audio_player.play_tune_jam(1)">play jam from server using ye olde XMLHttpRequest</button>
     <!-- <button onclick="communication_sockets.socket_client(4)">get audio buffer from server</button> -->
 
         <br>     <!-- .....................  -->
-
-    <button onclick="web_audio_player.render_buffer(5)">get audio buffer from server</button>
-    <button onclick="web_audio_player.render_buffer(6)">show audio data</button>
-    <button onclick="web_audio_player.render_buffer(7)">render audio from server</button>
-    <button onclick="web_audio_player.render_buffer(8)">stream audio from server</button>
-
-        <br>     <!-- .....................  -->
-
-    <button onclick="web_audio_player.run_synth()">do synth</button>
+    <button onclick="web_audio_player.run_synth()">do audio synth using Web Audio API</button>
     <button onclick="web_audio_player.stop_synth()">stop synth</button>
 
     </p>

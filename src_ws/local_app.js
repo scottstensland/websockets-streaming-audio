@@ -199,8 +199,11 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
 
 // var BUFFER_SIZE_STREAMING = 512; // size of buffer sent from server to client per callback cycle
-var BUFFER_SIZE_STREAMING = 65536; // size of buffer sent from server to client per callback cycle
+var BUFFER_SIZE_STREAMING = 16384; // size of buffer sent from server to client per callback cycle
+// var BUFFER_SIZE_STREAMING = 32768; // size of buffer sent from server to client per callback cycle
+// var BUFFER_SIZE_STREAMING = 65536; // size of buffer sent from server to client per callback cycle
 // var BUFFER_SIZE_STREAMING = 131072; // size of buffer sent from server to client per callback cycle
+// var BUFFER_SIZE_STREAMING = 262144; // size of buffer sent from server to client per callback cycle
 
 
 var temp_stream_chunk_buffer = new Float32Array(BUFFER_SIZE_STREAMING);
@@ -356,7 +359,10 @@ var route_msg = function(received_json, received_data, curr_ws) {
         case null : {
 
             console.log("OOKKK seeing null  requested_action");
-            send_binary_back_to_client(received_json, received_data, curr_ws);
+            // send_binary_back_to_client(received_json, received_data, curr_ws);
+
+            curr_ws.send(received_data, {binary: false, mask: true}); // send text
+
             break;
         };
 
