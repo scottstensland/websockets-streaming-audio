@@ -12,9 +12,21 @@ var web_audio_player = function() {
 
     var microphone_data = {};
 
+    var BUFFER_SIZE_STREAM_QUEUE = 2097152; // stens TODO - wrap into a circular queue
+    var curr_index_stream_buffer = 0;
     var server_side_audio_obj;
+    var streaming_audio_obj = {
 
+        index_stream : 0
+    };
 
+    var streaming_status_ready = "streaming_status_ready";
+    var streaming_status_active = "streaming_status_active";
+    var streaming_status_done = "streaming_status_done";
+
+    var flag_streaming_status = streaming_status_ready; // when server side signals stream is done this becomes false
+
+    // var streaming_node;
 
   // console.log("TOP web_audio_player ... here is shared_utils ", shared_utils);
 
@@ -75,7 +87,100 @@ var web_audio_player = function() {
             // shared_utils.show_object();
 
         }
+    };
+
+    // ---
+
+    function cb_stream_is_complete() {
+
+        console.log("SETTING streaming_status_done ... SINCE TOP of cb_stream_is_complete");
+
+        flag_streaming_status = streaming_status_done;
+
     }
+
+    function cb_stream_audio_buffer_to_player(audio_obj_from_server) {
+
+        var curr_index = streaming_audio_obj.index_stream;
+        var max_index = streaming_audio_obj.max_index;
+
+        var local_index_max = audio_obj_from_server.buffer.length;
+
+        console.log(curr_index + " out of " + max_index, " local_index_max " + local_index_max);
+
+        for (var local_index = 0; local_index < local_index_max && curr_index < max_index;) {
+
+            streaming_audio_obj.buffer[curr_index] = audio_obj_from_server.buffer[local_index];
+            local_index++;
+            curr_index++;
+        };
+
+        streaming_audio_obj.index_stream = curr_index;
+
+
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
+        console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_player");
+
+        if (typeof audio_obj_from_server !== "undefined") {
+
+            console.log("streaming_audio_obj ", streaming_audio_obj);
+            console.log("shared_utils.show_object ", shared_utils.show_object);
+
+            shared_utils.show_object(streaming_audio_obj,
+                "... streaming_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 3);
+        }
+
+        // ---
+
+        switch (flag_streaming_status) {
+
+            case streaming_status_ready : {
+
+                BUFF_SIZE = 1024;
+
+                console.log("BUFF_SIZE ", BUFF_SIZE);
+
+                var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+
+                setup_onaudioprocess_callback_stream(streaming_node, streaming_audio_obj.buffer,
+                    streaming_audio_obj.buffer.length, set_false_in_middle_of_playback);
+
+                followup_fft(streaming_node);
+
+
+                flag_streaming_status = streaming_status_active;
+
+                communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_player);
+
+                break;
+            }
+
+            case streaming_status_active : {
+
+                communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_player);
+
+                break;
+            };
+
+            case streaming_status_done : {
+
+                console.log("OK ... this current streaming is done ... ready for next time");
+
+                flag_streaming_status = streaming_status_ready;
+
+                break;
+            };
+
+            default : {
+
+                console.error("ERROR - invalid value of flag_streaming_status : ", flag_streaming_status);
+            }
+        };
+    };
+
 
     // ---
 
@@ -977,7 +1082,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
 
 
-
+/*
     function setup_streaming_onaudioprocess_callback(given_node) {
 
         given_node.onaudioprocess = (function() {
@@ -1026,6 +1131,7 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
         }());
     }       //      setup_streaming_onaudioprocess_callback
+*/
 
     // ---
     function setup_onaudioprocess_callback(given_node) {
@@ -1138,6 +1244,71 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
     } //      setup_onaudioprocess_callback_render
 
+    // ------------------------
+
+    function setup_onaudioprocess_callback_stream(given_node, render_this_buffer, render_size_buffer, done_callback) {
+
+        // 
+        var curr_index_synth_buffer = 0; // keep playing until this reaches size of synth buffer
+
+        given_node.onaudioprocess = (function() {
+
+            return function(event) {
+
+                var synthesized_output_buffer;
+
+                // stens TODO - how to pass in own buffer instead of being given object: out so I can do a circular ring of such buffers
+
+                synthesized_output_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
+
+                for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
+
+                    synthesized_output_buffer[curr_sample] = render_this_buffer[curr_index_synth_buffer];
+
+                    curr_index_synth_buffer++;
+
+                    if (curr_index_synth_buffer >= render_size_buffer) {
+
+                        // console.log('\n\ncw + ss    thursday        434             \n\n');
+
+                        if (given_node) {
+
+                            given_node.disconnect(gain_node);
+
+                            given_node = null;
+
+                            console.log('just called disconnect on node attached to this callback ');
+                        }
+
+                        // ---
+
+                        done_callback();
+
+                        // console.log('render DONE curr_index_synth_buffer ', curr_index_synth_buffer);
+                    }
+                }
+
+                // ---
+
+                // console.log('render_audio_buffer sending pipeline_buffer_for_time_domain_cylinder...');
+
+                // audio_display_obj.pipeline_buffer_for_time_domain_cylinder(synthesized_output_buffer, 
+                //     BUFF_SIZE, "providence_1");
+
+                // stens TODO - commented out below 20140811
+
+                // audio_display_obj.pipeline_buffer_for_time_domain_cylinder(synthesized_output_buffer,
+                //     BUFF_SIZE, "providence_1");
+            };
+
+        }());
+
+        // do_engage(given_node);
+
+    } //      setup_onaudioprocess_callback_stream
+
+
+    // ------------------------
 
     function followup_fft(given_node) {
 
@@ -1383,9 +1554,38 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     console.log("stream audio from server to client browser");
 
-                    
+                    if (flag_streaming_status !== streaming_status_ready) {
+
+                        console.error("NOTICE - currently is middle of previous streaming request ... try later");
+                        return;
+                    }
+
+                    // ---
+
+                    streaming_audio_obj.buffer = new Float32Array(BUFFER_SIZE_STREAM_QUEUE);
+                    streaming_audio_obj.max_index = BUFFER_SIZE_STREAM_QUEUE;
 
 
+                    // BUFF_SIZE = 1024;
+
+                    // console.log("BUFF_SIZE ", BUFF_SIZE);
+
+
+                    // var streaming_node = audio_context.createScriptProcessor(BUFF_SIZE, 1, 1);
+
+                    // setup_onaudioprocess_callback_render(streaming_node, server_side_audio_obj.buffer,
+                    //     server_side_audio_obj.buffer.length, set_false_in_middle_of_playback);
+
+                    // followup_fft(streaming_node);
+
+                    console.log("early days about to stow cb_stream_is_complete as : ",
+                                    cb_stream_is_complete.name);
+
+                    communication_sockets.set_stream_is_complete_cb(cb_stream_is_complete);
+
+                    communication_sockets.socket_client(5, null, cb_stream_audio_buffer_to_player);
+
+                    break;
                 }
 
                 default : {
@@ -1394,7 +1594,6 @@ The buffer passed to decodeAudioData contains an unknown content type.
 
                     break;
                 }
-
             }
 
             // ---

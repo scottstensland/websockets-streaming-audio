@@ -9,6 +9,7 @@ var communication_sockets = function() {
     // var cb_from_client_to_server_back_to_client;
 
     var cb_for_client;
+    var cb_stream_is_complete;
 
     // ---
 
@@ -22,6 +23,14 @@ var communication_sockets = function() {
     // }
 
     // ---------------------
+
+    var set_stream_is_complete_cb = function(given_cb_stream_is_complete) { // supplied by calling client
+
+        console.log("OK defining given_cb_stream_is_complete as : ", given_cb_stream_is_complete.name);
+
+        cb_stream_is_complete = given_cb_stream_is_complete; // when server side says stream is done this gets called
+    }
+
 
     console.log("create_websocket_connection");
 
@@ -75,7 +84,18 @@ var communication_sockets = function() {
 
                     console.log("received_json ", received_json);
 
-                    if (typeof received_json.rss !== "undefined") {
+                    if (typeof received_json.streaming_is_done !== "undefined") {
+
+                        if ("yes" == received_json.streaming_is_done) {
+
+                            console.log("OK received_json.streaming_is_done == yes ... so call ",
+                                            cb_stream_is_complete.name);
+
+                            cb_stream_is_complete();
+                        }
+
+
+                    } else if (typeof received_json.rss !== "undefined") {
 
                         updateStats(received_json);    // send received data directly to browser screen
 
@@ -121,7 +141,7 @@ var communication_sockets = function() {
 
                 console.log("received_buffer.length ", server_buffer_len);
 
-                var default_max_index = 50;
+                var default_max_index = 3;
                 // var max_index = (event.size > default_max_index) ? default_max_index : event.size;
                 var max_index = (typeof server_buffer_len !== "undefined" && 
                                  server_buffer_len < default_max_index) ? server_buffer_len : default_max_index;
@@ -134,7 +154,7 @@ var communication_sockets = function() {
                 };
 
                 shared_utils.show_object(server_side_buffer_obj,
-                    "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
+                    "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 3);
 
                 console.log("about to call cb_for_client with name of ", cb_for_client.name);
 
@@ -231,14 +251,6 @@ var communication_sockets = function() {
             return;
         };
 
-        // console.log("request_server_send_binary - requested_source ", requested_source);
-        // console.log("request_server_send_binary -   given_callback ", given_callback);
-
-        // web_socket.send("Hello there server ... coming from client browser");
-        // web_socket.send('mode : "apple"');
-
-        // this.cb_from_client_to_server_back_to_client.callback = given_callback;
-
         var request_msg;
         try {
 
@@ -260,19 +272,6 @@ var communication_sockets = function() {
     };
 
     function socket_client(given_mode, given_binary_data, given_callback) {
-    // function socket_client(browser_request_obj) {
-
-        /*
-        console.log("browser_request_obj ", browser_request_obj);
-
-        var given_mode         = browser_request_obj.given_mode;
-        var desired_buffer_obj = browser_request_obj.desired_buffer_obj;
-        var given_callback     = browser_request_obj.given_callback;
-
-        console.log("given_mode ", given_mode);
-        console.log("desired_buffer_obj ", desired_buffer_obj);
-        console.log("given_callback ", given_callback);
-        */
 
         switch (given_mode) {
 
@@ -321,6 +320,20 @@ var communication_sockets = function() {
                 break;
             }
 
+            case 5 : {
+
+                console.log('...  socket_client mode Five  ... stream audio buffer from server ');
+
+                cb_for_client = given_callback;
+
+                var requested_action = "stream_audio_from_server_to_client";
+                var requested_source = "Justice_Genesis_first_30_seconds_tight.wav"; // get buffer of this from svr
+
+                request_server_send_binary(requested_action, requested_source, given_callback);
+
+                break;
+            }
+
             default : {
 
                 console.log('...  socket_client mode NONE doing default  ');
@@ -333,7 +346,9 @@ var communication_sockets = function() {
     return { // to make visible to calling reference frame list function here comma delimited,
 
         socket_client: socket_client,
-        send_message_to_server: send_message_to_server
+        send_message_to_server: send_message_to_server,
+        set_stream_is_complete_cb : set_stream_is_complete_cb
+
         // socket_server: socket_server
 
         // get_size_buffer: get_size_buffer,
