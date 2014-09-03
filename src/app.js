@@ -4,7 +4,8 @@ console.log(require('../package.json').name, require('../package.json').version)
 
 var fs = require('fs');
 
-var flavor_socket = process.env.FLAVOR_SOCKET || "ws";
+// var flavor_socket = process.env.FLAVOR_SOCKET || "ws";
+var flavor_socket = process.env.FLAVOR_SOCKET || "einaros";
 
 console.log("here is flavor_socket ", flavor_socket);
 
@@ -31,6 +32,14 @@ switch (flavor_socket) {		// choices :   ws  websocket  nodejs-websocket
 		dir_suffix = "src_ws"; // this is the active flavor - other socket implementations set aside for now
 		break;
 	};
+
+
+	case "einaros" : {
+
+		dir_suffix = "src_einaros"; 
+		break;
+	};
+
 
 	case "websocket" : {
 

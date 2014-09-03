@@ -1,0 +1,125 @@
+<html>
+  <head>
+
+  <script type="text/javascript" src="shared_utils.js"></script>
+  <script type="text/javascript" src="communication_sockets.js"></script>
+  <script type="text/javascript" src="web_audio_player.js"></script>
+
+    <style>
+      body {
+        font-family: "Helvetica Neue", helvetica, arial;
+        padding: 15px;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ul li {
+        line-height: 1.4;
+      }
+    </style>
+
+    <script>
+
+      function updateStats(memuse) {
+        document.getElementById('rss').innerHTML = memuse.rss;
+        document.getElementById('heapTotal').innerHTML = memuse.heapTotal;
+        document.getElementById('heapUsed').innerHTML = memuse.heapUsed;
+      }
+
+    // socket logic was here
+    </script>
+
+
+<script type="text/javascript">
+
+"use strict";
+
+var stens = function() {
+
+function internal_webGLStart() {
+
+  console.log("TOP internal_webGLStart");
+
+  // console.log("here is shared_utils ", shared_utils);
+
+  // communication_sockets.socket_client(1); // create websocket connection from browser to server
+  communication_sockets.socket_client({ mode : 1}); // create websocket connection from browser to server
+
+  // ------------------------------
+
+  if (!"WebSocket" in window) {
+
+      alert("Boo Hoo WebSocket is not available on this browser");
+      return;
+
+  } else {
+
+    console.log("Cool ... websockets are available on this browser");
+  };
+
+  // ----------------------
+  web_audio_player.init_context_audio();
+
+/*
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          function( callback ){
+            // window.setTimeout(callback, 1000 / 60);
+            window.setTimeout(callback, 100000);
+          };
+})();
+
+
+(function animloop(){
+  requestAnimFrame(animloop); // keeps alive a pointer into this block
+})();
+
+*/
+
+}       //      internal_webGLStart
+
+return {
+
+    internal_webGLStart: internal_webGLStart
+    // sayHi : sayHi
+    // internal_webGLStart.sayHi : internal_webGLStart.sayHi
+
+  
+}
+
+}();
+
+</script>
+  </head>
+  <body onload="stens.internal_webGLStart();" >
+
+    <p>  
+
+    <button onclick="web_audio_player.render_buffer(10)">stream audio</button>
+
+
+
+        <br>     <!-- .....................  -->
+        <br>     <!-- .....................  -->
+
+    <output id="result"></output>
+
+    </p>
+
+    <h1>Pings</h1>
+    <ul id='pings'></ul>
+
+    <strong>Server Stats</strong><br>
+    RSS: <div id='rss'></div><br>
+    Heap total: <div id='heapTotal'></div><br>
+    Heap used: <div id='heapUsed'></div><br>
+
+
+  </body>
+</html>

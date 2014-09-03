@@ -1,4 +1,4 @@
-var communication_sockets = function () {
+var communication_sockets = function() {
 
     // ---
 
@@ -10,6 +10,10 @@ var communication_sockets = function () {
 
     var cb_for_client;
     var cb_stream_is_complete;
+
+    var server_supplied_max_media_size;
+    var flag_max_media_size_populated = false;
+    var flag_max_media_size_retrieved = false;
 
     // ---
 
@@ -24,21 +28,37 @@ var communication_sockets = function () {
 
     // ---------------------
 
-    // var set_stream_is_complete_cb = function (given_cb_stream_is_complete) { // supplied by calling client
-    function set_stream_is_complete_cb(given_cb_stream_is_complete) { // supplied by calling client
+    var set_stream_is_complete_cb = function(given_cb_stream_is_complete) { // supplied by calling client
 
         console.log("OK defining given_cb_stream_is_complete as : ", given_cb_stream_is_complete.name);
 
         cb_stream_is_complete = given_cb_stream_is_complete; // when server side says stream is done this gets called
     }
 
+    var pop_json_from_server = function(json_from_server, received_json) {
+
+        for (var curr_property in received_json) {
+
+            // NOTICE - this makes NO attempt to avoid replacing previous value of given key if any
+
+            json_from_server[curr_property] = received_json[curr_property];
+
+            console.log("server supplied key/value ", curr_property, received_json[curr_property]);
+
+
+            // max_index
+
+            // bbb
+
+        }
+    };
+
 
     console.log("create_websocket_connection");
 
-    var create_websocket_connection = function () {
+    var create_websocket_connection = function() {
 
-        // if (!("WebSocket" in window)) {
-        if (!window.WebSocket) {
+        if (!"WebSocket" in window) {
 
             alert("Boo Hoo WebSocket is not available on this browser");
             return;
@@ -52,7 +72,13 @@ var communication_sockets = function () {
         console.log('client in browser says ... WebSocket is supported by your browser.');
 
         host = location.origin.replace(/^http/, 'ws');
-        web_socket = new WebSocket(host);
+        // web_socket = new WebSocket(host);
+        // web_socket = new WebSocket(host, ["chat"]);
+        web_socket = new WebSocket(host, ["chat", "superchat"]);
+
+
+        var all_tags_from_server = {};
+
 
         console.log("web_socket ", web_socket);
 
@@ -64,15 +90,15 @@ var communication_sockets = function () {
 
         // ---
 
-        web_socket.onconnection = function (stream) {
+        web_socket.onconnection = function(stream) {
             console.log('WebSocket connect');
         };
 
-        web_socket.onconnected = function (stream) {
+        web_socket.onconnected = function(stream) {
             console.log('someone connected!');
         };
 
-        web_socket.onmessage = function (event) {
+        web_socket.onmessage = function(event) {
 
             if (typeof event.data === "string") {
 
@@ -86,14 +112,33 @@ var communication_sockets = function () {
 
                     console.log("received_json ", received_json);
 
+                    pop_json_from_server(all_tags_from_server, received_json);
+
+                    console.log("all_tags_from_server ", all_tags_from_server);
+
+                    if (typeof received_json["max_index"] !== "undefined" &&
+                        false === flag_max_media_size_retrieved) {
+
+                        console.log("Corinde Stensland seeing max_index  ", received_json["max_index"]);
+
+                        server_supplied_max_media_size = received_json["max_index"];
+
+                        flag_max_media_size_retrieved = true;
+                    }
+
+                    // ---
+
                     if (typeof received_json.streaming_is_done !== "undefined") {
 
                         if ("yes" == received_json.streaming_is_done) {
 
-                            console.log("OK received_json.streaming_is_done == yes ... so call ",
-                                            cb_stream_is_complete.name);
+                            var max_index = received_json.max_index;
 
-                            cb_stream_is_complete();
+                            console.log("OK received_json.streaming_is_done == yes  max_index ", max_index,
+                                " ... so call ",  cb_stream_is_complete.name);
+
+                            // cb_stream_is_complete();
+                            cb_stream_is_complete(max_index);
                         }
 
 
@@ -202,7 +247,7 @@ var communication_sockets = function () {
         //   console.log('ERROR - fault on socket');
         // });
 
-        web_socket.onerror = function (stream) {
+        web_socket.onerror = function(stream) {
             console.log('ERROR - fault on socket');
         };
 
@@ -250,7 +295,8 @@ var communication_sockets = function () {
 
         if (!flag_connected) {
 
-            console.log("hit button create_websocket_connection");
+            // console.log("hit button create_websocket_connection");
+            console.error("ERROR - no web socket connection");
             return;
         };
 
@@ -274,7 +320,22 @@ var communication_sockets = function () {
         web_socket.send(request_msg);
     };
 
-    function socket_client(given_mode, given_binary_data, given_callback) {
+    // function socket_client(given_mode, given_binary_data, given_callback) {
+    function socket_client(given_msg) {
+
+                        // mode : 6,
+                        // callback : cb_receive_buffer_from_server_to_web_audio_player,
+                        // media_file : "2500_hz_sine_2_seconds.wav"
+
+        var given_mode = given_msg.mode || 1;
+        var given_binary_data = given_msg.binary_data || null;
+        var given_callback = given_msg.callback || null;
+        var given_media_file = given_msg.media_file || null;
+
+        console.log("given_mode ", given_mode);
+        console.log("given_binary_data ", given_binary_data);
+        // console.log("given_callback ", given_callback);
+        console.log("given_media_file ", given_media_file);
 
         switch (given_mode) {
 
@@ -335,6 +396,37 @@ var communication_sockets = function () {
                 request_server_send_binary(requested_action, requested_source, given_callback);
 
                 break;
+            }
+
+            case 6 : {
+
+                console.log('...  socket_client mode SIX  ... stream audio buffer from server ');
+
+                cb_for_client = given_callback;
+
+                var requested_action = "stream_audio_to_client";
+
+                // tell server to stream this audio
+                // var requested_source = "Justice_Genesis_first_30_seconds_tight.wav";
+                // var requested_source = "2500_hz_sine.wav"; 
+                var requested_source = given_media_file;
+
+                request_server_send_binary(requested_action, requested_source, given_callback);
+
+                break;
+            }
+
+            case 7 : {
+
+                console.log('...  socket_client mode SEVEN  ... retrieve server side supplied max media size ');
+
+                // bbb
+
+                return {
+
+                    flag_max_media_size_retrieved : flag_max_media_size_retrieved,
+                    server_supplied_max_media_size : server_supplied_max_media_size
+                }
             }
 
             default : {

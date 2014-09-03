@@ -7,8 +7,8 @@
         "ws": "0.4.x",
         "express": "^4.4.5",
 		"websocket" : "1.0.x",
-		"audio-utils" : "0.0.x",
-		"shared-utils" : "0.1.x"
+		"audio-utils" : "1.0.x",
+		"shared-utils" : "0.1.3"
 
     },
     "description": "node.js app which allows browser to launch process on server side which then makes callback to browser streaming binary audio in either direction",

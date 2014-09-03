@@ -199,6 +199,7 @@ var read_file_pop_buffer_send_back_to_client = function(received_json, given_req
 
 
 // var BUFFER_SIZE_STREAMING = 512; // size of buffer sent from server to client per callback cycle
+// var BUFFER_SIZE_STREAMING = 8192; // size of buffer sent from server to client per callback cycle
 var BUFFER_SIZE_STREAMING = 16384; // size of buffer sent from server to client per callback cycle
 // var BUFFER_SIZE_STREAMING = 32768; // size of buffer sent from server to client per callback cycle
 // var BUFFER_SIZE_STREAMING = 65536; // size of buffer sent from server to client per callback cycle

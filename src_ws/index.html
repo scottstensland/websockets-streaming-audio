@@ -45,6 +45,8 @@
 
 var stens = function() {
 
+var worker;
+var flag_mode_binary_typed_array = false;
 
 function internal_webGLStart() {
 
@@ -52,7 +54,74 @@ function internal_webGLStart() {
 
   // console.log("here is shared_utils ", shared_utils);
 
+  // ------------------------------
+/*
+  worker = new Worker("communication_sockets.js");
+
+  // ---
+
+  function sayHi() {
+
+    var curr_msg = {
+      'cmd': 'start', 
+      'msg': 'Hi'
+    };
+
+    console.log("browser sending msg to ww : ", curr_msg);
+
+    // worker.postMessage({'cmd': 'start', 'msg': 'Hi'});
+    worker.postMessage(curr_msg);
+  };
+
+  // ---
+
+  worker.onmessage = function(e) {
+
+    var data = e.data;
+
+    if (flag_mode_binary_typed_array) {
+
+      some_heavy_load = new Float32Array(data);
+
+      console.log("some_heavy_load  length ", some_heavy_load.length);
+
+      show_load(some_heavy_load);
+
+      flag_mode_binary_typed_array = false;
+
+    } else {
+
+      switch (data.cmd) {
+
+        case 'worker_returning_heavy_load' :
+
+          console.log("worker_returning_heavy_load");
+
+          flag_mode_binary_typed_array = true;
+
+          // console.log("data.cmd.heavy_load ", data.cmd["heavy_load"]);
+
+
+          // some_heavy_load = new Float32Array(data.cmd.heavy_load);
+
+          // console.log("some_heavy_load length ", some_heavy_load.buffer.length);
+          // console.log("some_heavy_load element 0 ", some_heavy_load.length);
+
+          break;
+
+        default :
+
+          document.getElementById('result').textContent = data;
+      }
+    }
+
+    // console.log("data.cmd ", data.cmd);
+  }
+  */
+
   communication_sockets.socket_client(1); // create websocket connection from browser to server
+
+  // ------------------------------
 
   // var BUFF_SIZE = 512;
   // var BUFF_SIZE_TIME_DOMAIN = 512;
@@ -85,6 +154,9 @@ window.requestAnimFrame = (function(){
 return {
 
     internal_webGLStart: internal_webGLStart
+    // internal_webGLStart.sayHi : internal_webGLStart.sayHi
+
+  
 }
 
 }();
@@ -96,6 +168,7 @@ return {
     <p>  
 
     <button onclick="web_audio_player.render_buffer(9)">stream audio from server the right way</button>
+    <!-- <button onclick="internal_webGLStart.sayHi()">sayHi</button> -->
 
         <br>     <!-- .....................  -->
 
@@ -118,8 +191,14 @@ return {
     <!-- <button onclick="communication_sockets.socket_client(4)">get audio buffer from server</button> -->
 
         <br>     <!-- .....................  -->
+
     <button onclick="web_audio_player.run_synth()">do audio synth using Web Audio API</button>
+
     <button onclick="web_audio_player.stop_synth()">stop synth</button>
+
+        <br>     <!-- .....................  -->
+
+    <output id="result"></output>
 
     </p>
 
