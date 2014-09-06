@@ -17,7 +17,7 @@ var port = process.env.PORT || 8888;
 
 // ---
 
-var audio_utils = require("audio-utils");
+// var audio_utils = require("audio-utils");
 
 // ---
 
@@ -52,11 +52,13 @@ wss.on("connection", function(ws) {
 
     var ID_timeout;
     (function run() {  //  run immediately ... then repeat after delay
-        // code here
+
+        console.log(process.memoryUsage());
 
         ws.send(JSON.stringify(process.memoryUsage()), function() {});
 
-        ID_timeout = setTimeout(run, 60000);
+        // ID_timeout = setTimeout(run, 60000);
+        ID_timeout = setTimeout(run, 360000);
     }());
 
     console.log("websocket connection open");
@@ -83,7 +85,8 @@ wss.on("connection", function(ws) {
         // };
 
         // server_comms.route_msg(received_json, received_data, ws);
-        server_comms.route_msg(received_json, received_data, ws);
+        // server_comms.route_msg(received_json, received_data, ws);
+        server_comms.route_msg(received_json, ws);
     });
 
     // ---

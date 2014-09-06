@@ -47,11 +47,13 @@ switch (flavor_socket) {		// choices :   ws  websocket  nodejs-websocket
 		break;
 	};
 
+/*
 	case "nodejs-websocket" : {
 
 		dir_suffix = "src_nodejs-websocket";
 		break;
 	};
+*/
 
 	default : {
 
