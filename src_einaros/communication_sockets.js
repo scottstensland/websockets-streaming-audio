@@ -56,13 +56,9 @@ var communication_sockets = function() {
         var all_tags_from_server = {};
 
 
-        console.log("web_socket ", web_socket);
+        // console.log("web_socket ", web_socket);
 
         web_socket.binaryType = "arraybuffer"; // stens TODO - added April 30 2014
-
-        // var property_key_callback = "callback_in_client_back_from_server";
-
-        // var cb_for_client;
 
         // ---
 
@@ -86,16 +82,16 @@ var communication_sockets = function() {
 
                     var received_json = JSON.parse(event.data);
 
-                    console.log("received_json ", received_json);
+                    // console.log("received_json ", received_json);
 
                     pop_json_from_server(all_tags_from_server, received_json);
 
-                    console.log("all_tags_from_server ", all_tags_from_server);
+                    // console.log("all_tags_from_server ", all_tags_from_server);
 
                     if (typeof received_json["max_index"] !== "undefined" &&
                         false === flag_max_media_size_retrieved) {
 
-                        console.log("Corinde Stensland seeing max_index  ", received_json["max_index"]);
+                        // console.log("Corinde Stensland seeing max_index  ", received_json["max_index"]);
 
                         server_supplied_max_media_size = received_json["max_index"];
 
@@ -148,7 +144,7 @@ var communication_sockets = function() {
 
             } else if (event.data instanceof ArrayBuffer) {
 
-                console.log("ArrayBuffer received: " + event.data);
+                // console.log("ArrayBuffer received: " + event.data);
 
                 var server_side_buffer_obj = {};
 
@@ -156,7 +152,7 @@ var communication_sockets = function() {
 
                 var server_buffer_len = server_side_buffer_obj.buffer.length;
 
-                console.log("received_buffer.length ", server_buffer_len);
+                // console.log("received_buffer.length ", server_buffer_len);
 
                 var default_max_index = 3;
                 // var max_index = (event.size > default_max_index) ? default_max_index : event.size;
@@ -165,15 +161,15 @@ var communication_sockets = function() {
 
                 console.log("max_index ", max_index);
 
-                for (var i = 0; i < max_index; i++) {
+                // for (var i = 0; i < max_index; i++) {
 
-                    console.log(i, server_side_buffer_obj.buffer[i]);
-                };
+                //     console.log(i, server_side_buffer_obj.buffer[i]);
+                // };
 
-                shared_utils.show_object(server_side_buffer_obj,
-                    "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
+                // shared_utils.show_object(server_side_buffer_obj,
+                //     "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
 
-                console.log("about to call cb_for_client with name of ", cb_for_client.name);
+                // console.log("about to call cb_for_client with name of ", cb_for_client.name);
 
                 cb_for_client(server_side_buffer_obj);
 
@@ -213,37 +209,6 @@ var communication_sockets = function() {
         flag_connected = true;
     };
 
-    // function request_server_send_binary(requested_action, requested_source, given_callback) {
-
-    //     if (!flag_connected) {
-
-    //         // console.log("hit button create_websocket_connection");
-    //         console.error("ERROR - no web socket connection");
-    //         return;
-    //     };
-
-    //     var request_msg;
-    //     try {
-
-    //         request_msg = JSON.stringify({
-
-    //                 mode : "CatFoodNation",
-    //                 datatype : "float",
-    //                 requested_action : requested_action,
-    //                 requested_source : requested_source,
-    //                 cb_client_to_server_to_client : given_callback
-    //         });
-
-    //     } catch (exception) {
-
-    //         new Error("ERROR - failed to stringify msg to send to server : ", exception);
-    //     }
-
-    //     console.log("request_server_send_binary request_msg ", request_msg);
-
-    //     web_socket.send(request_msg);
-    // };
-
 
     // function request_server_send_binary(requested_action, requested_source, given_callback) {
     function request_server_send_binary(given_msg) {
@@ -257,15 +222,6 @@ var communication_sockets = function() {
 
         var request_msg;
         try {
-
-            // request_msg = JSON.stringify({
-
-            //         mode : "CatFoodNation",
-            //         datatype : "float",
-            //         requested_action : requested_action,
-            //         requested_source : requested_source,
-            //         cb_client_to_server_to_client : given_callback
-            // });
 
             request_msg = JSON.stringify(given_msg);
 
@@ -282,27 +238,21 @@ var communication_sockets = function() {
 
     function socket_client(given_msg) {
 
-
         var given_mode = given_msg.mode || 1;
-        // var given_binary_data = given_msg.binary_data || null;
-
         var requested_action = given_msg.requested_action || null;
         var given_callback = given_msg.cb_client_to_server_to_client || null;
         var given_media_file = given_msg.requested_source || null;
 
-        console.log("socket_client  given_mode ", given_mode);
-        console.log("socket_client  requested_action ", requested_action);
-        // console.log("socket_client  given_binary_data ", given_binary_data);
-        // if (typeof given_callback !== "undefined") {console.log("given_callback ", given_callback.name); };
-        if (given_callback !== null) {console.log("given_callback ", given_callback.name); };
-
-        console.log("socket_client  given_media_file ", given_media_file);
+        // console.log("socket_client  given_mode ", given_mode);
+        // console.log("socket_client  requested_action ", requested_action);
+        // if (given_callback !== null) {console.log("given_callback ", given_callback.name); };
+        // console.log("socket_client  given_media_file ", given_media_file);
 
         switch (given_mode) {
 
             case 1 : {
 
-                console.log('...  socket_client mode one ...  create_websocket_connection');
+                // console.log('...  socket_client mode one ...  create_websocket_connection');
 
                 create_websocket_connection();
 
@@ -311,18 +261,10 @@ var communication_sockets = function() {
 
             case 6 : {
 
-                console.log('...  socket_client mode SIX  ... stream audio buffer from server ');
+                // console.log('...  socket_client mode SIX  ... stream audio buffer from server ');
 
                 cb_for_client = given_callback;
 
-                // var requested_action = "stream_audio_to_client";
-
-                // tell server to stream this audio
-                // var requested_source = "Justice_Genesis_first_30_seconds_tight.wav";
-                // var requested_source = "2500_hz_sine.wav"; 
-                // var requested_source = given_media_file;
-
-                // request_server_send_binary(requested_action, requested_source, given_callback);
                 request_server_send_binary(given_msg);
 
                 break;
@@ -330,9 +272,7 @@ var communication_sockets = function() {
 
             case 7 : {
 
-                console.log('...  socket_client mode SEVEN  ... retrieve server side supplied max media size ');
-
-                // bbb
+                // console.log('...  socket_client mode SEVEN  ... retrieve server side supplied max media size ');
 
                 return {
 

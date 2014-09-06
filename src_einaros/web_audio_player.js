@@ -49,31 +49,23 @@ var BUFF_SIZE_AUDIO_RENDERER = 16384;
 var BUFF_SIZE_TIME_DOMAIN = BUFF_SIZE_AUDIO_RENDERER;
 
 // var cushion_factor = 3; // delay start of audio rendering until we have buffered up a hefty cache of audio
-var cushion_factor = 100; // delay start of audio rendering until we have buffered up a hefty cache of audio
+// var cushion_factor = 10; // delay start of audio rendering until we have buffered up a hefty cache of audio
+// var cushion_factor = 15; // delay start of audio rendering until we have buffered up a hefty cache of audio
+// var cushion_factor = 20; // delay start of audio rendering until we have buffered up a hefty cache of audio
+// var cushion_factor = 30; // delay start of audio rendering until we have buffered up a hefty cache of audio
+var cushion_factor = 50; // delay start of audio rendering until we have buffered up a hefty cache of audio
+// var cushion_factor = 100; // delay start of audio rendering until we have buffered up a hefty cache of audio
 var count_num_buffers_received_from_server = 0;
 
 var audio_obj_from_server = {};
 
 var flag_audio_rendering = false;
 
-// var flag_was_rendering_buffer_allocated = false;
-
-// var did_one_draw = false;
-
-// var was_anything_stopped = false;
-
-// var microphone_data = {};
-
-// var mode_stream_audio_to_client = "stream_audio_to_client";
-
 var msgs_to_server = {};
 
-// var BUFFER_SIZE_STREAM_QUEUE = 2097152; // stens TODO - wrap into a circular queue
 var BUFFER_SIZE_STREAM_QUEUE; // stens TODO - wrap into a circular queue
 var curr_index_stream_buffer = 0;
 var server_side_audio_obj;
-
-// var streaming_audio_obj;
 
 var streaming_audio_obj = {
 
@@ -94,7 +86,7 @@ function init_context_audio() {
 
     if (typeof audio_context !== "undefined") {
 
-        console.log("audio_context already defined");
+        // console.log("audio_context already defined");
         return;
     }
 
@@ -107,13 +99,13 @@ function init_context_audio() {
             window.msAudioContext;
 
         audio_context = new AudioContext();
-        // console.log("cool audio context established ... audio_context ", audio_context);
+
         console.log("cool audio context established ... audio_context ");
         console.log(audio_context);
 
     } catch (e) {
 
-        alert('Web Audio API is not supported by this browser\n ... get with wit yo');
+        alert("Web Audio API is not supported by this browser\n ... http://caniuse.com/#feat=audio-api");
     }
 
     // ---
@@ -155,10 +147,6 @@ function allocate_streaming_buffer(audio_obj) {
         audio_obj.buffer = new Float32Array(BUFFER_SIZE_STREAM_QUEUE);
         audio_obj.max_index = BUFFER_SIZE_STREAM_QUEUE;
 
-        // flag_was_rendering_buffer_allocated = true;
-
-        console.log("Corinde Stensland BUFFER_SIZE_STREAM_QUEUE  ", BUFFER_SIZE_STREAM_QUEUE);
-
     } else {
 
         console.error("ERROR - failed to resolve server supplied media size");
@@ -166,8 +154,6 @@ function allocate_streaming_buffer(audio_obj) {
 }
 
 function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server) {
-
-    console.log("Cairo ... flag_streaming_status ", flag_streaming_status);
 
     if (typeof streaming_audio_obj.buffer === "undefined") {
 
@@ -205,9 +191,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
     // -----------------
 
-    // var curr_index = streaming_audio_obj.index_stream;
-    // var max_index = streaming_audio_obj.max_index;
-
     console.log("|||||||||||||||||||||||||||||||||||||||||||||||||||||| ");
     console.log("flag_audio_rendering ", flag_audio_rendering);
     console.log("curr_index ", curr_index);
@@ -215,24 +198,12 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
     console.log("cushion_factor * BUFF_SIZE_AUDIO_RENDERER ", cushion_factor * BUFF_SIZE_AUDIO_RENDERER);
     console.log("flag_streaming_status ", flag_streaming_status);
 
-// bbb
-
-    // if ((! flag_audio_rendering) && curr_index > cushion_factor * BUFF_SIZE_AUDIO_RENDERER) {
-
-    // if ((! flag_audio_rendering) && 
-    //     ((curr_index > cushion_factor * BUFF_SIZE_AUDIO_RENDERER) ||
-    //      (flag_streaming_status === streaming_status_done))) {
-
-
     if ((! flag_audio_rendering) && 
         ((curr_index > cushion_factor * BUFF_SIZE_AUDIO_RENDERER) ||
          (flag_streaming_status === streaming_status_done) || 
          (curr_index >= final_index))) {
 
-        
-
-
-        // have we accummulated sufficient safety buffer to launch audio rendering ?
+        // we have NOW accummulated sufficient safety buffer to launch audio rendering 
 
         console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
         console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
@@ -245,7 +216,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         setup_onaudioprocess_callback_stream(streaming_node, streaming_audio_obj.buffer,
             streaming_audio_obj.buffer.length, set_false_in_middle_of_playback);
 
-        // followup_fft(streaming_node);
         streaming_node.connect(gain_node);
 
         flag_streaming_status = streaming_status_active;
@@ -253,41 +223,14 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         flag_audio_rendering = true;
     }
 
-    // var local_index_max = audio_obj_from_server.buffer.length;
-
-    // console.log(curr_index + " out of " + max_index, " local_index_max " + local_index_max);
-
-    // for (var local_index = 0; local_index < local_index_max && curr_index < max_index;) {
-
-    //     streaming_audio_obj.buffer[curr_index] = audio_obj_from_server.buffer[local_index];
-    //     local_index++;
-    //     curr_index++;
-    // };
-
-    // streaming_audio_obj.index_stream = curr_index;
-
-    console.log("Corinde where U at ... here I am ... cb_stream_audio_buffer_to_web_audio_player");
-
-    console.log("Corinde flag_streaming_status ", flag_streaming_status);
-
     // ---
-
-    // bbb  
 
     if (curr_index === max_index) {
 
         console.log("stop the madness - its DONE");
 
-        // bbb
-
         return;
     }
-
-    // communication_sockets.socket_client({
-
-    //     mode : 6, 
-    //     callback : cb_receive_buffer_from_server_to_web_audio_player
-    // });
 
     communication_sockets.socket_client(msgs_to_server.mode_stream_audio_to_client);
 
@@ -297,13 +240,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
 var gain_node;
 var streaming_node;
-
-// var source_node;
-// var fft_analyzer;
-// var script_processor_audio_file_node;
-// var script_processor_fft_node;
-// var script_processor_synth_node;
-// var script_processor_time_domain_node;
 
 var allow_synth = false;
 
@@ -353,28 +289,14 @@ function setup_onaudioprocess_callback_stream(given_node, render_this_buffer, re
 
             render_input_buffer = event.outputBuffer.getChannelData(0); // stens TODO - do both channels not just left
 
-            // for (var curr_sample = 0; curr_sample < BUFF_SIZE; curr_sample++) {
             for (var curr_sample = 0; curr_sample < BUFF_SIZE_AUDIO_RENDERER; curr_sample++) {
 
                 render_input_buffer[curr_sample] = render_this_buffer[curr_index_synth_buffer];
 
                 curr_index_synth_buffer++;
 
-                // final_index  
-
-// bbb
-
-                // if (curr_index_synth_buffer >= render_size_buffer) {
                 if (curr_index_synth_buffer >= render_size_buffer ||
                     curr_index_synth_buffer >= final_index) {
-
-
-
-                    // flag_streaming_status === streaming_status_done &&
-                    // max_index
-
-
-                    // console.log('\n\ncw + ss    thursday        434             \n\n');
 
                     if (given_node) {
 
@@ -394,7 +316,6 @@ function setup_onaudioprocess_callback_stream(given_node, render_this_buffer, re
 
                         flag_streaming_status = streaming_status_ready; // get ready for next time
 
-// bbb
                         flag_audio_rendering = false;
 
                         done_callback();
@@ -403,21 +324,11 @@ function setup_onaudioprocess_callback_stream(given_node, render_this_buffer, re
                     }
                 }
             }
-
-            // ---
         };
-
     }());
-
-    console.log("given_node ", given_node);
-
-    // do_engage(given_node);
-
-} //      setup_onaudioprocess_callback_stream
-
+}           //      setup_onaudioprocess_callback_stream
 
 // ---------------------------------------------------------------------------  //
-
 
 function render_buffer(given_flavor) {
 
@@ -429,21 +340,9 @@ function render_buffer(given_flavor) {
         return;
     }
 
-    console.log('launching playback in render_buffer in MIDDLE of playback given_flavor ', given_flavor);
-
-    // var local_buffer = audio_process_obj.get_buffer(given_flavor);
-    // var size_buffer = audio_process_obj.get_size_buffer(given_flavor);
-
-    // var desired_buffer_obj = audio_process_obj.get_buffer(given_flavor);
     var desired_buffer_obj = {};
 
-    // if (desired_buffer_obj && desired_buffer_obj.buffer) {
-
     if (desired_buffer_obj) {
-
-        console.log('!!!!!!!  !!!!!!! OK about to playback buffer given_flavor ', given_flavor);
-
-        // ---
 
         switch (given_flavor) {
 /*
@@ -630,9 +529,9 @@ function render_buffer(given_flavor) {
                 comm_msg.cb_client_to_server_to_client = callback;
 
                 
-                // comm_msg.transmit_chunksize = 65536;
+                comm_msg.transmit_chunksize = 65536;
                 // comm_msg.transmit_chunksize = 131072;
-                comm_msg.transmit_chunksize = 262144;
+                // comm_msg.transmit_chunksize = 262144;
                 // comm_msg.transmit_chunksize = 524288; // too big
 
                 comm_msg.limit_buffer_size = 0;
