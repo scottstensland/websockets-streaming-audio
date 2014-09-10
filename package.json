@@ -8,7 +8,7 @@
         "express": "^4.4.5",
 		"websocket" : "1.0.x",
 		"audio-utils" : "1.0.x",
-		"shared-utils" : "0.1.3"
+		"shared-utils" : "0.1.3-5"
     },
     "description": "node.js app which allows browser to launch process on server side which then makes callback to browser streaming binary audio in either direction",
     "engines": {
@@ -23,16 +23,16 @@
         "binary"
     ],
     "license": "ISC",
-    "main": "src/app.js",
+    "main": "src_mod/app.js",
     "name": "websockets-streaming-audio",
     "repository": {
         "type": "git",
         "url": "https://github.com/scottstensland/websockets-streaming-audio.git"
     },
     "scripts": {
-        "start": "node src/app.js",
+        "start": "node src_mod/app.js",
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.4.1"
+    "version": "0.5.0"
 }
