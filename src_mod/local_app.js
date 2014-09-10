@@ -1,12 +1,12 @@
 
 
-var connect_to_server = function(working_dir) {
-
+var launch_server = function(working_dir) {
 
 console.log(require('../package.json').name, require('../package.json').version);
 
-// var handle_comm = require("./handle_communications.js").handle_comms();
-var server_comms = require("./server_comms.js");
+var server_streaming_audio = require("./server_streaming_audio.js");
+
+console.log("server_streaming_audio ", server_streaming_audio);
 
 
 var WebSocketServer = require("ws").Server;
@@ -17,23 +17,16 @@ var port = process.env.PORT || 8888;
 
 // ---
 
-// var audio_utils = require("audio-utils");
-
-// ---
-
 var cfg = require("../config");
-
-// console.log("here is cfg ", cfg);
 
 var media_dir = cfg.media_dir;
 
 console.log("here is media_dir ", media_dir);
 
-server_comms.set_media_dir(media_dir);
+server_streaming_audio.set_media_dir(media_dir);
 
 // ---
 
-// app.use(express.static(__dirname + "/")); // stens TODO - need to handle 404 file NOT found esp wav file
 app.use(express.static(working_dir)); // stens TODO - need to handle 404 file NOT found esp wav file
 
 var server = http.createServer(app);
@@ -69,24 +62,19 @@ wss.on("connection", function(ws) {
 
         var received_json;
 
-        // try {
+        try {
 
             received_json = JSON.parse(received_data);
 
-        // } catch (error) {
+        } catch (error) {
 
-        //     // console.error("ERROR " + error);
-        //     // process.exit(8);
+            console.log("ERROR - received NON JSON message -->", error, "<--");
+            console.log("received_data : ", received_data);
+            // process.exit(8);
+            return;
+        };
 
-        //     console.log("Received received_json NON JSON though : error -->", error, "<--");
-        //     console.log("received_data : ", received_data);
-        //     // process.exit(8);
-        //     return;
-        // };
-
-        // server_comms.route_msg(received_json, received_data, ws);
-        // server_comms.route_msg(received_json, received_data, ws);
-        server_comms.route_msg(received_json, ws);
+        server_streaming_audio.route_msg(received_json, ws);
     });
 
     // ---
@@ -106,8 +94,8 @@ wss.on("connection", function(ws) {
     });
 });
 
-};      //      connect_to_server
+};      //      launch_server
 
-exports.connect_to_server = connect_to_server;
+exports.launch_server = launch_server;
 
 

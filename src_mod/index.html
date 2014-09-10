@@ -2,8 +2,9 @@
   <head>
 
   <script type="text/javascript" src="shared_utils.js"></script>
-  <script type="text/javascript" src="communication_sockets.js"></script>
-  <script type="text/javascript" src="web_audio_player.js"></script>
+  <script type="text/javascript" src="client_streaming_audio.js"></script>
+  <script type="text/javascript" src="client_socket_comms.js"></script>
+  <script type="text/javascript" src="client_memory_mgr.js"></script>
 
     <style>
       body {
@@ -59,26 +60,10 @@ var stens = function() {
 
 function internal_webGLStart() {
 
-  console.log("TOP internal_webGLStart");
+  client_streaming_audio.entry_point("init_audio_context");
+  client_socket_comms.socket_client({ mode : 1});
 
-  communication_sockets.socket_client({ mode : 1}); // create websocket connection from browser to server
-
-  // ------------------------------
-
-  if (!"WebSocket" in window) {
-
-      alert("Boo Hoo WebSocket is not available on this browser");
-      return;
-
-  } else {
-
-    console.log("Cool ... websockets are available on this browser");
-  };
-
-  // ----------------------
-  web_audio_player.init_context_audio();
-
-}       //      internal_webGLStart
+};       //      internal_webGLStart
 
 return {
 
@@ -93,8 +78,9 @@ return {
 
     <p>  
 
-    <button onclick="web_audio_player.render_buffer(10)">stream audio</button>
-    <button onclick="web_audio_player.render_buffer(11)">stop</button>
+    <button onclick="client_streaming_audio.entry_point('stream_audio')">stream audio</button>
+    <button onclick="client_streaming_audio.entry_point('stop_audio')">stop</button>
+    <!-- <button onclick="web_audio_player.render_buffer(11)">stop</button> -->
 
         <br>     <!-- .....................  -->
         <br>     <!-- .....................  -->

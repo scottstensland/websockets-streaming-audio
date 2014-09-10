@@ -1,3 +1,4 @@
+var server_streaming_audio = function() {
 
 var fs   = require('fs');
 var path = require('path');
@@ -12,7 +13,7 @@ var path = require('path');
 // ---
 
 var shared_utils = require("shared-utils");
-console.log("shared_utils ", shared_utils);
+// console.log("shared_utils ", shared_utils);
 
 // --------------------------------------------------------  //
 
@@ -63,6 +64,40 @@ var set_media_dir = function(given_media_dir) {
 };
 exports.set_media_dir = set_media_dir;
 
+// ---
+
+var streaming_is_done = function(given_max_index, curr_ws) {
+
+    console.log("TOOOP streaming_is_done");
+    console.log("TOOOP streaming_is_done");
+    console.log("TOOOP streaming_is_done");
+
+    streaming_buffer_obj.curr_state = stream_status_complete;
+
+    var streaming_is_done_msg = {
+
+        streaming_is_done : "yes",
+        max_index : given_max_index
+    };
+
+    // bbb
+    console.log("SEND -------- json DONE --------");
+    console.log("SEND ---------- streaming_is_done_msg ", streaming_is_done_msg);
+    console.log("SEND -------- json DONE --------");
+
+    curr_ws.send(JSON.stringify(streaming_is_done_msg), {binary: false, mask: false});  //  json message
+
+    // --- reset state in prep for followon request
+
+    // streaming_buffer_obj = null;
+
+    // streaming_buffer_obj = {
+
+    //     curr_state : stream_status_prior,
+    //     index_stream : 0
+    // };
+}
+
 // var stream_another_chunk_to_client = function(received_json, given_request, curr_ws) {
 var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
@@ -70,6 +105,16 @@ var stream_another_chunk_to_client = function(received_json, curr_ws) {
     var max_index = streaming_buffer_obj.max_index;
 
     console.log("PREEEEE ", curr_index + " out of " + max_index);
+
+    // ---
+
+    // if (curr_index == max_index) {
+
+    //     streaming_is_done(max_index, curr_ws);
+    //     return;
+    // };
+
+    // ---
 
     for (var local_index = 0; local_index < BUFFER_SIZE_STREAMING && curr_index < max_index;) {
 
@@ -80,7 +125,10 @@ var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
     console.log("POOOOOOST ", curr_index + " out of " + max_index);
 
-    console.log("about to send binary temp_stream_chunk_buffer to client    curr_index ", curr_index);
+    console.log("SEND -------- binary audio buffer --------");
+    console.log("SEND ------------ binary temp_stream_chunk_buffer to client    curr_index ", 
+                curr_index);
+    console.log("SEND -------- binary audio buffer --------");
 
     curr_ws.send(temp_stream_chunk_buffer, {binary: true, mask: false}); // binary buffer
 
@@ -88,29 +136,7 @@ var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
     if (curr_index == max_index) {
 
-        streaming_buffer_obj.curr_state = stream_status_complete;
-
-        var streaming_is_done_msg = {
-
-            streaming_is_done : "yes",
-            max_index : max_index
-        };
-
-        // bbb
-
-        console.log("streaming_is_done_msg ", streaming_is_done_msg);
-
-        curr_ws.send(JSON.stringify(streaming_is_done_msg), {binary: false, mask: false});  //  json message
-
-        // --- reset state in prep for followon request
-
-        streaming_buffer_obj = null;
-
-        streaming_buffer_obj = {
-
-            curr_state : stream_status_prior,
-            index_stream : 0
-        };
+        streaming_is_done(max_index, curr_ws);
     };
 };
 
@@ -132,7 +158,10 @@ var send_client_source_data_info = function(audio_obj, curr_websocket) {
         all_property_tags[curr_property] = audio_obj[curr_property];
     }
 
-    console.log("all_property_tags ", all_property_tags);
+    console.log("SEND -------- json all property tags --------");
+    console.log("SEND -------- all_property_tags ", all_property_tags);
+    console.log("SEND -------- json all property tags --------");
+
 
 // bbb
 
@@ -141,7 +170,6 @@ var send_client_source_data_info = function(audio_obj, curr_websocket) {
 
 // ---
 
-// var read_file_pop_buffer = function(received_json, given_request, curr_ws) {
 var read_file_pop_buffer = function(received_json, curr_ws, limit_buffer_size) {
 
     console.log("about to parse wav file, pop buffer to send back to client browser");
@@ -163,16 +191,19 @@ var read_file_pop_buffer = function(received_json, curr_ws, limit_buffer_size) {
 
         };
 
+        console.log("SEND -------- json ERROR --------");
         console.log(error_msg);
         curr_ws.send(JSON.stringify(error_msg), {binary: false, mask: false});
+        console.log("SEND -------- json ERROR --------");
 
         return;
     };
 
-
     shared_utils.read_wav_file(requested_input_filename, (function(audio_obj) {
 
-        console.log("cb_read_file_done ");
+        console.log("read_wav_file is DONE now do something with this WAV data");
+        console.log("read_wav_file is DONE now do something with this WAV data");
+        console.log("read_wav_file is DONE now do something with this WAV data");
 
         streaming_buffer_obj = audio_obj; // save pointer to stream
 
@@ -185,10 +216,10 @@ var read_file_pop_buffer = function(received_json, curr_ws, limit_buffer_size) {
             streaming_buffer_obj.max_index = limit_buffer_size;
         }
 
-        console.log("populated buffer size ", audio_obj.buffer.length);
+        // console.log("populated buffer size ", audio_obj.buffer.length);
 
-        shared_utils.show_object(audio_obj,
-            "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
+        // shared_utils.show_object(audio_obj,
+        //     "backHome audio_obj 32 bit signed float   read_file_done", "total", 10);
 
         send_client_source_data_info(audio_obj, curr_ws);
 
@@ -201,7 +232,16 @@ var read_file_pop_buffer = function(received_json, curr_ws, limit_buffer_size) {
 
 // ---
 
-var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws) { // stens TODO put into a closure
+var stop_streaming = function(received_json, curr_ws) {
+
+    streaming_is_done(0, curr_ws);
+}
+
+// ---
+
+var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws) {
+
+    // stens TODO put into a closure
 
     console.log("INDEX ", streaming_buffer_obj.index_stream);
 
@@ -230,12 +270,11 @@ var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws
 
 // ---
 
-// var route_msg = function(received_json, received_data, curr_ws) {
 var route_msg = function(received_json, curr_ws) {
 
     console.log("AAAAAAAAAAAAAAAAAAAAA  route_msg  received_json ", received_json);
 
-    shared_utils.show_object(streaming_buffer_obj, "streaming_buffer_obj", "total", 10);
+    // shared_utils.show_object(streaming_buffer_obj, "streaming_buffer_obj", "total", 10);
 
     var requested_action = received_json.requested_action;
 
@@ -245,20 +284,29 @@ var route_msg = function(received_json, curr_ws) {
         process.exit(8);
     };
 
-    // callback
-    // requested_source
-
     console.log("requested_action ", requested_action);
 
     switch (requested_action) {
 
         case "stream_audio_to_client" : {
 
-            console.log("stream_audio_to_client");
+            console.log("RECEIVED ---------- stream_audio_to_client");
+            console.log("RECEIVED ---------- stream_audio_to_client");
+            console.log("RECEIVED ---------- stream_audio_to_client");
 
             read_file_pop_buffer_stream_back_to_client(received_json, curr_ws);
             break;
-        }
+        };
+
+        case "stop_streaming" : {
+
+            console.log("RECEIVED ---------- stop_streaming");
+            console.log("RECEIVED ---------- stop_streaming");
+            console.log("RECEIVED ---------- stop_streaming");
+
+            stop_streaming(received_json, curr_ws);
+            break;
+        };
 
         default : {
 
@@ -267,14 +315,9 @@ var route_msg = function(received_json, curr_ws) {
             process.exit(8);
         }
     }
-// }(given_received_json, given_received_data, given_curr_ws));      //      route_msg
-
-// exports.route_msg = route_msg;
-// exports.server_comms.route_msg = route_msg;
-
-
 };      //      route_msg
-// };      //      server_comms
-
-
 exports.route_msg = route_msg;
+
+}(); //  server_streaming_audio = function()
+
+
