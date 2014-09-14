@@ -88,6 +88,13 @@ var did_buffer_get_filled = function() {
 
 var pop_stream_buffer = function(input_buffer_obj) {
 
+	if (typeof input_buffer_obj === "undefined") {
+
+		console.log("ERROR - pop_stream_buffer         input_buffer_obj is undefined");
+
+		return;
+	}
+
 	var size_buff = input_buffer_obj.buffer.length;
 
 	console.log("TOP pop_stream_buffer ... size buffer ", size_buff);
@@ -139,11 +146,14 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 	} else {
 
+		console.log("size_buff ", size_buff, " <= size_available_to_produce ", size_available_to_produce);
+
+
 		input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
 
 		var error_msg = "NOTICE - logic not yet implemented to handle partial calls to populate circular queue";
 		console.log(error_msg);
-		alert(error_msg);
+		// alert(error_msg);
 	};
 
 	// ---

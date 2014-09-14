@@ -55,6 +55,12 @@ var streaming_buffer_obj = {
     index_stream : 0
 };
 
+var request_number = 0;
+var previous_request_number = 0;
+
+var request_new = "request_new";
+var request_ongoing = "request_ongoing";
+
 // ---
 
 var media_dir;
@@ -66,13 +72,29 @@ exports.set_media_dir = set_media_dir;
 
 // ---
 
+var init_fresh_request = function() {
+
+    // streaming_buffer_obj.curr_state = stream_status_complete;
+    streaming_buffer_obj.curr_state = stream_status_prior; // prepare for next request to stream
+
+    // ---
+
+    temp_stream_chunk_buffer = null;
+
+    streaming_buffer_obj = null;
+
+    streaming_buffer_obj = {
+
+        curr_state : stream_status_prior,
+        index_stream : 0
+    };
+};
+
 var streaming_is_done = function(given_max_index, curr_ws) {
 
     console.log("TOOOP streaming_is_done");
     console.log("TOOOP streaming_is_done");
     console.log("TOOOP streaming_is_done");
-
-    streaming_buffer_obj.curr_state = stream_status_complete;
 
     var streaming_is_done_msg = {
 
@@ -80,7 +102,6 @@ var streaming_is_done = function(given_max_index, curr_ws) {
         max_index : given_max_index
     };
 
-    // bbb
     console.log("SEND -------- json DONE --------");
     console.log("SEND ---------- streaming_is_done_msg ", streaming_is_done_msg);
     console.log("SEND -------- json DONE --------");
@@ -89,20 +110,19 @@ var streaming_is_done = function(given_max_index, curr_ws) {
 
     // --- reset state in prep for followon request
 
-    // streaming_buffer_obj = null;
+    init_fresh_request();
 
-    // streaming_buffer_obj = {
-
-    //     curr_state : stream_status_prior,
-    //     index_stream : 0
-    // };
+    previous_request_number = request_number;
 }
 
 // var stream_another_chunk_to_client = function(received_json, given_request, curr_ws) {
 var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
+    // var curr_index = streaming_buffer_obj.index_stream;
+    // var max_index = streaming_buffer_obj.max_index;
+
     var curr_index = streaming_buffer_obj.index_stream;
-    var max_index = streaming_buffer_obj.max_index;
+    var max_index  = streaming_buffer_obj.max_index;
 
     console.log("PREEEEE ", curr_index + " out of " + max_index);
 
@@ -284,27 +304,80 @@ var route_msg = function(received_json, curr_ws) {
         process.exit(8);
     };
 
+    // ---
+
+    var putative_request_number = received_json.request_number; // request_number
+
+    console.log("               request_number    ", request_number);
+    console.log(" received_json.request_number    ", received_json.request_number);
+
+    if (received_json.request_number === request_number) {
+
+        console.log("OK seeing same request_number    ", request_number);
+
+        request_status = request_ongoing;
+
+    } else {
+
+        console.log("OK seeing new request_number ", putative_request_number);
+
+        request_number = putative_request_number;
+        request_status = request_new;
+
+        console.log("new          request_number  ", request_number);
+    }
+
+    // ---
+
     console.log("requested_action ", requested_action);
 
     switch (requested_action) {
 
         case "stream_audio_to_client" : {
 
-            console.log("RECEIVED ---------- stream_audio_to_client");
-            console.log("RECEIVED ---------- stream_audio_to_client");
-            console.log("RECEIVED ---------- stream_audio_to_client");
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+
+            if (request_status === request_ongoing) {
+
+                if (request_number === previous_request_number) {
+
+                    console.log("cool we have already stopped this stream request so ignoring stream request");
+
+                    break;   
+                };
+
+            } else {
+
+                console.log("request_status === request_new ... so call init_fresh_request");
+                console.log("request_status === request_new ... so call init_fresh_request");
+                console.log("request_status === request_new ... so call init_fresh_request");
+
+                init_fresh_request();
+            };
 
             read_file_pop_buffer_stream_back_to_client(received_json, curr_ws);
+
             break;
         };
 
         case "stop_streaming" : {
 
-            console.log("RECEIVED ---------- stop_streaming");
-            console.log("RECEIVED ---------- stop_streaming");
-            console.log("RECEIVED ---------- stop_streaming");
+            if (request_status === request_ongoing &&
+                streaming_buffer_obj.curr_state === stream_status_prior) {
 
-            stop_streaming(received_json, curr_ws);
+                console.log("cool we have already stopped this stream request so ignoring stop request");
+
+            } else {
+
+                console.log("RECEIVED ---------- stop_streaming");
+                console.log("RECEIVED ---------- stop_streaming");
+                console.log("RECEIVED ---------- stop_streaming");
+
+                stop_streaming(received_json, curr_ws);
+            }
+
             break;
         };
 

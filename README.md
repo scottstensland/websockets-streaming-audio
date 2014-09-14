@@ -23,11 +23,7 @@ Clone this repository to your local machine:
 ```bash
 npm install websockets-streaming-audio
 ```
-
-Change directory into the project folder:
-```bash
-cd websockets-streaming-audio
-```
+Change directory into the project folder websockets-streaming-audio
 
 Then install the dependent modules:
 
