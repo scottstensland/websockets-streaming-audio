@@ -55,6 +55,10 @@ var client_socket_comms = function() {
 
         var all_tags_from_server = {};
 
+        // following binaryType must be set or you will get this error :
+        /* Uncaught TypeError: Failed to construct 'Blob': The 1st argument provided is either null, 
+           or an invalid Array object.
+        */
         web_socket.binaryType = "arraybuffer"; // stens TODO - added April 30 2014
 
         // ---
