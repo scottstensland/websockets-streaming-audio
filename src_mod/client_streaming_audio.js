@@ -3,6 +3,7 @@
 var client_streaming_audio = function() {
 
 var curr_web_audio_obj;
+var curr_circular_queue_memory_buffer_obj;
 var request_number = 0;
 var msgs_to_server = {};
 
@@ -28,7 +29,8 @@ function entry_point(given_request) {
             console.log("stream audio from server to client browser");
 
             // if (flag_streaming_status !== streaming_status_ready) {
-            if (! curr_web_audio_obj.is_streaming_status_ready()) {
+            // if (! curr_web_audio_obj.is_streaming_status_ready()) {
+            if (curr_web_audio_obj && (! curr_web_audio_obj.is_streaming_status_ready()) {
 
                 console.log("flag_streaming_status ", curr_web_audio_obj.get_streaming_status());
 
@@ -48,6 +50,14 @@ function entry_point(given_request) {
 
             // ---
 
+            curr_circular_queue_memory_buffer_obj = null;
+
+            curr_circular_queue_memory_buffer_obj = Object.create(circular_queue());
+
+            console.log("curr_circular_queue_memory_buffer_obj ", curr_circular_queue_memory_buffer_obj);
+
+            // ---
+
             curr_web_audio_obj = null;
 
             curr_web_audio_obj = Object.create(client_web_audio());
@@ -55,6 +65,8 @@ function entry_point(given_request) {
             console.log("curr_web_audio_obj ", curr_web_audio_obj);
 
             curr_web_audio_obj.init_audio_context();
+
+            curr_web_audio_obj.set_circular_queue(curr_circular_queue_memory_buffer_obj);
 
             // ---
 
@@ -105,8 +117,8 @@ function entry_point(given_request) {
             // media_file = "sine_wave_32768_64.wav";
             // media_file = "sine_wave_262144_64.wav";
 
-            media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
-            // media_file = "sine_wave_8388608_64.wav";
+            // media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
+            media_file = "sine_wave_8388608_64.wav";
             // media_file = "Justice_Genesis_first_third_sec_tight.wav";
             // media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
 
@@ -190,6 +202,11 @@ function entry_point(given_request) {
         case "stop_audio" : {
 
             console.log("stop audio");
+
+            curr_circular_queue_memory_buffer_obj.deallocate_queue();
+            curr_circular_queue_memory_buffer_obj = null;
+
+            curr_web_audio_obj.stop_audio();
 
             // stop_audio(streaming_node);
             curr_web_audio_obj = null; // may need to help this more explicitly

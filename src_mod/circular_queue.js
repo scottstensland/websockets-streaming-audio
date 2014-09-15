@@ -1,5 +1,5 @@
 
-var client_memory_mgr = function() {
+var circular_queue = function() {
 	
 	var memory_obj = {};
 
@@ -57,6 +57,11 @@ var set_terminal_index = function(given_terminal_index) {
 var get_size_memory_buffer = function() {
 
 	return memory_obj.buffer.length;
+};
+
+var deallocate_queue = function() {
+
+	delete memory_obj.buffer;
 };
 
 // ---
@@ -244,7 +249,10 @@ return { // to make visible to calling reference frame list function here
     is_consumption_possible : is_consumption_possible,
     did_buffer_get_filled : did_buffer_get_filled,
     get_memory_chunk : get_memory_chunk,
-    set_terminal_index : set_terminal_index
+    set_terminal_index : set_terminal_index,
+    deallocate_queue : deallocate_queue
 };
 
-}(); //  client_memory_mgr = function()
+// }(); //  circular_queue = function()
+}; //  circular_queue = function()
+
