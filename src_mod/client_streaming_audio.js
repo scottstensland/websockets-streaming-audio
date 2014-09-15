@@ -30,7 +30,7 @@ function entry_point(given_request) {
 
             // if (flag_streaming_status !== streaming_status_ready) {
             // if (! curr_web_audio_obj.is_streaming_status_ready()) {
-            if (curr_web_audio_obj && (! curr_web_audio_obj.is_streaming_status_ready()) {
+            if (curr_web_audio_obj && (! curr_web_audio_obj.is_streaming_status_ready())) {
 
                 console.log("flag_streaming_status ", curr_web_audio_obj.get_streaming_status());
 
