@@ -3,8 +3,6 @@ websockets-streaming-audio
 
 Click a browser button to launch a node.js process on the server side which streams audio using web sockets back to the browser which is then rendered using web audio API
 
-I am currently addressing some edge conditions, but the basic idea is finally functional
-
 My plan is to make this modular enough to get added to your process as simple API calls
 
 # Installation
