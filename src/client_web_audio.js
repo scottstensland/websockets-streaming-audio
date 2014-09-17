@@ -4,6 +4,13 @@ var client_web_audio = function() {
 var audio_context;
 var circular_queue;
 
+var gain_node;
+var streaming_node;
+
+var allow_synth = false;
+
+var in_middle_of_playback = false;
+
 // var client_memory;
 
 /*
@@ -66,6 +73,7 @@ var streaming_status_ready      = "streaming_status_ready";
 // var streaming_status_preloading = "streaming_status_preloading";
 var streaming_status_active     = "streaming_status_active";
 var streaming_status_done       = "streaming_status_done";
+
 
 var flag_streaming_status = streaming_status_ready; // when server side signals stream is done this becomes false
 
@@ -155,6 +163,7 @@ function cb_stream_is_complete(given_max_index) {
 
     console.log("flag_audio_rendering ", flag_audio_rendering);
 
+    /*
     if (! flag_audio_rendering) {
 
         console.log("better late than never");
@@ -171,22 +180,19 @@ function cb_stream_is_complete(given_max_index) {
 
         streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
+        console.log("BBBBBBBBAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCKKKKKKKKKKKK on on on gain_node");
+
         streaming_node.connect(gain_node);
 
         setup_onaudioprocess_callback_stream(streaming_node, circular_queue, 
                                              circular_queue.get_memory_chunk, 
                                              set_false_in_middle_of_playback);
     }
+    */
 };
 
 // ---
 
-var gain_node;
-var streaming_node;
-
-var allow_synth = false;
-
-var in_middle_of_playback = false;
 
 function set_false_in_middle_of_playback() {
 
@@ -344,6 +350,8 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
         // ---
+
+        console.log("OOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN activating gain_node");
 
         streaming_node.connect(gain_node);
 

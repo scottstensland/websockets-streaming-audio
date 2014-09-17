@@ -94,11 +94,15 @@ return {
 
     <p>  
 
-    <button onclick="client_streaming_audio.entry_point('stream_audio')">stream audio</button>
-    <button onclick="client_streaming_audio.entry_point('stop_audio')">stop</button>
+    <!-- <button onclick="client_streaming_audio.entry_point('stream_audio')">stream audio</button> -->
+    <!-- <button onclick="client_streaming_audio.entry_point('stop_audio')">stop</button> -->
     <!-- <button onclick="web_audio_player.render_buffer(11)">stop</button> -->
 
-        <br>     <!-- .....................  -->
+    <p> 
+
+    <button onclick="client_streaming_audio.entry_point('loop_object_creation_teardown')">stream creation</button>
+    <button onclick="client_streaming_audio.entry_point('stop_loop')">stream tear down</button>
+
         <br>     <!-- .....................  -->
 
     <!-- <output id="result"></output> -->

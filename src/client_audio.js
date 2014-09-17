@@ -148,35 +148,7 @@ function cb_stream_is_complete(given_max_index) {
 
     circular_queue.set_terminal_index(final_index);
 
-    console.log("cb_stream_is_complete final_index ", final_index, 
-                " flag_streaming_status ", flag_streaming_status);
-
-    // bbb
-
-    console.log("flag_audio_rendering ", flag_audio_rendering);
-
-    if (! flag_audio_rendering) {
-
-        console.log("better late than never");
-
-    // flag_streaming_status = streaming_status_active;
-
-    // console.log("OK just set flag_streaming_status = streaming_status_active");
-
-        // ---
-
-        flag_audio_rendering = true;
-
-        console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
-
-        streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
-
-        streaming_node.connect(gain_node);
-
-        setup_onaudioprocess_callback_stream(streaming_node, circular_queue, 
-                                             circular_queue.get_memory_chunk, 
-                                             set_false_in_middle_of_playback);
-    }
+    console.log("cb_stream_is_complete final_index ", final_index, " flag_streaming_status ", flag_streaming_status);
 };
 
 // ---
@@ -309,11 +281,11 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
 	// ---
 
-    // streaming_node.connect(gain_node);
+    streaming_node.connect(gain_node);
 
-    // flag_streaming_status = streaming_status_active;
+    flag_streaming_status = streaming_status_active;
 
-    // console.log("OK just set flag_streaming_status = streaming_status_active");
+    console.log("OK just set flag_streaming_status = streaming_status_active");
 
 };           //      setup_onaudioprocess_callback_stream
 
@@ -342,16 +314,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
 
         streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
-
-        // ---
-
-        streaming_node.connect(gain_node);
-
-        flag_streaming_status = streaming_status_active;
-
-        console.log("OK just set flag_streaming_status = streaming_status_active");
-
-        // ---
 
         setup_onaudioprocess_callback_stream(streaming_node, circular_queue, 
         									 circular_queue.get_memory_chunk, 

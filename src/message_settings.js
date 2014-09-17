@@ -9,6 +9,11 @@ var msgs_to_server = {};
 
 // client_socket_comms.socket_client({ mode : 1});
 
+function run_loop_object_creation_teardown() {
+
+    
+}
+
 
 // ----------------------------------------  //
 
@@ -26,6 +31,13 @@ function entry_point(given_request) {
 
         //     break;
         // }
+
+        case "loop_object_creation_teardown" : {
+
+            run_loop_object_creation_teardown();
+
+            break;
+        }
 
         case "stream_audio" : {
 

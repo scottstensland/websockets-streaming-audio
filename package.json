@@ -30,9 +30,9 @@
         "url": "https://github.com/scottstensland/websockets-streaming-audio.git"
     },
     "scripts": {
-        "start": "node src_mod/app.js",
+        "start": "node src/app.js",
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.6.2-4"
+    "version": "0.6.2-6"
 }
