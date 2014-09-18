@@ -41,7 +41,7 @@ var in_middle_of_playback = false;
 // var BUFF_SIZE_AUDIO_RENDERER = 2048;
 // var BUFF_SIZE_AUDIO_RENDERER = 4096;
 // var BUFF_SIZE_AUDIO_RENDERER = 8192;
-var BUFF_SIZE_AUDIO_RENDERER = 16384;
+var BUFF_SIZE_AUDIO_RENDERER = 16384;    
 
 // var count_num_buffers_received_from_server = 0;
 
@@ -67,7 +67,7 @@ var BUFFER_SIZE_STREAM_QUEUE; // stens TODO - wrap into a circular queue
 
 // var request_number = 0;
 
-var final_index;  // suppled by server side ... only populated when server senses source media has been exhausted
+var final_index = 0;  // suppled by server side ... only populated when server senses source media has been exhausted
 
 var streaming_status_ready      = "streaming_status_ready";
 // var streaming_status_preloading = "streaming_status_preloading";
@@ -76,6 +76,8 @@ var streaming_status_done       = "streaming_status_done";
 
 
 var flag_streaming_status = streaming_status_ready; // when server side signals stream is done this becomes false
+
+var count_total_size_consumed = 0;
 
 // ------------------------ //
 
@@ -108,13 +110,15 @@ function init_audio_context() {
 
     gain_node = audio_context.createGain(); // Declare gain node
     gain_node.connect(audio_context.destination); // Connect gain node to speakers
+
+    count_total_size_consumed = 0;
 };
 
 // ----------------- //
 
-function  allocate_streaming_buffer(given_size_memory_buffer) {
+function  allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize) {
 
-	circular_queue.allocate_streaming_buffer(given_size_memory_buffer);
+	circular_queue.allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize);
 };
 
 function get_size_memory_buffer() {
@@ -142,7 +146,6 @@ function set_circular_queue(given_circular_queue) {
 	circular_queue = given_circular_queue;
 };
 
-
 function cb_stream_is_complete(given_max_index) {
 
     final_index = given_max_index;
@@ -159,11 +162,8 @@ function cb_stream_is_complete(given_max_index) {
     console.log("cb_stream_is_complete final_index ", final_index, 
                 " flag_streaming_status ", flag_streaming_status);
 
-    // bbb
-
     console.log("flag_audio_rendering ", flag_audio_rendering);
 
-    /*
     if (! flag_audio_rendering) {
 
         console.log("better late than never");
@@ -188,21 +188,20 @@ function cb_stream_is_complete(given_max_index) {
                                              circular_queue.get_memory_chunk, 
                                              set_false_in_middle_of_playback);
     }
-    */
 };
 
 // ---
-
 
 function set_false_in_middle_of_playback() {
 
     in_middle_of_playback = false;
 
     console.log('just set false to in_middle_of_playback');
-}
+};
 
-// function stop_audio(given_node) {
 function stop_audio() {
+
+    circular_queue.set_stop_now();
 
     streaming_node.disconnect(gain_node);
 
@@ -220,7 +219,7 @@ function stop_audio() {
 
     // request_number = 0;
 
-    flag_audio_rendering = false;
+    // flag_audio_rendering = false;
 
     // terminate_current_run = true;
 
@@ -229,6 +228,8 @@ function stop_audio() {
     set_false_in_middle_of_playback();
 
     client_socket_comms.socket_client(msgs_to_server.mode_stop_streaming);
+
+    count_total_size_consumed = 0;
 
     // clearInterval(timer_Id);
 };
@@ -255,14 +256,21 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             console.log("SIZE internal_audio_buffer_obj.buffer ", internal_audio_buffer_obj.buffer.length);
 
-            console.log("about to call is_consumption_possible");
+            console.log("to call is_consumption_possible with  count_total_size_consumed ", 
+                count_total_size_consumed, " final_index ", final_index);
 
             // if ((! we_retrieved_last_chunk_from_server) && circular_queue_obj.is_consumption_possible()) {
-            if (circular_queue_obj.is_consumption_possible()) {
+            // if (circular_queue_obj.is_consumption_possible()) {
+
+            if ((flag_streaming_status === streaming_status_done && 
+                 final_index !== 0 &&
+                 count_total_size_consumed <= final_index) || circular_queue_obj.is_consumption_possible()) {
 
                 console.log("YES is_consumption_possible");
 
                 cb_get_memory_chunk(internal_audio_buffer_obj); // retrieve buffer data from circular queue
+
+                count_total_size_consumed += internal_audio_buffer_obj.buffer.length;
 
                 console.log("AAAAA size_available_to_consume ", internal_audio_buffer_obj.size_available_to_consume);
                 console.log("AAAAA count_total_size_consumed ", internal_audio_buffer_obj.count_total_size_consumed);
@@ -330,6 +338,11 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
     // if (terminate_current_run) { return;};
 
+    if (typeof audio_obj_from_server === "undefined") {
+
+        console.log("ERROR - seeing undefined audio_obj_from_server");
+    }
+
     circular_queue.pop_stream_buffer(audio_obj_from_server); // save data from server into circular queue
 
     console.log("size_available_to_produce ", audio_obj_from_server.size_available_to_produce, " out of ", 
@@ -364,6 +377,9 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         setup_onaudioprocess_callback_stream(streaming_node, circular_queue, 
         									 circular_queue.get_memory_chunk, 
         									 set_false_in_middle_of_playback);
+    } else {
+
+        console.log("NOTICE - did NOT launch audio streaming yet since buffer did not fill yet")
     };
 
     if (audio_obj_from_server.transaction_size === audio_obj_from_server.buffer.length &&

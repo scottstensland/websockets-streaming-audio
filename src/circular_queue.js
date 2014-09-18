@@ -33,6 +33,14 @@ var circular_queue = function() {
 								  // what has been populated yet not consumed - when necessary this may be
 								  // ignored as when source input has been depleted so
 								  // only activity available is consumption
+
+	var curr_cushion_factor;	// current running indicator of number of transactions parked in buffer - slosh room
+	var maximum_cushion_factor;	// circular queue buffer size == maximum_cushion_factor * transmit_chunksize
+								// during transmission of a given stream event due to network glitches we may
+								// consume more than is produced so working cushion may get depleted down to min of 0
+
+	var transmit_chunksize;		//  buffer size during every transaction, both production and consumption
+
 // ---
 
 var set_terminal_index = function(given_terminal_index) {
@@ -42,16 +50,7 @@ var set_terminal_index = function(given_terminal_index) {
 		console.log("set_terminal_index ", given_terminal_index);
 
 		terminal_index = given_terminal_index;
-
-		// ---
-
-// 		terminal_index
-
-// size_available_to_produce
-
-// size_available_to_consume
-
-	} 
+	};
 };
 
 var get_size_memory_buffer = function() {
@@ -66,7 +65,14 @@ var deallocate_queue = function() {
 
 // ---
 
-var allocate_streaming_buffer = function(buffer_size) { // prev pop streaming_audio_obj
+// var allocate_streaming_buffer = function(buffer_size) { // prev pop streaming_audio_obj
+var allocate_streaming_buffer = function(given_cushion_factor, given_transmit_chunksize) { // prev pop streaming_audio_obj
+
+	maximum_cushion_factor = given_cushion_factor;
+
+	transmit_chunksize = given_transmit_chunksize;
+
+	var buffer_size = maximum_cushion_factor * transmit_chunksize;
 
 	console.log("TOP allocate_streaming_buffer ... buffer_size ", buffer_size);
 
@@ -81,9 +87,16 @@ var allocate_streaming_buffer = function(buffer_size) { // prev pop streaming_au
 
 // ---
 
+function set_stop_now() {
+
+	has_terminal_limit_been_reached = true;
+}
+
 var is_production_possible = function() {
 
-	return ((! has_terminal_limit_been_reached) && (size_available_to_produce > 0) ? true : false);
+	// return ((! has_terminal_limit_been_reached) && (size_available_to_produce > 0) ? true : false);
+	// return ((! has_terminal_limit_been_reached) && (size_available_to_produce - transmit_chunksize > 0) ? true : false);
+	return ((! has_terminal_limit_been_reached) && (size_available_to_produce >= transmit_chunksize) ? true : false);
 };
 
 var did_buffer_get_filled = function() {
@@ -104,7 +117,10 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 	console.log("TOP pop_stream_buffer ... size buffer ", size_buff);
 
-	if (0 == size_available_to_produce || has_terminal_limit_been_reached) {
+	// if (0 == size_available_to_produce || has_terminal_limit_been_reached) {
+	if (0 == size_available_to_produce || 
+		has_terminal_limit_been_reached || 
+		size_buff > size_available_to_produce) {
 
 		console.log("circular queue is full ... cannot produce now");
 
@@ -115,7 +131,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		return;
 	};
 
-	if (size_buff <= size_available_to_produce) { // OK go ahead and populate all of given buffer
+	// if (size_buff <= size_available_to_produce) { // OK go ahead and populate all of given buffer
 
 		for (var index = 0, pop_index = index_produce; index < size_buff; index++) {
 
@@ -150,17 +166,17 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 		console.log("end of STOW              size_cushion ", size_cushion);
 
-	} else {
+	// } else {
 
-		console.log("size_buff ", size_buff, " <= size_available_to_produce ", size_available_to_produce);
+	// 	console.log("size_buff ", size_buff, " <= size_available_to_produce ", size_available_to_produce);
 
 
-		input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
+	// 	input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
 
-		var error_msg = "NOTICE - logic not yet implemented to handle partial calls to populate circular queue";
-		console.log(error_msg);
-		// alert(error_msg);
-	};
+	// 	var error_msg = "NOTICE - logic not yet implemented to handle partial calls to populate circular queue";
+	// 	console.log(error_msg);
+	// 	// alert(error_msg);
+	// };
 
 	// ---
 
@@ -172,7 +188,10 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 var is_consumption_possible = function() {
 
+	// return (size_available_to_consume > 0) ? true : false;
 	return (size_available_to_consume > 0) ? true : false;
+
+	// transmit_chunksize
 };
 
 var get_memory_chunk = function(output_buffer_obj) {
@@ -182,6 +201,8 @@ var get_memory_chunk = function(output_buffer_obj) {
 	console.log("get_memory_chunk ... size_requested ", size_requested);
 
 	// if (size_requested > size_available_to_consume) {
+	// if ((size_requested > size_available_to_consume) || 
+	// 	(has_terminal_limit_been_reached && (count_total_size_consumed >= terminal_index))) {
 	if ((size_requested > size_available_to_consume) || 
 		(has_terminal_limit_been_reached && (count_total_size_consumed >= terminal_index))) {
 
@@ -197,7 +218,7 @@ var get_memory_chunk = function(output_buffer_obj) {
 		return;
 	};
 
-	if (size_requested <= size_available_to_consume) { // OK go ahead and consume
+	// if (size_requested <= size_available_to_consume) { // OK go ahead and consume
 
 		for (var index = 0, consume_index = index_consume; index < size_requested; index++) {
 
@@ -230,14 +251,14 @@ var get_memory_chunk = function(output_buffer_obj) {
 		console.log("end of GET count_total_size_consumed ", count_total_size_consumed);
 		console.log("end of STOW             size_cushion ", size_cushion);		
 
-	} else {
+	// } else {
 
-		input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
+	// 	input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
 
-		var error_msg = "NOTICE - logic not yet implemented to handle partial calls to consume circular queue";
-		console.log(error_msg);
-		alert(error_msg);
-	}
+	// 	var error_msg = "NOTICE - logic not yet implemented to handle partial calls to consume circular queue";
+	// 	console.log(error_msg);
+	// 	alert(error_msg);
+	// }
 };
 
 // -----------------------------------------------------------------------  //
@@ -252,7 +273,8 @@ return { // to make visible to calling reference frame list function here
     did_buffer_get_filled : did_buffer_get_filled,
     get_memory_chunk : get_memory_chunk,
     set_terminal_index : set_terminal_index,
-    deallocate_queue : deallocate_queue
+    deallocate_queue : deallocate_queue,
+    set_stop_now : set_stop_now
 };
 
 // }(); //  circular_queue = function()

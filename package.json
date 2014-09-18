@@ -6,9 +6,8 @@
     "dependencies": {
         "ws": "0.4.x",
         "express": "^4.4.5",
-		"websocket" : "1.0.x",
 		"audio-utils" : "1.0.x",
-		"shared-utils" : "0.1.3-5"
+		"shared-utils" : "0.1.3-6"
     },
     "description": "Click a browser button to launch a node.js process on the server side which streams audio using web sockets back to the browser which is then rendered using web audio API   My plan is to make this modular enough to get added to your process as simple API calls",
     "engines": {
@@ -34,5 +33,5 @@
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "0.6.2-6"
+    "version": "0.7.0"
 }
