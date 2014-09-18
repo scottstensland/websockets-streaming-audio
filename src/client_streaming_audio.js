@@ -48,15 +48,14 @@ function web_audio_setup() {
     var requested_action = "stream_audio_to_client";
 
 
-
     // media_file = "Justice_Genesis_first_30_seconds_tight.wav";
     // media_file = "sine_wave_32768_64.wav";
-    // media_file = "sine_wave_262144_64.wav";
+    media_file = "sine_wave_262144_64.wav";
 
     // media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
     // media_file = "sine_wave_8388608_64.wav";
     // media_file = "Justice_Genesis_first_third_sec_tight.wav"; // stens TODO 
-    media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
+    // media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
     // media_file = "L_van_Beethoven_Piano_Sonata_No_4_Op_7_in_E-Flat-Major_mono-Z0wUsO-8cx8.wav";
 
     var callback = web_audio_obj.cb_receive_buffer_from_server_to_web_audio_player;
@@ -89,11 +88,12 @@ function web_audio_setup() {
 
     // stream_audio_msg.transmit_chunksize = 16384;
     // stream_audio_msg.transmit_chunksize = 32768;
-    stream_audio_msg.transmit_chunksize = 65536;
+    // stream_audio_msg.transmit_chunksize = 65536;
     // stream_audio_msg.transmit_chunksize = 131072;
     // stream_audio_msg.transmit_chunksize = 262144;
     // stream_audio_msg.transmit_chunksize = 524288; // too big
 
+    var transmit_chunk_multiplier = 3; // size of server requests are this multiple of render chunksize
 
 
 
@@ -106,6 +106,7 @@ function web_audio_setup() {
     // ---
 
     // delay start of audio rendering until we have buffered up a hefty cache of audio
+    // size of circular queue memory buffer is this factor times transmit chunk multiplier times render chunksize
     // var cushion_factor = 2;
     // var cushion_factor = 3;
     var cushion_factor = 5;
@@ -118,14 +119,20 @@ function web_audio_setup() {
 
     // ---
 
+    var BUFF_SIZE_AUDIO_RENDERER = 16384;    
+
     // var size_memory_buffer = cushion_factor * stream_audio_msg.transmit_chunksize;
 
     // console.log("size_memory_buffer ", size_memory_buffer);
     // console.log("client_memory_mgr ", client_memory_mgr);
 
+    stream_audio_msg.transmit_chunksize = BUFF_SIZE_AUDIO_RENDERER * transmit_chunk_multiplier;
+
+
     // client_memory_mgr.allocate_streaming_buffer(size_memory_buffer);
     // web_audio_obj.allocate_streaming_buffer(size_memory_buffer);
-    web_audio_obj.allocate_streaming_buffer(cushion_factor, stream_audio_msg.transmit_chunksize);
+    web_audio_obj.allocate_streaming_buffer(cushion_factor, stream_audio_msg.transmit_chunksize,
+                                            BUFF_SIZE_AUDIO_RENDERER);
 
     // console.log("get_size_memory_buffer ", client_memory_mgr.get_size_memory_buffer());
     console.log("get_size_memory_buffer ", web_audio_obj.get_size_memory_buffer());

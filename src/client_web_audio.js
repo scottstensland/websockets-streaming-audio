@@ -41,7 +41,8 @@ var in_middle_of_playback = false;
 // var BUFF_SIZE_AUDIO_RENDERER = 2048;
 // var BUFF_SIZE_AUDIO_RENDERER = 4096;
 // var BUFF_SIZE_AUDIO_RENDERER = 8192;
-var BUFF_SIZE_AUDIO_RENDERER = 16384;    
+// var BUFF_SIZE_AUDIO_RENDERER = 16384;    
+var BUFF_SIZE_AUDIO_RENDERER;
 
 // var count_num_buffers_received_from_server = 0;
 
@@ -116,9 +117,11 @@ function init_audio_context() {
 
 // ----------------- //
 
-function  allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize) {
+function  allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize, given_render_chunksize) {
 
-	circular_queue.allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize);
+    BUFF_SIZE_AUDIO_RENDERER = given_render_chunksize;
+
+	circular_queue.allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize, given_render_chunksize);
 };
 
 function get_size_memory_buffer() {

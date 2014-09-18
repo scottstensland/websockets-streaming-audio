@@ -34,12 +34,15 @@ var circular_queue = function() {
 								  // ignored as when source input has been depleted so
 								  // only activity available is consumption
 
-	var curr_cushion_factor;	// current running indicator of number of transactions parked in buffer - slosh room
-	var maximum_cushion_factor;	// circular queue buffer size == maximum_cushion_factor * transmit_chunksize
+	var curr_num_cushion;		// current running indicator of number of transactions parked in buffer - slosh room
+	var maximum_cushion_factor;	// circular queue buffer size == maximum_cushion_factor * production_chunksize
 								// during transmission of a given stream event due to network glitches we may
 								// consume more than is produced so working cushion may get depleted down to min of 0
+	var multiplier_production_bigger_than_consumption;
+	var max_consumption_chunks; // number of consumption chunks which fit into circular queue memory buffer
 
-	var transmit_chunksize;		//  buffer size during every transaction, both production and consumption
+	var production_chunksize;		//  buffer size of each production transaction
+	var consumption_chunksize;		//  buffer size of each consumption transaction
 
 // ---
 
@@ -66,13 +69,27 @@ var deallocate_queue = function() {
 // ---
 
 // var allocate_streaming_buffer = function(buffer_size) { // prev pop streaming_audio_obj
-var allocate_streaming_buffer = function(given_cushion_factor, given_transmit_chunksize) { // prev pop streaming_audio_obj
+// var allocate_streaming_buffer = function(given_cushion_factor, given_production_chunksize) { // prev pop streaming_audio_obj
+var allocate_streaming_buffer = function(	given_cushion_factor,
+											given_production_chunksize,
+											given_consumption_chunksize) { // prev pop streaming_audio_obj
 
 	maximum_cushion_factor = given_cushion_factor;
 
-	transmit_chunksize = given_transmit_chunksize;
+	curr_num_cushion = 0;
 
-	var buffer_size = maximum_cushion_factor * transmit_chunksize;
+	production_chunksize = given_production_chunksize;
+	consumption_chunksize = given_consumption_chunksize;
+
+	multiplier_production_bigger_than_consumption = ~~(production_chunksize / consumption_chunksize);
+
+	console.log("multiplier_production_bigger_than_consumption ", multiplier_production_bigger_than_consumption);
+
+	var buffer_size = maximum_cushion_factor * production_chunksize;
+
+	max_consumption_chunks = ~~(buffer_size / consumption_chunksize);
+
+	console.log("max_consumption_chunks ", max_consumption_chunks);
 
 	console.log("TOP allocate_streaming_buffer ... buffer_size ", buffer_size);
 
@@ -95,8 +112,8 @@ function set_stop_now() {
 var is_production_possible = function() {
 
 	// return ((! has_terminal_limit_been_reached) && (size_available_to_produce > 0) ? true : false);
-	// return ((! has_terminal_limit_been_reached) && (size_available_to_produce - transmit_chunksize > 0) ? true : false);
-	return ((! has_terminal_limit_been_reached) && (size_available_to_produce >= transmit_chunksize) ? true : false);
+	// return ((! has_terminal_limit_been_reached) && (size_available_to_produce - production_chunksize > 0) ? true : false);
+	return ((! has_terminal_limit_been_reached) && (size_available_to_produce >= production_chunksize) ? true : false);
 };
 
 var did_buffer_get_filled = function() {
@@ -153,6 +170,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		size_cushion += size_buff;
 		size_available_to_produce -= size_buff;
 		size_available_to_consume += size_buff;
+		curr_num_cushion += multiplier_production_bigger_than_consumption;
 
 		input_buffer_obj.size_available_to_produce = size_available_to_produce;
 		input_buffer_obj.size_available_to_consume = size_available_to_consume;
@@ -165,6 +183,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		console.log("end of STOW size_available_to_consume ", size_available_to_consume);
 		console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 		console.log("end of STOW              size_cushion ", size_cushion);
+		console.log("end of STOW          curr_num_cushion ", curr_num_cushion, " out of ", max_consumption_chunks);
 
 	// } else {
 
@@ -188,10 +207,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 var is_consumption_possible = function() {
 
-	// return (size_available_to_consume > 0) ? true : false;
 	return (size_available_to_consume > 0) ? true : false;
-
-	// transmit_chunksize
 };
 
 var get_memory_chunk = function(output_buffer_obj) {
@@ -239,6 +255,7 @@ var get_memory_chunk = function(output_buffer_obj) {
 		size_cushion -= size_requested;
 		size_available_to_produce += size_requested;
 		size_available_to_consume -= size_requested;
+		curr_num_cushion -= 1;
 
 		output_buffer_obj.transaction_size = size_requested; // size of buffer processed during this transaction
 
@@ -249,7 +266,8 @@ var get_memory_chunk = function(output_buffer_obj) {
 		console.log("end of GET size_available_to_produce ", size_available_to_produce);
 		console.log("end of GET size_available_to_consume ", size_available_to_consume);
 		console.log("end of GET count_total_size_consumed ", count_total_size_consumed);
-		console.log("end of STOW             size_cushion ", size_cushion);		
+		console.log("end of STOW             size_cushion ", size_cushion);
+		console.log("end of STOW          curr_num_cushion ", curr_num_cushion, " out of ", max_consumption_chunks);
 
 	// } else {
 
