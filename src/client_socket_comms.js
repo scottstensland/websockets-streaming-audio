@@ -17,7 +17,7 @@ var client_socket_comms = function() {
 
     var set_stream_is_complete_cb = function(given_cb_stream_is_complete) { // supplied by calling client
 
-        console.log("now SET cb_stream_is_complete to ", given_cb_stream_is_complete.name);
+        // console.log("now SET cb_stream_is_complete to ", given_cb_stream_is_complete.name);
         
         cb_stream_is_complete = given_cb_stream_is_complete; // when server side says stream is done this gets called
     }

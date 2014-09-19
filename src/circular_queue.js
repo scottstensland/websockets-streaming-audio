@@ -178,6 +178,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 		console.log("end of STOW              size_cushion ", size_cushion);
 		console.log("end of STOW          curr_num_cushion ", curr_num_cushion, " out of ", max_consumption_chunks);
+		console.log("end of STOW                   version 0.7.6");
 
 	// } else {
 
