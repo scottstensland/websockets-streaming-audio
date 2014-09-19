@@ -199,7 +199,7 @@ function set_false_in_middle_of_playback() {
 
     in_middle_of_playback = false;
 
-    console.log('just set false to in_middle_of_playback');
+    // console.log('just set false to in_middle_of_playback');
 };
 
 function stop_audio() {
@@ -253,14 +253,14 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             // if (terminate_current_run) { return;};
 
-            console.log("Middleburg  top of rendering callback ");
+            console.log("Middleburg  top of rendering callback ----------------------------------");
 
             internal_audio_buffer_obj.buffer = event.outputBuffer.getChannelData(0);// stens TODO - setup 2 channels
 
-            console.log("SIZE internal_audio_buffer_obj.buffer ", internal_audio_buffer_obj.buffer.length);
+            // console.log("SIZE internal_audio_buffer_obj.buffer ", internal_audio_buffer_obj.buffer.length);
 
-            console.log("to call is_consumption_possible with  count_total_size_consumed ", 
-                count_total_size_consumed, " final_index ", final_index);
+            // console.log("to call is_consumption_possible with  count_total_size_consumed ", 
+            //     count_total_size_consumed, " final_index ", final_index);
 
             // if ((! we_retrieved_last_chunk_from_server) && circular_queue_obj.is_consumption_possible()) {
             // if (circular_queue_obj.is_consumption_possible()) {
@@ -269,18 +269,18 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
                  final_index !== 0 &&
                  count_total_size_consumed <= final_index) || circular_queue_obj.is_consumption_possible()) {
 
-                console.log("YES is_consumption_possible");
+                // console.log("YES is_consumption_possible");
 
                 cb_get_memory_chunk(internal_audio_buffer_obj); // retrieve buffer data from circular queue
 
                 count_total_size_consumed += internal_audio_buffer_obj.buffer.length;
 
-                console.log("AAAAA size_available_to_consume ", internal_audio_buffer_obj.size_available_to_consume);
-                console.log("AAAAA count_total_size_consumed ", internal_audio_buffer_obj.count_total_size_consumed);
+                // console.log("AAAAA size_available_to_consume ", internal_audio_buffer_obj.size_available_to_consume);
+                // console.log("AAAAA count_total_size_consumed ", internal_audio_buffer_obj.count_total_size_consumed);
 
             } else {
 
-                console.log("NO NO NO is_consumption_possible NO NO NO");
+                // console.log("NO NO NO is_consumption_possible NO NO NO");
 
                 if (flag_streaming_status === streaming_status_done) {
 
@@ -291,13 +291,13 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
                 } else {
 
-                	console.log("am NOT seeing streaming_status_done ... so watch this space");
+                	console.log("NOTICE - consumption is NOT possible yet stream NOT done ... did server go offline ?");
                 }
             };
 
             // ---
 
-            console.log("AAAAA flag_streaming_status ", flag_streaming_status);
+            // console.log("AAAAA flag_streaming_status ", flag_streaming_status);
 
             if (flag_streaming_status === streaming_status_done) {
 
@@ -309,7 +309,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
                 // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
 
-                console.log("OK circular queue is NOT full so get another chunk");
+                // console.log("OK circular queue is NOT full so get another chunk");
 
                 client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);
 
@@ -348,20 +348,20 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
     circular_queue.pop_stream_buffer(audio_obj_from_server); // save data from server into circular queue
 
-    console.log("size_available_to_produce ", audio_obj_from_server.size_available_to_produce, " out of ", 
-                audio_obj_from_server.buffer.length);
+    // console.log("size_available_to_produce ", audio_obj_from_server.size_available_to_produce, " out of ", 
+    //             audio_obj_from_server.buffer.length);
 
-    console.log("AAAAAAA count_total_size_buffered ", audio_obj_from_server.count_total_size_buffered);
+    // console.log("AAAAAAA count_total_size_buffered ", audio_obj_from_server.count_total_size_buffered);
 
-    console.log("audio_obj_from_server buffer size ", audio_obj_from_server.buffer.length, 
-                " transaction_size ", audio_obj_from_server.transaction_size);
+    // console.log("audio_obj_from_server buffer size ", audio_obj_from_server.buffer.length, 
+    //             " transaction_size ", audio_obj_from_server.transaction_size);
 
     if ((!flag_audio_rendering) && circular_queue.did_buffer_get_filled()) {
     // if (circular_queue.did_buffer_get_filled()) {
 
     	flag_audio_rendering = true;
 
-        console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
+        // console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
 
         streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
 
@@ -373,7 +373,7 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
         flag_streaming_status = streaming_status_active;
 
-        console.log("OK just set flag_streaming_status = streaming_status_active");
+        // console.log("OK just set flag_streaming_status = streaming_status_active");
 
         // ---
 
@@ -390,8 +390,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
         // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
 
-        console.log("OK circular queue is NOT full so get another chunk");
-        console.log("OK circular queue is NOT full so get another chunk");
         console.log("OK circular queue is NOT full so get another chunk");
 
         client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);

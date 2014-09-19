@@ -24,7 +24,7 @@ var client_socket_comms = function() {
 
     var pop_json_from_server = function(json_from_server, received_json) {
 
-        console.log("RECEIVED -------- json --------");
+        // console.log("RECEIVED -------- json --------");
 
         for (var curr_property in received_json) {
 
@@ -32,9 +32,9 @@ var client_socket_comms = function() {
 
             json_from_server[curr_property] = received_json[curr_property];
 
-            console.log("RECEIVED -------- " + curr_property + " --> " + received_json[curr_property]);
+            // console.log("RECEIVED -------- " + curr_property + " --> " + received_json[curr_property]);
         }
-        console.log("RECEIVED -------- json --------");
+        // console.log("RECEIVED -------- json --------");
     };
 
     var create_websocket_connection = function() {
@@ -136,7 +136,7 @@ var client_socket_comms = function() {
 
                 } catch (error) {
 
-                    console.log("Received received_json NON JSON though : ", event.data);
+                    console.error("ERROR - Received received_json NON JSON though : ", event.data);
                 }
 
                 // ---
@@ -196,7 +196,7 @@ var client_socket_comms = function() {
                 }
             } else {
 
-                console.log("Who Knows ", event.data);
+                console.error("ERROR - socket receieved Who Knows ", event.data);
             }
         };
 
@@ -228,16 +228,16 @@ var client_socket_comms = function() {
             new Error("ERROR - failed to stringify msg to send to server : ", exception);
         }
 
-        console.log("SEND -------- ");
-        console.log("SEND -------- ", request_msg);
-        console.log("SEND -------- ");
+        // console.log("SEND -------- ");
+        // console.log("SEND -------- ", request_msg);
+        // console.log("SEND -------- ");
 
         web_socket.send(request_msg);
     };
 
     function socket_client(given_msg) {
 
-        console.log("given_msg ", given_msg);
+        // console.log("given_msg ", given_msg);
 
         var given_mode = given_msg.mode || 1;
         var requested_action = given_msg.requested_action || null;
