@@ -15,12 +15,8 @@ var circular_queue = function() {
 	// ---
 
 	var flag_did_we_fill_to_brim = false;
-	// var flag_has_input_source_been_exhausted = false; // make true when input source will no longer populate
 
 	var has_terminal_limit_been_reached = false;
-
-	// var flag_is_production_possible = true;
-	// var flag_is_consumption_possible = true;
 
 	var count_total_size_buffered = 0;
 	var count_total_size_consumed = 0;
@@ -68,8 +64,6 @@ var deallocate_queue = function() {
 
 // ---
 
-// var allocate_streaming_buffer = function(buffer_size) { // prev pop streaming_audio_obj
-// var allocate_streaming_buffer = function(given_cushion_factor, given_production_chunksize) { // prev pop streaming_audio_obj
 var allocate_streaming_buffer = function(	given_cushion_factor,
 											given_production_chunksize,
 											given_consumption_chunksize) { // prev pop streaming_audio_obj
