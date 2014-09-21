@@ -171,7 +171,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 	// console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 	// console.log("end of STOW              size_cushion ", size_cushion);
 	console.log("populate queue          cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
-	console.log("populate queue          version 0.7.9");
+	console.log("populate queue          version 0.8.0");
 
 	// ---
 
