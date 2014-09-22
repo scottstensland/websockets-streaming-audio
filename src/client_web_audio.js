@@ -291,7 +291,10 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
                 } else {
 
-                	console.log("NOTICE - consumption is NOT possible yet stream NOT done ... did server go offline ?");
+                    console.log("NOTICE - consumption NOT possible yet stream NOT done");
+                    console.log("NOTICE ... did server go offline ?  stopping audio streaming");
+
+                    stop_audio();
                 }
             };
 
