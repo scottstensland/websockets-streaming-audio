@@ -55,7 +55,8 @@ function web_audio_setup() {
     // media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
     // media_file = "sine_wave_8388608_64.wav";
     // media_file = "Justice_Genesis_first_third_sec_tight.wav"; // stens TODO 
-    media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
+    // media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
+    media_file = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
     // media_file = "L_van_Beethoven_Piano_Sonata_No_4_Op_7_in_E-Flat-Major_mono-Z0wUsO-8cx8.wav";
 
     var callback = web_audio_obj.cb_receive_buffer_from_server_to_web_audio_player;
