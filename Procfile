@@ -1,1 +1,1 @@
-web: node src_mod/app.js
+web: node src/app.js
