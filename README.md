@@ -5,6 +5,8 @@ Click a browser button to launch a node.js process on the server side which stre
 
 My plan is to make this modular enough to get added to your process as simple API calls
 
+[![NPM](https://nodei.co/npm/websockets-streaming-audio.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/websockets-streaming-audio/)
+
 # Installation
 
 visit [nodejs.org](http://nodejs.org) and install node.js

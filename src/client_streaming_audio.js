@@ -94,7 +94,7 @@ function web_audio_setup() {
     // stream_audio_msg.transmit_chunksize = 262144;
     // stream_audio_msg.transmit_chunksize = 524288; // too big
 
-    var transmit_chunk_multiplier = 3; // size of server requests are this multiple of render chunksize
+    var transmit_chunk_multiplier = 2; // size of server requests are this multiple of render chunksize
 
 
 
@@ -108,10 +108,11 @@ function web_audio_setup() {
 
     // delay start of audio rendering until we have buffered up a hefty cache of audio
     // size of circular queue memory buffer is this factor times transmit chunk multiplier times render chunksize
+    // var cushion_factor = 1;
     // var cushion_factor = 2;
     // var cushion_factor = 3;
-    var cushion_factor = 5;
-    // var cushion_factor = 10;
+    // var cushion_factor = 5;
+    var cushion_factor = 10;
     // var cushion_factor = 15; 
     // var cushion_factor = 20;
     // var cushion_factor = 30;
@@ -129,6 +130,13 @@ function web_audio_setup() {
 
     stream_audio_msg.transmit_chunksize = BUFF_SIZE_AUDIO_RENDERER * transmit_chunk_multiplier;
 
+    console.log(" BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
+    console.log("transmit_chunk_multiplier ", transmit_chunk_multiplier);
+    console.log("           cushion_factor ", cushion_factor);
+
+    console.log("stream_audio_msg.transmit_chunksize ", stream_audio_msg.transmit_chunksize);
+    console.log("stream_audio_msg.transmit_chunksize ", stream_audio_msg.transmit_chunksize);
+    console.log("stream_audio_msg.transmit_chunksize ", stream_audio_msg.transmit_chunksize);
 
     // client_memory_mgr.allocate_streaming_buffer(size_memory_buffer);
     // web_audio_obj.allocate_streaming_buffer(size_memory_buffer);

@@ -121,6 +121,8 @@ function  allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksi
 
     BUFF_SIZE_AUDIO_RENDERER = given_render_chunksize;
 
+    console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
+
 	circular_queue.allocate_streaming_buffer(given_cushion_factor, given_transmit_chunksize, given_render_chunksize);
 };
 
