@@ -41,8 +41,8 @@ var shared_utils = require("shared-utils");
 var BUFFER_SIZE_STREAMING; // size of buffer sent from server to client per callback cycle
 
 
-// var temp_stream_chunk_buffer = new Float32Array(BUFFER_SIZE_STREAMING);
-var temp_stream_chunk_buffer;
+// var temp_stream_chunk_obj = new Float32Array(BUFFER_SIZE_STREAMING);
+var temp_stream_chunk_obj = {};
 var limit_buffer_size;
 
 var stream_status_prior = "prior";
@@ -60,6 +60,8 @@ var previous_request_number = 0;
 
 var request_new = "request_new";
 var request_ongoing = "request_ongoing";
+var header_chunk_size = 44;
+
 
 // ---
 
@@ -79,7 +81,9 @@ var init_fresh_request = function() {
 
     // ---
 
-    temp_stream_chunk_buffer = null;
+    // temp_stream_chunk_obj = null;
+    temp_stream_chunk_obj = null;
+    temp_stream_chunk_obj = {};
 
     streaming_buffer_obj = null;
 
@@ -115,11 +119,11 @@ var streaming_is_done = function(given_max_index, curr_ws) {
     previous_request_number = request_number;
 }
 
-// var stream_another_chunk_to_client = function(received_json, given_request, curr_ws) {
 var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
-    // var curr_index = streaming_buffer_obj.index_stream;
-    // var max_index = streaming_buffer_obj.max_index;
+    console.log("TOP stream_another_chunk_to_client");
+    console.log("TOP stream_another_chunk_to_client");
+    console.log("TOP stream_another_chunk_to_client");
 
     var curr_index = streaming_buffer_obj.index_stream;
     var max_index  = streaming_buffer_obj.max_index;
@@ -138,7 +142,7 @@ var stream_another_chunk_to_client = function(received_json, curr_ws) {
 
     for (var local_index = 0; local_index < BUFFER_SIZE_STREAMING && curr_index < max_index;) {
 
-        temp_stream_chunk_buffer[local_index] = streaming_buffer_obj.buffer[curr_index];
+        temp_stream_chunk_obj.buffer[local_index] = streaming_buffer_obj.buffer[curr_index];
         local_index++;
         curr_index++;
     };
@@ -146,11 +150,11 @@ var stream_another_chunk_to_client = function(received_json, curr_ws) {
     console.log("POOOOOOST ", curr_index + " out of " + max_index);
 
     console.log("SEND -------- binary audio buffer --------");
-    console.log("SEND ------------ binary temp_stream_chunk_buffer to client    curr_index ", 
+    console.log("SEND ------------ binary temp_stream_chunk_obj to client    curr_index ", 
                 curr_index);
     console.log("SEND -------- binary audio buffer --------");
 
-    curr_ws.send(temp_stream_chunk_buffer, {binary: true, mask: false}); // binary buffer
+    curr_ws.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
 
     streaming_buffer_obj.index_stream = curr_index;
 
@@ -173,7 +177,7 @@ var send_client_source_data_info = function(audio_obj, curr_websocket) {
             continue;
         }
 
-        console.log("curr_property ", curr_property);
+        // console.log("curr_property ", curr_property, audio_obj[curr_property]);
 
         all_property_tags[curr_property] = audio_obj[curr_property];
     }
@@ -181,9 +185,6 @@ var send_client_source_data_info = function(audio_obj, curr_websocket) {
     console.log("SEND -------- json all property tags --------");
     console.log("SEND -------- all_property_tags ", all_property_tags);
     console.log("SEND -------- json all property tags --------");
-
-
-// bbb
 
     curr_websocket.send(JSON.stringify(all_property_tags), {binary: false, mask: false});
 }
@@ -259,7 +260,7 @@ var stop_streaming = function(received_json, curr_ws) {
 
 // ---
 
-var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws) {
+var read_file_pop_buffer_stream_back_to_client_synchronous = function(received_json, curr_ws) {
 
     // stens TODO put into a closure
 
@@ -278,7 +279,7 @@ var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws
 
         BUFFER_SIZE_STREAMING = received_json.transmit_chunksize;
 
-        temp_stream_chunk_buffer = new Float32Array(BUFFER_SIZE_STREAMING);
+        // temp_stream_chunk_obj = new Float32Array(BUFFER_SIZE_STREAMING);
 
         read_file_pop_buffer(received_json, curr_ws, limit_buffer_size);
 
@@ -286,15 +287,347 @@ var read_file_pop_buffer_stream_back_to_client = function(received_json, curr_ws
 
         stream_another_chunk_to_client(received_json, curr_ws);
     }
-};      //      read_file_pop_buffer_stream_back_to_client
+};      //      read_file_pop_buffer_stream_back_to_client_synchronous
+
+// ---
+
+var stream_file_into_socket = (function () {
+
+    // Instance stores a reference to the Singleton
+    var instance;
+    // var flag_now_reading_headers = true;
+    var read_stream;
+
+    var curr_index = 0;
+
+
+    console.log("stream_file_into_socket ");
+    console.log("stream_file_into_socket ");
+    console.log("stream_file_into_socket ");
+
+
+
+    var flag_active = true;
+
+    var do_stream = function(header_obj, requested_input_filename, received_json, curr_ws) {
+
+        console.log("about to stream ... requested_input_filename ", requested_input_filename);
+
+        var total_media_size;
+        var num_read_send_gulps = 0;
+        var num_bytes_sent = 0;
+
+        // ---
+
+        fs.stat(requested_input_filename, function(error, stat) {
+
+            if (error) { throw error; }
+
+            // curr_ws.send('something');
+
+            // curr_ws.send(JSON.stringify({
+            //     'Content-Type' : 'image/gif',
+            //     'Content-Length' : stat.size
+            // }));
+
+            console.log("stat.size ", stat.size);
+            console.log("stat.size minus header ", (stat.size - header_chunk_size));
+
+            total_media_size = (stat.size - header_chunk_size) / 2;
+            console.log("total_media_size ", total_media_size);
+
+
+            var media_info = {
+                // 'media_filename' : requested_input_filename,
+                max_index : total_media_size
+            };
+
+            console.log("media_info ", media_info);
+
+            // total_media_size = media_info.max_index;
+
+            console.log("SEND -------- json max_index --------");
+            console.log("SEND -------- json max_index -------- ", media_info);
+            console.log("SEND -------- json max_index --------");
+
+            curr_ws.send(JSON.stringify(media_info));
+
+            // var rs = fs.createReadStream(requested_input_filename);
+
+            // ---
+
+            if (typeof received_json.limit_buffer_size !== "undefined") {
+
+                limit_buffer_size = received_json.limit_buffer_size;
+
+            } else {
+
+                limit_buffer_size = 0; // limited only by source media 
+            }
+
+            BUFFER_SIZE_STREAMING = received_json.transmit_chunksize;
+
+            // temp_stream_chunk_obj = new Float32Array(BUFFER_SIZE_STREAMING);
+            temp_stream_chunk_obj.buffer = new Float32Array(BUFFER_SIZE_STREAMING);
+
+            // ---
+
+            read_stream = fs.createReadStream(requested_input_filename, {'flags': 'r',
+                                          'mode': 0666, 
+                                          // 'bufferSize': chunk_size});
+                                          'bufferSize': BUFFER_SIZE_STREAMING,
+                                          start : header_chunk_size
+                                      });
+
+            // ---
+
+            var read_from_stream = function(socket_conn) {
+
+                console.log("\n         ***************** TOP read_from_stream flag_active ", flag_active);
+                console.log("         ***************** TOP read_from_stream flag_active ", flag_active);
+                console.log("         ***************** TOP read_from_stream flag_active ", flag_active);
+
+                var curr_buffer = new Buffer(BUFFER_SIZE_STREAMING);
+
+                // while (temp_stream_chunk_obj = read_stream.read()) {
+
+                //     console.log('Read from the filesize :', temp_stream_chunk_obj.length);
+                //     console.log('Read from the file:', temp_stream_chunk_obj);
+
+                //     curr_index += temp_stream_chunk_obj.length;
+                // }
+
+                // var index = 0;
+
+                while (curr_buffer = read_stream.read()) {
+
+                    console.log('Read from the filesize :', curr_buffer.length);
+                    console.log('Read from the file:', curr_buffer);
+
+                    // temp_stream_chunk_obj = new Float32Array(curr_buffer);
+                    // temp_stream_chunk_obj = new Buffer(curr_buffer);
+
+                    // audio_obj.buffer = shared_utils.convert_16_bit_signed_int_to_32_bit_float(audio_obj[property_buffer_input_file]);
+
+
+                    // var fresh_data_buffer = shared_utils.convert_16_bit_signed_int_to_32_bit_float(curr_buffer);
+                    // temp_stream_chunk_obj.buffer = fresh_data_buffer;
+
+                    var fresh_data_buffer = shared_utils.convert_16_bit_signed_int_to_32_bit_float(curr_buffer);
+                    // temp_stream_chunk_obj.buffer = fresh_data_buffer;
+                    temp_stream_chunk_obj.buffer.set(fresh_data_buffer);
+
+                    // bbb
+
+                    // shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj convert_16_bit_signed", "total", 10);
+
+
+                    // for (; index < 5; index++) {
+
+                    //     console.log(index, ' SSSSSSSSS temp_stream_chunk_obj ', temp_stream_chunk_obj[index]);
+                    // };
+
+
+                    curr_index += curr_buffer.length;
+                }
+
+                console.log("temp_stream_chunk_obj length ", temp_stream_chunk_obj.buffer.length);
+
+                console.log("pause  ");
+                console.log("pause  ");
+                console.log("pause  ");
+
+                num_read_send_gulps += 1;
+                num_bytes_sent += temp_stream_chunk_obj.buffer.length;
+
+                console.log("        flag_active ", flag_active);
+                console.log("num_read_send_gulps ", num_read_send_gulps);
+
+                console.log("     num_bytes_sent ", num_bytes_sent, 
+                            " out of ", total_media_size, 
+                            "   ", (100 * num_bytes_sent / total_media_size).toFixed(2), 
+                            " % sent ------------------------------------------------------");
+
+                console.log("SEND -------- bin read_from_stream -------- length ", temp_stream_chunk_obj.buffer.length);
+                shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
+                console.log("SEND -------- bin read_from_stream --------");
+
+                socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
+
+                flag_active = false;
+
+                read_stream.pause();
+
+            }; // read_from_stream
+
+            // ---
+
+            read_stream.on('readable', function() {
+
+                console.log("flag_active  ", flag_active);
+
+                if (flag_active) {
+
+                    console.log("LLLLLLLLLLLLL seeing readable");
+                    console.log("LLLLLLLLLLLLL seeing readable");
+                    console.log("LLLLLLLLLLLLL seeing readable");
+
+                    read_from_stream(curr_ws);
+                }
+            });
+
+            // read_stream.once('end', function() {
+            read_stream.on('end', function() {
+
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+                console.log('stream ended');
+
+                // streaming_is_done(curr_index, curr_ws);
+                streaming_is_done(total_media_size, curr_ws);
+
+              // return;
+            });
+        }); 
+    };      //      do_stream
+
+    function init_stream(media_dir, received_json, curr_ws) {
+
+        console.log("TOP init_stream __dirname ", __dirname);
+        console.log("TOP init_stream media_dir ", media_dir);
+        console.log("TOP init_stream received_json.requested_source ", received_json.requested_source);
+
+
+        // Singleton
+
+        // Private methods and variables
+        function privateMethod(){
+            console.log( "I am private" );
+        }
+
+        var privateVariable = "Im also private";
+
+        // ---
+
+
+        // var chunk_size = 64 * 1024;
+        // var header_chunk_size = 44;
+
+        var requested_input_filename = path.join(__dirname, media_dir, received_json.requested_source);
+
+        console.log("requested_input_filename ", requested_input_filename);
+
+        if (! fs.existsSync(requested_input_filename)) {
+
+            var error_msg = {
+
+                error_msg : "ERROR - requested file does not exist",
+                requested_source : received_json.requested_source
+
+            };
+
+            console.log("SEND -------- json ERROR --------");
+            console.log(error_msg);
+            curr_ws.send(JSON.stringify(error_msg), {binary: false, mask: false});
+            console.log("SEND -------- json ERROR --------");
+
+            return;
+        };
+
+        // ------------- now parse headers ------------- //
+
+        var wav_input_file_obj = {};
+
+        shared_utils.parse_wav_header(wav_input_file_obj, requested_input_filename, function(error, header_obj) {
+
+            // console.log("TOOOOOOOOOOOP  show_headers");
+
+            if (error) {
+                console.error(error);
+                return;
+
+            } else {
+
+                // console.log("aaaaaaaaaaabout to call show_object");
+
+                shared_utils.show_object(header_obj, "file headers", "total", 3);
+
+
+                send_client_source_data_info(header_obj, curr_ws);
+
+                do_stream(header_obj, requested_input_filename, received_json, curr_ws);
+            }
+        });
+
+        // ---
+
+        return {
+
+          // Public methods and variables
+          publicMethod: function () {
+            console.log( "The public can see me!" );
+          },
+
+          publicProperty: "I am also public"
+        };
+    };        //      init_stream
+
+    return {
+
+        // assure ONLY one instance exists and is returned on all calls
+
+        roll_it: function(media_dir, received_json, curr_ws) {
+
+            if ( !instance ) {
+
+                // instance = init();
+
+                instance = {};
+                // instance.setup_roll = init(media_dir, received_json, curr_ws);
+                init_stream(media_dir, received_json, curr_ws);
+
+            } else {
+
+                console.log("request_ongoing ... about to transition from possible pause to resume")
+                console.log("request_ongoing ... about to transition from possible pause to resume")
+                console.log("request_ongoing ... about to transition from possible pause to resume")
+
+                // 
+
+                flag_active = true;
+
+                read_stream.resume();
+            }
+
+            return instance;
+        }
+    };
+
+})();       //      stream_file_into_socket
+
+// ---
+
+var read_file_pop_buffer_stream_back_to_client_async = function(received_json, curr_ws) {
+
+    console.log("received_json ", received_json);
+
+    stream_file_into_socket.roll_it(media_dir, received_json, curr_ws);
+
+};      //      read_file_pop_buffer_stream_back_to_client_async
 
 // ---
 
 var route_msg = function(received_json, curr_ws) {
 
     console.log("AAAAAAAAAAAAAAAAAAAAA  route_msg  received_json ", received_json);
-
-    // shared_utils.show_object(streaming_buffer_obj, "streaming_buffer_obj", "total", 10);
 
     var requested_action = received_json.requested_action;
 
@@ -357,7 +690,9 @@ var route_msg = function(received_json, curr_ws) {
                 init_fresh_request();
             };
 
-            read_file_pop_buffer_stream_back_to_client(received_json, curr_ws);
+            // read_file_pop_buffer_stream_back_to_client_synchronous(received_json, curr_ws);
+            read_file_pop_buffer_stream_back_to_client_async(received_json, curr_ws);
+
 
             break;
         };
