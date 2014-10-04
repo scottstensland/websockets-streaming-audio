@@ -51,6 +51,8 @@ function web_audio_setup() {
     // media_file = "Justice_Genesis_first_30_seconds_tight.wav";
     // media_file = "sine_wave_32768_64.wav";
     // media_file = "sine_wave_262144_64.wav";
+    // media_file = "2500_hz_sine_2_seconds.wav";
+
 
     // media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
     // media_file = "sine_wave_8388608_64.wav";
@@ -112,7 +114,7 @@ function web_audio_setup() {
     // var cushion_factor = 2;
     // var cushion_factor = 3;
     // var cushion_factor = 5;
-    var cushion_factor = 10;
+    var cushion_factor = 2;
     // var cushion_factor = 15; 
     // var cushion_factor = 20;
     // var cushion_factor = 30;

@@ -304,7 +304,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             // console.log("AAAAA flag_streaming_status ", flag_streaming_status);
 
-            if (flag_streaming_status === streaming_status_done) {
+            if ((! we_retrieved_last_chunk_from_server) && flag_streaming_status === streaming_status_done) {
 
             	console.log("setting to true we_retrieved_last_chunk_from_server");
 

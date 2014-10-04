@@ -62,6 +62,7 @@ var request_new = "request_new";
 var request_ongoing = "request_ongoing";
 var header_chunk_size = 44;
 
+var flag_active = true;
 
 // ---
 
@@ -96,9 +97,9 @@ var init_fresh_request = function() {
 
 var streaming_is_done = function(given_max_index, curr_ws) {
 
-    console.log("TOOOP streaming_is_done");
-    console.log("TOOOP streaming_is_done");
-    console.log("TOOOP streaming_is_done");
+    console.log("TOOOP streaming_is_done  ... given_max_index ", given_max_index);
+    console.log("TOOOP streaming_is_done  ... given_max_index ", given_max_index);
+    console.log("TOOOP streaming_is_done  ... given_max_index ", given_max_index);    
 
     var streaming_is_done_msg = {
 
@@ -113,6 +114,14 @@ var streaming_is_done = function(given_max_index, curr_ws) {
     curr_ws.send(JSON.stringify(streaming_is_done_msg), {binary: false, mask: false});  //  json message
 
     // --- reset state in prep for followon request
+
+    stream_file_into_socket.tear_down();
+
+    console.log("Utrecht ... setting flag_active to ", flag_active);
+    console.log("Utrecht ... setting flag_active to ", flag_active);
+    console.log("Utrecht ... setting flag_active to ", flag_active);
+
+    flag_active = true;
 
     init_fresh_request();
 
@@ -305,9 +314,7 @@ var stream_file_into_socket = (function () {
     console.log("stream_file_into_socket ");
     console.log("stream_file_into_socket ");
 
-
-
-    var flag_active = true;
+    flag_active = true;
 
     var do_stream = function(header_obj, requested_input_filename, received_json, curr_ws) {
 
@@ -375,10 +382,11 @@ var stream_file_into_socket = (function () {
             read_stream = fs.createReadStream(requested_input_filename, {'flags': 'r',
                                           'mode': 0666, 
                                           // 'bufferSize': chunk_size});
-                                          'bufferSize': BUFFER_SIZE_STREAMING,
+                                          'bufferSize': BUFFER_SIZE_STREAMING, // bufferSize is a hint, not an imperative
+                                                                               // It's up to the operating 
+                                                                               // system to honor it. 
                                           start : header_chunk_size
                                       });
-
             // ---
 
             var read_from_stream = function(socket_conn) {
@@ -388,6 +396,10 @@ var stream_file_into_socket = (function () {
                 console.log("         ***************** TOP read_from_stream flag_active ", flag_active);
 
                 var curr_buffer = new Buffer(BUFFER_SIZE_STREAMING);
+
+                console.log("received_json.transmit_chunksize ", received_json.transmit_chunksize);
+                console.log("BUFFER_SIZE_STREAMING ", BUFFER_SIZE_STREAMING);
+                console.log("curr_buffer.length ", curr_buffer.length);
 
                 // while (temp_stream_chunk_obj = read_stream.read()) {
 
@@ -414,6 +426,9 @@ var stream_file_into_socket = (function () {
                     // temp_stream_chunk_obj.buffer = fresh_data_buffer;
 
                     var fresh_data_buffer = shared_utils.convert_16_bit_signed_int_to_32_bit_float(curr_buffer);
+
+                    console.log("fresh_data_buffer length ", fresh_data_buffer.length);
+
                     // temp_stream_chunk_obj.buffer = fresh_data_buffer;
                     temp_stream_chunk_obj.buffer.set(fresh_data_buffer);
 
@@ -455,6 +470,10 @@ var stream_file_into_socket = (function () {
                 socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
 
                 flag_active = false;
+
+                console.log("Corinde ... setting flag_active to ", flag_active);
+                console.log("Corinde ... setting flag_active to ", flag_active);
+                console.log("Corinde ... setting flag_active to ", flag_active);
 
                 read_stream.pause();
 
@@ -604,10 +623,26 @@ var stream_file_into_socket = (function () {
 
                 flag_active = true;
 
+                console.log("Weirs ... setting flag_active to ", flag_active);
+                console.log("Weirs ... setting flag_active to ", flag_active);
+                console.log("Weirs ... setting flag_active to ", flag_active);
+
+
                 read_stream.resume();
             }
 
-            return instance;
+            // return instance;
+        },
+
+        // ---
+
+        tear_down : function() {
+
+            console.log("tear_down ");
+            console.log("tear_down ");
+            console.log("tear_down ");
+
+            instance = null;
         }
     };
 
