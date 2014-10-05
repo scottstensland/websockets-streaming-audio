@@ -168,8 +168,8 @@ var client_socket_comms = function() {
 
 
 
-                shared_utils.show_object(server_side_buffer_obj,
-                    "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
+                // shared_utils.show_object(server_side_buffer_obj,
+                //     "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
 
                 // console.log("about to call cb_for_client with name of ", cb_for_client.name);
 
@@ -231,9 +231,9 @@ var client_socket_comms = function() {
             new Error("ERROR - failed to stringify msg to send to server : ", exception);
         }
 
-        console.log("SEND -------- ");
-        console.log("SEND -------- ", request_msg);
-        console.log("SEND -------- ");
+        // console.log("SEND -------- ");
+        // console.log("SEND -------- ", request_msg);
+        // console.log("SEND -------- ");
 
         web_socket.send(request_msg);
     };
@@ -247,10 +247,10 @@ var client_socket_comms = function() {
         var given_callback = given_msg.cb_client_to_server_to_client || null;
         var given_media_file = given_msg.requested_source || null;
 
-        console.log("socket_client  given_mode ", given_mode);
-        console.log("socket_client  requested_action ", requested_action);
-        if (given_callback !== null) {console.log("given_callback ", given_callback.name); };
-        console.log("socket_client  given_media_file ", given_media_file);
+        // console.log("socket_client  given_mode ", given_mode);
+        // console.log("socket_client  requested_action ", requested_action);
+        // if (given_callback !== null) {console.log("given_callback ", given_callback.name); };
+        // console.log("socket_client  given_media_file ", given_media_file);
 
         switch (given_mode) {
 
@@ -263,11 +263,7 @@ var client_socket_comms = function() {
                 break;
             };
 
-            case "mode_stream_audio" : {
-
-                console.log('...  socket_client mode mode_stream_audio  ... stream audio buffer from server ');
-                console.log('...  socket_client mode mode_stream_audio  ... stream audio buffer from server ');
-                console.log('...  socket_client mode mode_stream_audio  ... stream audio buffer from server ');
+            case "mode_stream_audio" : {    //  stream audio buffer from server 
 
                 cb_for_client = given_callback;
 

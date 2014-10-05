@@ -320,7 +320,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             } else {
 
-                console.log("... production is NOT possible so just go with the flow");
+                // console.log("... production is NOT possible so just go with the flow");
             };
 
             // shared_utils.show_object(internal_audio_buffer_obj,
@@ -385,9 +385,6 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
         setup_onaudioprocess_callback_stream(streaming_node, circular_queue, 
         									 circular_queue.get_memory_chunk, 
         									 set_false_in_middle_of_playback);
-    } else {
-
-        console.log("NOTICE - did NOT launch audio streaming yet since buffer did not fill yet")
     };
 
     if (audio_obj_from_server.transaction_size === audio_obj_from_server.buffer.length &&
@@ -395,13 +392,13 @@ function cb_receive_buffer_from_server_to_web_audio_player(audio_obj_from_server
 
         // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
 
-        console.log("OK circular queue is NOT full so get another chunk");
+        // console.log("OK circular queue is NOT full so get another chunk");
 
         client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);
 
     } else {
 
-        console.log("NOTICE - currently production is NOT possible"); // put into setTimeout
+        // console.log("NOTICE - currently production is NOT possible"); // put into setTimeout
 
     };        
 };      //      cb_receive_buffer_from_server_to_web_audio_player

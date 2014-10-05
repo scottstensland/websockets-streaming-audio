@@ -114,7 +114,7 @@ function web_audio_setup() {
     // var cushion_factor = 2;
     // var cushion_factor = 3;
     // var cushion_factor = 5;
-    var cushion_factor = 2;
+    var cushion_factor = 10;
     // var cushion_factor = 15; 
     // var cushion_factor = 20;
     // var cushion_factor = 30;
@@ -181,6 +181,12 @@ function entry_point(given_request) {
 
             // console.log("stream_audio");
 
+            // if (typeof curr_web_audio_obj !== "undefined") {
+            if (curr_web_audio_obj && (! curr_web_audio_obj.is_streaming_status_ready())) {
+
+                curr_web_audio_obj.stop_audio();
+            }
+
             curr_web_audio_obj = web_audio_setup();
 
             break;
@@ -193,7 +199,17 @@ function entry_point(given_request) {
             // curr_circular_queue_memory_buffer_obj.deallocate_queue();
             // curr_circular_queue_memory_buffer_obj = null;
 
-            curr_web_audio_obj.stop_audio();
+            console.log("stop_audio   curr_web_audio_obj ", curr_web_audio_obj);
+
+            if (curr_web_audio_obj && typeof curr_web_audio_obj !== "undefined") {
+
+            // if (curr_web_audio_obj && (! curr_web_audio_obj.is_streaming_status_ready())) {
+
+                console.log("stop_audio  typeof curr_web_audio_obj ", typeof curr_web_audio_obj);
+
+
+                curr_web_audio_obj.stop_audio();
+            }
 
             // stop_audio(streaming_node);
             curr_web_audio_obj = null; // may need to help this more explicitly

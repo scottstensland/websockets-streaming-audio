@@ -1,6 +1,6 @@
 
-var circular_queue = function() {
-	
+var circular_queue = function () {
+
 	var memory_obj = {};
 
 	var index_produce = 0;
@@ -105,11 +105,10 @@ function set_stop_now() {
 
 var is_production_possible = function() {
 
-	console.log("is_production_possible is_production_possible is_production_possible ");
+	// console.log("is_production_possible is_production_possible is_production_possible ");
 
-	console.log("has_terminal_limit_been_reached ", has_terminal_limit_been_reached);
-	console.log("      size_available_to_produce ", size_available_to_produce);
-	console.log("has_terminal_limit_been_reached ", has_terminal_limit_been_reached);
+	// console.log("      size_available_to_produce ", size_available_to_produce);
+	// console.log("has_terminal_limit_been_reached ", has_terminal_limit_been_reached);
 
 	return ((! has_terminal_limit_been_reached) && (size_available_to_produce >= production_chunksize) ? true : false);
 };
@@ -134,7 +133,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 		has_terminal_limit_been_reached || 
 		size_buff > size_available_to_produce) {
 
-		console.log("circular queue is full ... cannot produce now");
+		// console.log("circular queue is full ... cannot produce now");
 
 		input_buffer_obj.transaction_size = 0; // size of buffer processed during this transaction
 		input_buffer_obj.queue_is_full = true;
@@ -177,7 +176,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 	// console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 	// console.log("end of STOW              size_cushion ", size_cushion);
 	console.log("populate queue          cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
-	console.log("populate queue          version 0.8.15");
+	// console.log("populate queue          version 0.8.18");
 
 	// ---
 
@@ -199,7 +198,7 @@ var get_memory_chunk = function(output_buffer_obj) {
 	if ((size_requested > size_available_to_consume) || 
 		(has_terminal_limit_been_reached && (count_total_size_consumed >= terminal_index))) {
 
-		console.log("circular queue is empty ... cannot consume now");
+		// console.log("circular queue is empty ... cannot consume now");
 
 		// console.log("stunted of GET size_available_to_produce ", size_available_to_produce);
 		// console.log("stunted of GET size_available_to_consume ", size_available_to_consume);
@@ -261,6 +260,5 @@ return { // to make visible to calling reference frame list function here
     set_stop_now : set_stop_now
 };
 
-// }(); //  circular_queue = function()
 }; //  circular_queue = function()
 
