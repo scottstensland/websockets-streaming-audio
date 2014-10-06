@@ -50,7 +50,7 @@ function web_audio_setup() {
     // media_file = "sine_wave_32768_64.wav";
     // media_file = "sine_wave_262144_64.wav";
     // media_file = "Beethoven_Symphony_3_Eroica_Karajan_Berliner_53_seconds-YObQ6bP0eDQ.wav";
-    media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
+    media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds_trim.wav";
     // media_file = "sine_wave_8388608_64.wav";
     // media_file = "Justice_Genesis_first_third_sec_tight.wav"; // stens TODO 
     // media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
