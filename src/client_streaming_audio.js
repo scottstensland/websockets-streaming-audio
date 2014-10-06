@@ -39,9 +39,7 @@ function web_audio_setup() {
 
     web_audio_obj.set_circular_queue(Object.create(circular_queue()));
 
-
     // ---
-
 
     var media_file;
 
@@ -51,14 +49,12 @@ function web_audio_setup() {
     // media_file = "Justice_Genesis_first_30_seconds_tight.wav";
     // media_file = "sine_wave_32768_64.wav";
     // media_file = "sine_wave_262144_64.wav";
-    // media_file = "2500_hz_sine_2_seconds.wav";
-
-
-    // media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
+    // media_file = "Beethoven_Symphony_3_Eroica_Karajan_Berliner_53_seconds-YObQ6bP0eDQ.wav";
+    media_file = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds.wav";
     // media_file = "sine_wave_8388608_64.wav";
     // media_file = "Justice_Genesis_first_third_sec_tight.wav"; // stens TODO 
     // media_file = "Justice_Genesis_mono_trim_16bit_y6iHYTjEyKU.wav";
-    media_file = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
+    // media_file = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
     // media_file = "L_van_Beethoven_Piano_Sonata_No_4_Op_7_in_E-Flat-Major_mono-Z0wUsO-8cx8.wav";
 
     var callback = web_audio_obj.cb_receive_buffer_from_server_to_web_audio_player;
@@ -113,8 +109,8 @@ function web_audio_setup() {
     // var cushion_factor = 1;
     // var cushion_factor = 2;
     // var cushion_factor = 3;
-    // var cushion_factor = 5;
-    var cushion_factor = 10;
+    var cushion_factor = 5;
+    // var cushion_factor = 10;
     // var cushion_factor = 15; 
     // var cushion_factor = 20;
     // var cushion_factor = 30;

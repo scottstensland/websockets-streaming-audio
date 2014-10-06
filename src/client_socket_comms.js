@@ -121,19 +121,6 @@ var client_socket_comms = function() {
                     } else if (typeof received_json.rss !== "undefined") {
 
                         updateStats(received_json);    // put received data directly to browser screen
-
-                    } else {
-
-                        // this.cb_from_client_to_server_back_to_client.retrieved_cb = received_json.cb_client_to_server_to_client;
-                    
-                        // console.log("received_json.cb_client_to_server_to_client ", 
-                        //              received_json.cb_client_to_server_to_client);
-
-                        // cb_for_client =  received_json.cb_client_to_server_to_client;
-
-                        // console.log("cb_for_client ", cb_for_client);
-
-                        // cb_for_client();
                     }
 
                 } catch (error) {

@@ -128,6 +128,13 @@ var pop_stream_buffer = function(input_buffer_obj) {
 	}
 
 	var size_buff = input_buffer_obj.buffer.length;
+	count_total_size_buffered += size_buff;
+
+	// console.log("terminal_index ", terminal_index);
+	// console.log("terminal_index ", terminal_index);
+	// console.log("terminal_index ", terminal_index);
+	// console.log("count_total_size_buffered ", count_total_size_buffered);
+
 
 	if (0 == size_available_to_produce || 
 		has_terminal_limit_been_reached || 
@@ -144,7 +151,17 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 	for (var index = 0, pop_index = index_produce; index < size_buff; index++) {
 
-		memory_obj.buffer[pop_index] = input_buffer_obj.buffer[index];
+		// if (terminal_index < count_total_size_buffered) {
+
+			memory_obj.buffer[pop_index] = input_buffer_obj.buffer[index];
+
+		// } else {
+
+		// 	memory_obj.buffer[pop_index] = 0;
+		// }
+
+
+		// bbb
 
 		pop_index++;
 
@@ -158,7 +175,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 	};
 
 	index_produce = pop_index;
-	count_total_size_buffered += size_buff;
+	// count_total_size_buffered += size_buff;
 	size_cushion += size_buff;
 	size_available_to_produce -= size_buff;
 	size_available_to_consume += size_buff;
@@ -173,7 +190,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 
 	// console.log("end of STOW size_available_to_produce ", size_available_to_produce);
 	// console.log("end of STOW size_available_to_consume ", size_available_to_consume);
-	// console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
+	console.log("end of STOW count_total_size_buffered ", count_total_size_buffered);
 	// console.log("end of STOW              size_cushion ", size_cushion);
 	console.log("populate queue          cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
 	// console.log("populate queue          version 0.8.18");
@@ -210,22 +227,49 @@ var get_memory_chunk = function(output_buffer_obj) {
 		return;
 	};
 
-	for (var index = 0, consume_index = index_consume; index < size_requested; index++) {
+	count_total_size_consumed += size_requested;
 
-		output_buffer_obj.buffer[index] = memory_obj.buffer[consume_index];
+	// console.log("index_consume ", index_consume);
+	// console.log("terminal_index ", terminal_index);
+	// console.log("terminal_index ", terminal_index);
+	// console.log("terminal_index ", terminal_index);
+	// console.log("count_total_size_consumed ", count_total_size_consumed);
 
-		consume_index++;
+	if (count_total_size_consumed < terminal_index) { // normal mode
 
-		if (consume_index === index_limit) {
+		for (var index = 0, consume_index = index_consume; index < size_requested; index++) {
 
-			consume_index = 0; // wrap around since we reached bottom of memory buffer
+			output_buffer_obj.buffer[index] = memory_obj.buffer[consume_index];
 
-			// stens TODO - put this if check OUTSIDE for loop and dedicate separate loop
-		};
-	};
+			consume_index++;
+
+			if (consume_index === index_limit) {
+
+				consume_index = 0; // wrap around since we reached bottom of memory buffer
+
+				// stens TODO - put this if check OUTSIDE for loop and dedicate separate loop
+			}
+		}
+
+	} else { // silence out this trailing portion of buffer ... pad with zeros 
+
+		for (var index = 0, consume_index = index_consume; index < size_requested; index++) {
+
+			output_buffer_obj.buffer[index] = 0;
+
+			consume_index++;
+
+			if (consume_index === index_limit) {
+
+				consume_index = 0; // wrap around since we reached bottom of memory buffer
+
+				// stens TODO - put this if check OUTSIDE for loop and dedicate separate loop
+			}
+		}
+	}
 
 	index_consume = consume_index;
-	count_total_size_consumed += size_requested;
+	// count_total_size_consumed += size_requested;
 	size_cushion -= size_requested;
 	size_available_to_produce += size_requested;
 	size_available_to_consume -= size_requested;

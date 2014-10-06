@@ -234,6 +234,18 @@ var server_streaming_audio = function () {
 
                         temp_stream_chunk_obj.buffer.set(fresh_data_buffer);
 
+                        if (fresh_data_buffer.length < temp_stream_chunk_obj.buffer.length) {
+
+                            console.log("about to zero pad buffer since source only partially fills");
+
+                            var pad_index = fresh_data_buffer.length;
+                            var pad_max = temp_stream_chunk_obj.buffer.length;
+                            for (; pad_index < pad_max; pad_index += 1) {
+
+                                temp_stream_chunk_obj.buffer[pad_index];
+                            }
+                        }
+
                         // shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj convert_16_bit_signed", "total", 10);
 
 
@@ -418,17 +430,14 @@ var server_streaming_audio = function () {
             console.log("read_file_pop_buffer_stream_back_to_client_async NEW");
 
             curr_stream_session = null;
-            // stream_file_into_socket = null;
 
             curr_stream_session = stream_file_into_socket(received_json, curr_ws);
-            // stream_file_into_socket();
 
             console.log("curr_stream_session ", curr_stream_session);
 
         } else {
 
             curr_stream_session.roll_it(received_json, curr_ws);
-            // roll_it(media_dir, received_json, curr_ws);        
         }
     };      //      read_file_pop_buffer_stream_back_to_client_async
 
@@ -488,21 +497,13 @@ var server_streaming_audio = function () {
                         console.log("cool we have already stopped this stream request so ignoring stream request");
 
                         break;   
-                    };
-
-                // } else {
-
-                    // console.log("request_status === request_new ... so call init_fresh_request");
-                    // console.log("request_status === request_new ... so call init_fresh_request");
-                    // console.log("request_status === request_new ... so call init_fresh_request");
-
-                    // init_fresh_request();
-                };
+                    }
+                }
 
                 read_file_pop_buffer_stream_back_to_client_async(received_json, curr_ws, request_status);
 
                 break;
-            };
+            }
 
             case "stop_streaming" : {
 
@@ -521,7 +522,7 @@ var server_streaming_audio = function () {
                 }
 
                 break;
-            };
+            }
 
             default : {
 

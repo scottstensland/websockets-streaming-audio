@@ -271,7 +271,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
                  final_index !== 0 &&
                  count_total_size_consumed <= final_index) || circular_queue_obj.is_consumption_possible()) {
 
-                // console.log("YES is_consumption_possible");
+                console.log("YES is_consumption_possible");
 
                 cb_get_memory_chunk(internal_audio_buffer_obj); // retrieve buffer data from circular queue
 
@@ -282,7 +282,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             } else {
 
-                // console.log("NO NO NO is_consumption_possible NO NO NO");
+                console.log("NO NO NO is_consumption_possible NO NO NO");
 
                 if (flag_streaming_status === streaming_status_done) {
 
