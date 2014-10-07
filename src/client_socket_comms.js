@@ -7,6 +7,7 @@ var client_socket_comms = function() {
     var flag_connected = false;
 
     var cb_for_client;
+    var cb_set_max_index;
     var cb_stream_is_complete;
 
     var server_supplied_max_media_size;
@@ -14,6 +15,13 @@ var client_socket_comms = function() {
     var flag_max_media_size_retrieved = false;
 
     // ---------------------
+
+    var set_max_index_cb = function(given_cb_set_max_index) { // supplied by calling client
+
+        console.log("now SET set_max_index_cb  ", given_cb_set_max_index.name);
+
+        cb_set_max_index = given_cb_set_max_index; // when server side says stream is done this gets called
+    }
 
     var set_stream_is_complete_cb = function(given_cb_stream_is_complete) { // supplied by calling client
 
@@ -97,6 +105,8 @@ var client_socket_comms = function() {
                         server_supplied_max_media_size = received_json["max_index"];
 
                         flag_max_media_size_retrieved = true;
+
+                        cb_set_max_index(server_supplied_max_media_size); // set_terminal_index
                     }
 
                     // ---
@@ -296,6 +306,7 @@ var client_socket_comms = function() {
     return {        // to make visible to calling reference frame list function here comma delimited,
 
         socket_client: socket_client,
+        set_max_index_cb : set_max_index_cb,
         set_stream_is_complete_cb : set_stream_is_complete_cb
     };
 

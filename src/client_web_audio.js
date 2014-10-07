@@ -151,6 +151,13 @@ function set_circular_queue(given_circular_queue) {
 	circular_queue = given_circular_queue;
 };
 
+function cb_set_terminal_index (given_max_index)      {
+
+    console.log("OK cb_set_terminal_index ", given_max_index);
+
+    circular_queue.set_terminal_index(given_max_index);
+}
+
 function cb_stream_is_complete(given_max_index) {
 
     final_index = given_max_index;
@@ -417,6 +424,7 @@ return { // to make visible to calling reference frame list function here
     stop_audio : stop_audio,
     cb_receive_buffer_from_server_to_web_audio_player : cb_receive_buffer_from_server_to_web_audio_player,
     // render_buffer: render_buffer,
+    cb_set_terminal_index : cb_set_terminal_index,
     cb_stream_is_complete : cb_stream_is_complete
 };
 
