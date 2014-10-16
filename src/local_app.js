@@ -58,7 +58,7 @@ wss.on("connection", function(ws) {
 
     ws.on("message", function(received_data) {
 
-        console.log("\n\nReceived message --------------------" + received_data);
+        // console.log("\n\nReceived message --------------------" + received_data);
 
         var received_json;
 
