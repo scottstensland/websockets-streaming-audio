@@ -267,7 +267,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             // if (terminate_current_run) { return;};
 
-            console.log("Middleburg  top of rendering callback ----------------------------------");
+            // console.log("Middleburg  top of rendering callback ----------------------------------");
 
             internal_audio_buffer_obj.buffer = event.outputBuffer.getChannelData(0);// stens TODO - setup 2 channels
 
