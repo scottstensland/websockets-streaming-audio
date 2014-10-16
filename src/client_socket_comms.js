@@ -152,24 +152,6 @@ var client_socket_comms = function() {
 
                 console.log("received_buffer.length ", server_buffer_len);
 
-                // var default_max_index = 3;
-                // var max_show_index = (typeof server_buffer_len !== "undefined" && 
-                //                  server_buffer_len < default_max_index) ? server_buffer_len : default_max_index;
-
-                // console.log("max_show_index ", max_show_index);
-
-                // for (var i = 0; i < max_show_index; i++) {
-
-                //     console.log(i, server_side_buffer_obj.buffer[i]);
-                // };
-
-
-
-                // shared_utils.show_object(server_side_buffer_obj,
-                //     "backHome server_side_audio_obj 32 bit signed float   forward_audio_buffer_to_player", "total", 10);
-
-                // console.log("about to call cb_for_client with name of ", cb_for_client.name);
-
                 cb_for_client(server_side_buffer_obj);
 
             } else if (event.data instanceof Blob) { // binary    bbb
@@ -210,30 +192,65 @@ var client_socket_comms = function() {
 
     };      //      create_websocket_connection
 
-    function send_request_to_server(given_msg) {
+    // function send_request_to_server(given_msg) {
 
-        if (!flag_connected) {
+    //     if (!flag_connected) {
 
-            console.error("ERROR - no web socket connection");
-            return;
-        };
+    //         console.error("ERROR - no web socket connection");
+    //         return;
+    //     };
 
-        var request_msg;
-        try {
+    //     var request_msg;
+    //     try {
 
-            request_msg = JSON.stringify(given_msg);
+    //         request_msg = JSON.stringify(given_msg);
 
-        } catch (exception) {
+    //     } catch (exception) {
 
-            new Error("ERROR - failed to stringify msg to send to server : ", exception);
+    //         new Error("ERROR - failed to stringify msg to send to server : ", exception);
+    //     }
+
+    //     console.log("SEND -------- ");
+    //     console.log("SEND -------- ", request_msg);
+    //     console.log("SEND -------- ");
+
+    //     web_socket.send(request_msg);
+    // };
+
+
+    var send_request_to_server = function(given_msg) {
+
+        var count_send_request = 0;
+
+        return function(given_msg) {
+
+            if (!flag_connected) {
+
+                console.error("ERROR - no web socket connection");
+                return;
+            };
+
+            var request_msg;
+            try {
+
+                request_msg = JSON.stringify(given_msg);
+
+            } catch (exception) {
+
+                new Error("ERROR - failed to stringify msg to send to server : ", exception);
+            }
+
+            console.log(count_send_request , " SEND -------- ");
+            console.log(count_send_request , " SEND -------- ", request_msg);
+            console.log(count_send_request , " SEND -------- ");
+            count_send_request += 1;
+
+            web_socket.send(request_msg);
         }
+    }();
 
-        // console.log("SEND -------- ");
-        // console.log("SEND -------- ", request_msg);
-        // console.log("SEND -------- ");
 
-        web_socket.send(request_msg);
-    };
+
 
     function socket_client(given_msg) {
 

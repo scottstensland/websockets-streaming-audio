@@ -105,10 +105,11 @@ function set_stop_now() {
 
 var is_production_possible = function() {
 
-	// console.log("is_production_possible is_production_possible is_production_possible ");
+	console.log("is_production_possible is_production_possible is_production_possible ");
 
-	// console.log("      size_available_to_produce ", size_available_to_produce);
-	// console.log("has_terminal_limit_been_reached ", has_terminal_limit_been_reached);
+	console.log("      size_available_to_produce ", size_available_to_produce);
+	console.log("           production_chunksize ", production_chunksize);
+	console.log("has_terminal_limit_been_reached ", has_terminal_limit_been_reached);
 
 	return ((! has_terminal_limit_been_reached) && (size_available_to_produce >= production_chunksize) ? true : false);
 };
