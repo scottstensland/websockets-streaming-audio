@@ -93,7 +93,7 @@ var client_socket_comms = function() {
 
                     var received_json = JSON.parse(event.data);
 
-                    console.log("RECEIVED --- received_json ", received_json);
+                    // console.log("RECEIVED --- received_json ", received_json);
 
                     pop_json_from_server(all_tags_from_server, received_json);
 
@@ -142,7 +142,7 @@ var client_socket_comms = function() {
 
             } else if (event.data instanceof ArrayBuffer) {
 
-                console.log("RECEIVED --- ArrayBuffer received: " + event.data);
+                // console.log("RECEIVED --- ArrayBuffer received: " + event.data);
 
                 var server_side_buffer_obj = {};
 
@@ -150,7 +150,7 @@ var client_socket_comms = function() {
 
                 var server_buffer_len = server_side_buffer_obj.buffer.length;
 
-                console.log("received_buffer.length ", server_buffer_len);
+                // console.log("received_buffer.length ", server_buffer_len);
 
                 cb_for_client(server_side_buffer_obj);
 
@@ -240,9 +240,9 @@ var client_socket_comms = function() {
                 new Error("ERROR - failed to stringify msg to send to server : ", exception);
             }
 
-            console.log(count_send_request , " SEND -------- ");
-            console.log(count_send_request , " SEND -------- ", request_msg);
-            console.log(count_send_request , " SEND -------- ");
+            // console.log(count_send_request , " SEND -------- ");
+            // console.log(count_send_request , " SEND -------- ", request_msg);
+            // console.log(count_send_request , " SEND -------- ");
             count_send_request += 1;
 
             web_socket.send(request_msg);

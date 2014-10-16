@@ -283,7 +283,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
                  final_index !== 0 &&
                  count_total_size_consumed <= final_index) || circular_queue_obj.is_consumption_possible()) {
 
-                console.log("YES is_consumption_possible");
+                // console.log("YES is_consumption_possible");
 
                 cb_get_memory_chunk(internal_audio_buffer_obj); // retrieve buffer data from circular queue
 
@@ -294,7 +294,7 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             } else {
 
-                console.log("NO NO NO is_consumption_possible NO NO NO");
+                // console.log("NO NO NO is_consumption_possible NO NO NO");
 
                 if (flag_streaming_status === streaming_status_done) {
 
@@ -320,12 +320,12 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             } else {
 
-                console.log("OK count_num_called ", count_num_called, " is first run skip over");
+                // console.log("OK count_num_called ", count_num_called, " is first run so skip over");
             }
 
             // ---
 
-            console.log("AAAAA flag_streaming_status ", flag_streaming_status);
+            // console.log("AAAAA flag_streaming_status ", flag_streaming_status);
 
             if ((! we_retrieved_last_chunk_from_server) && flag_streaming_status === streaming_status_done) {
 
@@ -337,13 +337,13 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
                 // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
 
-                console.log("OK circular queue is NOT full so get another chunk");
+                // console.log("OK circular queue is NOT full so get another chunk");
 
                 client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);
 
             } else {
 
-                console.log("... production is NOT possible so just go with the flow");
+                // console.log("... production is NOT possible so just go with the flow");
             };
 
             // shared_utils.show_object(internal_audio_buffer_obj,
@@ -352,15 +352,6 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
             count_num_called++;
         };
     }());
-
-	// ---
-
-    // streaming_node.connect(gain_node);
-
-    // flag_streaming_status = streaming_status_active;
-
-    // console.log("OK just set flag_streaming_status = streaming_status_active");
-
 };           //      setup_onaudioprocess_callback_stream
 
 // ---------------------------------------------------------------------------  //
@@ -375,9 +366,8 @@ var audio_from_server = (function() { // first in first out queue
 
         push : function(given_audio_obj_from_server) {
 
-            console.log("OK push onto audio_from_server_obj ... push_index ", push_index);
+            // console.log("OK push onto audio_from_server_obj ... push_index ", push_index);
             
-
             audio_from_server_obj[push_index] = given_audio_obj_from_server;
             push_index += 1;
 
@@ -386,14 +376,14 @@ var audio_from_server = (function() { // first in first out queue
 
             if (pop_index > 0) {
 
-                console.log("about to delete audio_from_server_obj ... pop_index ", pop_index - 1);
+                // console.log("about to delete audio_from_server_obj ... pop_index ", pop_index - 1);
 
                 delete audio_from_server_obj[pop_index - 1]; // destroy previously consumed entry
             }
 
             if (pop_index < push_index) {
 
-                console.log("OK pop onto audio_from_server_obj ... pop_index ", pop_index);
+                // console.log("OK pop onto audio_from_server_obj ... pop_index ", pop_index);
 
                 return audio_from_server_obj[pop_index++];
             }
@@ -407,7 +397,7 @@ function cb_receive_buffer_from_server_to_web_audio_player(given_audio_obj_from_
 
     audio_from_server.push(given_audio_obj_from_server);
 
-    console.log("audio_from_server ", audio_from_server);
+    // console.log("audio_from_server ", audio_from_server);
 
     if (! flag_audio_rendering) {
 
