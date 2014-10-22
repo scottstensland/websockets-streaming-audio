@@ -1,5 +1,7 @@
 var client_socket_comms = function() {
 
+    "use strict";
+
     // ---
 
     var host;

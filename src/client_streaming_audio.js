@@ -1,6 +1,7 @@
 
-
 var client_streaming_audio = function() {
+
+"use strict";
 
 var curr_web_audio_obj;
 var curr_circular_queue_memory_buffer_obj;

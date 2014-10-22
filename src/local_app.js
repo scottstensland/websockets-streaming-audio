@@ -1,6 +1,7 @@
 
-
 var launch_server = function(working_dir) {
+
+"use strict";
 
 console.log(require('../package.json').name, require('../package.json').version);
 

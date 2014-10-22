@@ -1,7 +1,7 @@
 
-// var shared_utils = function() {
-
 var shared_utils = function(exports) {
+
+	"use strict";
 
 	// ----------------------
 
@@ -121,3 +121,4 @@ var shared_utils = function(exports) {
     return exports;
 
 }({});
+// }();

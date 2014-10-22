@@ -1,5 +1,7 @@
 var server_streaming_audio = function () {
 
+    "use strict";
+
     var fs   = require('fs');
     var path = require('path');
 
@@ -179,7 +181,7 @@ var server_streaming_audio = function () {
                 // ---
 
                 read_stream = fs.createReadStream(requested_input_filename, {'flags': 'r',
-                                              'mode': 0666, 
+                                              'mode': '0666', 
                                               'bufferSize': BUFFER_SIZE_STREAMING, // bufferSize is a hint, not an imperative
                                                                                    // It's up to the operating 
                                                                                    // system to honor it. 
