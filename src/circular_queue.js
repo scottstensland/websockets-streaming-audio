@@ -1,6 +1,8 @@
 
 var circular_queue = function () {
 
+    "use strict";
+
 	var memory_obj = {};
 
 	var index_produce = 0;
@@ -203,7 +205,7 @@ var pop_stream_buffer = function(input_buffer_obj) {
 	// console.log("end of STOW              index_produce ", index_produce);
 	// console.log("end of STOW              size_cushion ", size_cushion);
 	// console.log("populate queue          cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
-	// console.log("populate queue          version 0.9.1");
+
 
 	// ---
 
@@ -273,14 +275,26 @@ var get_memory_chunk = function(output_buffer_obj) {
 	// console.log("end of GET size_available_to_produce ", size_available_to_produce);
 	// console.log("end of GET size_available_to_consume ", size_available_to_consume);
 	// console.log("end of GET count_total_size_consumed ", count_total_size_consumed);
-	console.log("end of GET count_total_size_consumed ", count_total_size_consumed, "  ", 
-							(100 * count_total_size_consumed / terminal_index).toFixed(2), " % consumed");
 
+	// console.log("end of GET count_total_size_consumed ", count_total_size_consumed, "  ", 
+	// 						(100 * count_total_size_consumed / terminal_index).toFixed(2), " % consumed");
+
+	// console.log("end of GET count_total_size_consumed " + count_total_size_consumed + "  " +
+	// 						(100 * count_total_size_consumed / terminal_index).toFixed(2) + " % consumed");
 	
 
 
 	// console.log("end of STOW             size_cushion ", size_cushion);
-	console.log("get_memory_chunk   cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
+	// console.log("get_memory_chunk   cushion count ", curr_num_cushion, " out of ", max_consumption_chunks);
+	// console.log("get_memory_chunk   cushion count " + curr_num_cushion + " out of " + max_consumption_chunks);
+
+
+
+	console.log("count_total_size_consumed " + count_total_size_consumed + "  " +
+				(100 * count_total_size_consumed / terminal_index).toFixed(2) + " % consumed " +
+				"  cushion count " + curr_num_cushion + " out of " + max_consumption_chunks);
+
+
 };
 
 // -----------------------------------------------------------------------  //

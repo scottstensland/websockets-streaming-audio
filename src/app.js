@@ -1,6 +1,8 @@
 
 var streaming_audio_server = function() {
 
+"use strict";
+
 console.log(require('../package.json').name, require('../package.json').version);
 
 var path = require('path');

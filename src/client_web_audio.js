@@ -1,5 +1,7 @@
 
-var client_web_audio = function() {
+var client_web_audio = function () {
+
+"use strict";
 
 var audio_context;
 var circular_queue;
@@ -316,7 +318,8 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             if (count_num_called > 0) {
 
-                process_audio_buffer_from_server();
+                // process_audio_buffer_from_server();
+                setTimeout(process_audio_buffer_from_server, 0)
 
             } else {
 
@@ -325,29 +328,29 @@ function setup_onaudioprocess_callback_stream(given_node, circular_queue_obj, cb
 
             // ---
 
-            // console.log("AAAAA flag_streaming_status ", flag_streaming_status);
+            setTimeout(function() {
 
-            if ((! we_retrieved_last_chunk_from_server) && flag_streaming_status === streaming_status_done) {
+                // console.log("AAAAA flag_streaming_status ", flag_streaming_status);
 
-            	console.log("setting to true we_retrieved_last_chunk_from_server");
+                if ((! we_retrieved_last_chunk_from_server) && flag_streaming_status === streaming_status_done) {
 
-                we_retrieved_last_chunk_from_server = true; // stop when we reach above on next iteration of this cb
+                    console.log("setting to true we_retrieved_last_chunk_from_server");
 
-            } else if (circular_queue.is_production_possible()) {
+                    we_retrieved_last_chunk_from_server = true; // stop when we reach above on next iteration of this cb
 
-                // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
+                } else if (circular_queue.is_production_possible()) {
 
-                // console.log("OK circular queue is NOT full so get another chunk");
+                    // OK circular queue consumed all of previous dollup so go ahead and get another buffer chunk from server
 
-                client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);
+                    // console.log("OK circular queue is NOT full so get another chunk");
 
-            } else {
+                    client_socket_comms.socket_client(msgs_to_server.mode_stream_audio_to_client);
 
-                // console.log("... production is NOT possible so just go with the flow");
-            };
+                } else {
 
-            // shared_utils.show_object(internal_audio_buffer_obj,
-            //     "internal_audio_buffer_obj", "total", 10);
+                    // console.log("... production is NOT possible so just go with the flow");
+                };
+            }, 0);
 
             count_num_called++;
         };
