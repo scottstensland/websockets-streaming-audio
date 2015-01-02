@@ -1,122 +1,138 @@
 <html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="common.css" rel="stylesheet" type="text/css">
+<!-- <input type="file" id="text_file_input" /> -->
 
-<!--       
-      
-  
+<pre id="result"></pre>
 
-      https://www.npmjs.org/package/websockets-streaming-audio
--->
-
-  <head>
-
-  <script type="text/javascript" src="shared_utils.js"></script>
-  <script type="text/javascript" src="client_web_audio.js"></script>
-  <script type="text/javascript" src="client_streaming_audio.js"></script>
-  <script type="text/javascript" src="client_socket_comms.js"></script>
-  <script type="text/javascript" src="circular_queue.js"></script>
+<!-- // <script type="text/javascript" src="page_stats_feedback.js"></script> -->
+<script type="text/javascript" src="common_utils.js"></script>
+<!-- <script type="text/javascript" src="audio_utils.js"></script> -->
+<script type="text/javascript" src="shared_utils.js"></script>
 
 
-  
+<!-- <script type="text/javascript" src="get_audio_buffer.js"></script> -->
+<!-- <script type="text/javascript" src="toy_media_player.js"></script>   -->
+<!-- <script type="text/javascript" src="render_audio.js"></script>   -->
+<!-- <script type="text/javascript" src="client_main.js"></script> -->
 
-    <style>
-      body {
-        font-family: "Helvetica Neue", helvetica, arial;
-        padding: 15px;
-      }
 
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
 
-      ul li {
-        line-height: 1.4;
-      }
-    </style>
 
-    <script>
+<script type="text/javascript" src="render_streaming_web_audio.js"></script>
+<script type="text/javascript" src="client_entry.js"></script>
 
-      function display_feedback(given_msg) {
 
-        var combo_msg = "";
-        var index = 0;
-        for (var curr_key in given_msg) {
 
-          if (index > 0) {
+<style>
 
-            combo_msg += "<br>";
-          }
-
-          combo_msg += curr_key + " : " + given_msg[curr_key];
-
-          index++;
-        }
-
-        // document.getElementById('feedback_msg').innerHTML = given_msg.error_msg;
-        document.getElementById('feedback_msg').innerHTML = combo_msg;
-      }
-
-      function updateStats(memuse) {
-        document.getElementById('rss').innerHTML = memuse.rss;
-        document.getElementById('heapTotal').innerHTML = memuse.heapTotal;
-        document.getElementById('heapUsed').innerHTML = memuse.heapUsed;
-      }
-    </script>
-
+  body {
+    font-family: "Droid Sans", Arial, sans-serif;
+    padding: 2em;
+  }
+  button {
+    display: inline-block;
+  /*
+  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3));
+  background: -webkit-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+  background: -moz-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+  background: -ms-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+  background: -o-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+  */
+  background: linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 5px 8px;
+  outline: none;
+  white-space: nowrap;
+  /*
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  */
+  user-select: none;
+  cursor: pointer;
+  text-shadow: 1px 1px #fff;
+  font-weight: 700;
+  font-size: 10pt;
+  }
+  button:hover {
+    border-color: black;
+  }
+  button:active {
+  /*
+  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#E3E3E3), to(#F9F9F9));
+  background: -webkit-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+  background: -moz-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+  background: -ms-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+  background: -o-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+  */
+  background: linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+  }
+  section {
+    margin-top: 2em;
+  }
+  .down {
+    margin-top: 17em;
+  }
+  #result {
+    max-height: 800px;
+    overflow: auto;
+  }
+</style>
 
 <script type="text/javascript">
 
-"use strict";
+// window.addEventListener('load', function(e) {
+//   client_main.init();
+// }, false);
 
-var stens = function() {
-
-function internal_webGLStart() {
-
-  // client_streaming_audio.entry_point("init_audio_context");
-  client_socket_comms.socket_client({ mode : 1});
-
-};       //      internal_webGLStart
-
-return {
-
-    internal_webGLStart: internal_webGLStart  
-}
-
-}();
+  
+    // document.getElementById("text_file_input").addEventListener('change', client_main.read_one_text_file, false);
 
 </script>
-
-
   </head>
-  <body onload="stens.internal_webGLStart();" >
-  <!-- <body> -->
+  <body>
 
-    <p>  
+    <button onclick="location.reload();">r e l o a d</button>
+    <!-- <button onclick="client_main.entry_point('stop_audio')">s t o p</button> -->
+    <!-- <button onclick="client_main.entry_point('launch_stream_audio_loops')">stream loop</button> -->
+    <!-- <button onclick="client_main.entry_point('launch_audio_browser_synthesized')">synth audio</button> -->
+    <!-- <button onclick="client_main.entry_point('launch_stream_audio')">stream audio</button> -->
 
-    <!-- <button onclick="client_streaming_audio.entry_point('stream_audio')">stream audio</button> -->
-    <!-- <button onclick="client_streaming_audio.entry_point('stop_audio')">stop</button> -->
-    <!-- <button onclick="web_audio_player.render_buffer(11)">stop</button> -->
+    <!-- <p> -->
+    <!-- <br> -->
+    <!-- <button onclick="client_entry.entry_point('stop_audio')">s t o p</button> -->
+    <!-- <button onclick="client_entry.entry_point('launch_stream_audio')">stream audio</button> -->
 
-    <p> 
 
-    <button onclick="client_streaming_audio.entry_point('stream_audio')">stream audio</button>
-    <button onclick="client_streaming_audio.entry_point('stop_audio')">stop</button>
+    <p>
+    <br>
+    <button onclick="client_entry.entry_point('stop_audio')">s t o p</button>
+        <br>
+    <button onclick="client_entry.entry_point('pause_audio')">p a u s e</button>
+    
+    <button onclick="client_entry.entry_point('launch_stream_audio', 0)">stream 0</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 1)">stream 1</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 2)">stream 2</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 3)">stream 3</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 4)">stream 4</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 5)">stream 5</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 6)">stream 6</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 7)">stream 7</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 8)">stream 8</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 9)">stream 9</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 10)">stream 10</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 11)">stream 11</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 12)">stream 12</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 13)">stream 13</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 14)">stream 14</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 15)">stream 15</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 16)">stream 16</button>
+    <button onclick="client_entry.entry_point('launch_stream_audio', 17)">stream 17</button>
 
-        <br>     <!-- .....................  -->
 
-    <!-- <output id="result"></output> -->
-    <output id="feedback_msg"></output>
-
-    </p>
-
-    <h1>Pings</h1>
-    <ul id='pings'></ul>
-
-    <strong>Server Stats</strong> version 0.9.3<br>
-    RSS: <div id='rss'></div><br>
-    Heap total: <div id='heapTotal'></div><br>
-    Heap used: <div id='heapUsed'></div><br>
 
   </body>
 </html>
+
