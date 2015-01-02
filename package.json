@@ -30,11 +30,8 @@
     },
     "scripts": {
         "start": "node src/app.js",
-        "start_ww": "node src_ww/app.js",
-        "start_ww_cw": "node src_ww_cw/app.js",
-        "start_ce": "node src_ce/app.js",
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "1.0.3"
+    "version": "1.0.4"
 }
