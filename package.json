@@ -36,5 +36,5 @@
         "test": "make"
     },
     "subdomain": "websockets-streaming-audio",
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
