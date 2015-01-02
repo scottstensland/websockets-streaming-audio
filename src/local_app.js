@@ -34,7 +34,7 @@ var server = http.createServer(app);
 
 server.listen(port);
 
-console.log("http server listening on %d", port)
+console.log("http server listening on %d", port);
 
 var wss = new WebSocketServer({
     server: server
@@ -69,11 +69,12 @@ wss.on("connection", function(ws) {
 
         } catch (error) {
 
-            console.log("ERROR - received NON JSON message -->", error, "<--");
-            console.log("received_data : ", received_data);
-            // process.exit(8);
+            var error_msg = "ERROR - received NON JSON message -->" + error + "<--" +
+                            "received_data : " + received_data;
+
+            console.error(error_msg);
             return;
-        };
+        }
 
         server_streaming_audio.route_msg(received_json, ws);
     });
@@ -82,8 +83,8 @@ wss.on("connection", function(ws) {
 
     ws.on("error", function(event) {
 
-        console.log("ERROR on on on error : " + event);
-
+        var error_msg = "ERROR on on on error : " + event;
+        console.error(error_msg);
     });
 
     // ---
