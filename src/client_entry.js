@@ -526,25 +526,25 @@ var media_manager = (function() {
 
 //       ls -Slr media/  | cut -c25-34,48-999
 
-    all_media[0] = "Justice_Genesis_first_third_sec_tight.wav"; // its 8 bit not 16 bit like all others here
-    all_media[1] = "sine_wave_32768_64.wav";
+    // all_media[0] = "Justice_Genesis_first_third_sec_tight.wav"; // its 8 bit not 16 bit like all others here
+    // all_media[1] = "sine_wave_32768_64.wav";
     all_media[2] = "sine_wave_32768_128.wav";
-    all_media[3] = "sine_wave_32768_64.wav";
-    all_media[4] = "sine_wave_65536_64.wav";
+    // all_media[3] = "sine_wave_32768_64.wav";
+    // all_media[4] = "sine_wave_65536_64.wav";
     all_media[5] = "Lee_Smolin_Physics_Envy_and_Economic_Theory-cWn86ESze6M_mono_1st_few_seconds_trim.wav";
-    all_media[6] = "1_to_11.wav";
-    all_media[7] = "Viola_16_Jay_Haide_a_L_Ancienne_Stradivari-H4ri4jE14cE_4_seconds.wav";
-    all_media[8] = "sine_wave_262144_64.wav";
-    all_media[9] = "Viola_16_Jay_Haide_a_L_Ancienne_Stradivari-H4ri4jE14cE_10_seconds.wav";
-    all_media[10] = "Elephant_sounds_mono_cute_clip_rgUFu_hVhlk.wav";
-    all_media[11] = "Elephant_sounds_mono_clip_rgUFu_hVhlk.wav";
-    all_media[12] = "Die_Antwoord_11_doong_doong_30_sec.wav";
+    // all_media[6] = "1_to_11.wav";
+    // all_media[7] = "Viola_16_Jay_Haide_a_L_Ancienne_Stradivari-H4ri4jE14cE_4_seconds.wav";
+    // all_media[8] = "sine_wave_262144_64.wav";
+    // all_media[9] = "Viola_16_Jay_Haide_a_L_Ancienne_Stradivari-H4ri4jE14cE_10_seconds.wav";
+    // all_media[10] = "Elephant_sounds_mono_cute_clip_rgUFu_hVhlk.wav";
+    // all_media[11] = "Elephant_sounds_mono_clip_rgUFu_hVhlk.wav";
+    // all_media[12] = "Die_Antwoord_11_doong_doong_30_sec.wav";
     all_media[13] = "Justice_Genesis_first_30_seconds_tight.wav";
-    all_media[14] = "Glenn_Gould_Partita_No_5_BWV_829_Praeambulum_mono-0YvnW_lMNTM.wav";
-    all_media[15] = "Contrabass_Saxophone_mono_hXBeu7o9uUM.wav";
+    // all_media[14] = "Glenn_Gould_Partita_No_5_BWV_829_Praeambulum_mono-0YvnW_lMNTM.wav";
+    // all_media[15] = "Contrabass_Saxophone_mono_hXBeu7o9uUM.wav";
     all_media[16] = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
-    all_media[17] = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
-    all_media[17] = "Chopin_Fantasie_Impromptu_opus_66_mono_clip_APQ2RKECMW8.wav";
+    // all_media[17] = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
+    // all_media[17] = "Chopin_Fantasie_Impromptu_opus_66_mono_clip_APQ2RKECMW8.wav";
 
     return {
 
