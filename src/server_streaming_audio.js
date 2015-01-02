@@ -433,9 +433,9 @@ var route_msg = function(received_json, curr_ws) {
             // TROUBLESHOOTING ONLY make 0 otherwise
             // TROUBLESHOOTING ONLY make 0 otherwise
             // TROUBLESHOOTING ONLY make 0 otherwise
-            var random_delay = ~~(1200 * Math.random()); // TROUBLESHOOTING ONLY make 0 otherwise
+            // var random_delay = ~~(1200 * Math.random()); // TROUBLESHOOTING ONLY make 0 otherwise
             // var random_delay = ~~(800 * Math.random()); // TROUBLESHOOTING ONLY make 0 otherwise
-            // var random_delay = 0; // use this in prod
+            var random_delay = 0; // use this in prod
             // TROUBLESHOOTING ONLY make 0 otherwise
             // TROUBLESHOOTING ONLY make 0 otherwise
             // TROUBLESHOOTING ONLY make 0 otherwise
