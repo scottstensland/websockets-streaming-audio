@@ -693,8 +693,6 @@ var entry_point = (function() {     //      handle traffic from browser UI
 
                 shared_utils.show_object(returned_msg, "returned_msg uuu uuu uuu uuu uuu", "total", 10);
 
-                // bbbbbbbbbbbbbbb
-
                 shared_utils.show_object(curr_msg_stream, "curr_msg_stream MMMMMMMMMMMMMMMMM", "total", 10);
 
                 ww_handle.postMessage(JSON.stringify(curr_msg_stream));
@@ -702,36 +700,14 @@ var entry_point = (function() {     //      handle traffic from browser UI
                 break;
             }
 
-			// case "launch_stream_audio" : {
-
-   //              // manage_audio.stop_audio(msg_to_ww);
-
-   //              msg_to_ww.browser_directed_mode = manage_state.get_state();
-
-   //              startTime = new Date();
-
-   //              ww_handle.postMessage(JSON.stringify(msg_to_ww));
-
-			// 	break;
-			// }
-
             case "stop_audio" : {
 
-                // curr_msg.request_number = curr_request_number;
-
                 shared_utils.show_object(curr_msg_stop, "curr_msg_stop pp pp pp pp pp p", "total", 10);
-
 
                 manage_audio.stop_audio(curr_msg_stop);
 
                 break;
             }
-
-            // case "stop_audio" : {
-            //     console.log("stop_audio   curr_web_audio_obj " + msg_to_ww);
-            //     manage_audio.stop_audio(msg_to_ww);
-            //     break;
-            // }
 
 			default : {
 
