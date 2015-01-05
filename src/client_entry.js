@@ -3,7 +3,6 @@ var client_entry = (function() {
 	
 "use strict";
 
-// var ww_handle = new Worker("ww_transferable_obj.js");
 var ww_handle = new Worker("ww_transferable_obj.js");
 
 var callback_send_audio_to_audio_player = null;
@@ -49,8 +48,6 @@ var manage_state = (function() {
         },
         set_browser_queue_filled : function() {
 
-            console.log("TOP browser_queue_filled");
-
             // do transition from state (1) OR (3) --> (2)
 
             if (current_browser_mode === mode_browser_get_audio_from_server ||
@@ -63,42 +60,11 @@ var manage_state = (function() {
 
                 } else {
 
-                    var msg_curr_mode = msgs_to_server_by_mode[mode_ww_get_audio_from_server];
-
-                    if (typeof msg_curr_mode !== "undefined") {
-
-                        // OK
-
-                    } else {
-
-                        msg_curr_mode = msgs_to_server_by_mode[mode_browser_get_audio_from_server];
-
-                        if (typeof msg_curr_mode !== "undefined") {
-
-                            msg_curr_mode.browser_directed_mode = mode_ww_get_audio_from_server;
-
-                            msgs_to_server_by_mode[mode_ww_get_audio_from_server] = msg_curr_mode;
-
-                        } else {
-
-                            throw new Error("ERROR - we assumed initial state was populated");
-                        }
-                    }
-
-                    shared_utils.show_object(msg_curr_mode, "ggggg#####ggggg msg_curr_mode", "total", 10);
-
-                    // ------------
-
                     current_browser_mode = mode_ww_get_audio_from_server; // (1) OR (3) --> (2)
 
                     console.log("new state " + current_browser_mode + " ################################### ");
 
-                    // ww_handle.postMessage(JSON.stringify({
-                    //  browser_directed_mode : current_browser_mode
-                    // }));
-
-                    ww_handle.postMessage(
-                        JSON.stringify(manage_state.get_msg_to_server_by_mode(manage_state.get_state())));
+                    ww_handle.postMessage(JSON.stringify(msgs_to_server_by_mode[mode_ww_get_audio_from_server]));
                 }
 
             } else {
@@ -115,44 +81,13 @@ var manage_state = (function() {
 
             if (current_browser_mode === mode_ww_get_audio_from_server) {
 
-                var msg_curr_mode = msgs_to_server_by_mode[mode_browser_get_audio_from_ww];
-
-                if (typeof msg_curr_mode !== "undefined") {
-
-                    // OK
-
-                } else {
-
-                    msg_curr_mode = msgs_to_server_by_mode[mode_browser_get_audio_from_server];
-
-                    if (typeof msg_curr_mode !== "undefined") {
-
-                        msg_curr_mode.browser_directed_mode = mode_browser_get_audio_from_ww;
-
-                        msgs_to_server_by_mode[mode_browser_get_audio_from_ww] = msg_curr_mode;
-
-                    } else {
-
-                        throw new Error("ERROR - we assumed initial state was populated");
-                    }
-                }
-
-
-                shared_utils.show_object(msg_curr_mode, "yyyyyy^^^^^^^yyyyyyy msg_curr_mode", "total", 10);
-
-
-                // ---------
-
                 current_browser_mode = mode_browser_get_audio_from_ww;
 
                 console.log("new state " + current_browser_mode + " ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ");
 
-                // ww_handle.postMessage(JSON.stringify({
-                //  browser_directed_mode : current_browser_mode
-                // }));
+                // shared_utils.show_object(msg_curr_mode_3, "msg_curr_mode_3", "total", 10);
 
-                ww_handle.postMessage(
-                    JSON.stringify(manage_state.get_msg_to_server_by_mode(manage_state.get_state())));
+                ww_handle.postMessage(JSON.stringify(msgs_to_server_by_mode[mode_browser_get_audio_from_ww]));
             }
         },
         is_early_days : function() {
@@ -165,22 +100,34 @@ var manage_state = (function() {
 
             if (current_browser_mode !== mode_ww_get_audio_from_server) {
 
-
                 var returned_msg = manage_state.get_msg_to_server_by_mode(manage_state.get_state());
 
-                // ww_handle.postMessage(JSON.stringify({
-                //  browser_directed_mode : current_browser_mode
-                // }));
-
-
                 ww_handle.postMessage(JSON.stringify(returned_msg));
-
-
             }
         },
         set_msg_to_server_by_mode : function(given_mode, given_msg) {
 
-            msgs_to_server_by_mode[given_mode] = given_msg;
+            // setup msgs to server for all 3 modes 
+
+            msgs_to_server_by_mode[mode_browser_get_audio_from_server] = given_msg;
+            msgs_to_server_by_mode[mode_ww_get_audio_from_server] = {};
+            msgs_to_server_by_mode[mode_browser_get_audio_from_ww] = {};
+
+            var arr_other_modes = [];
+
+            arr_other_modes.push(mode_ww_get_audio_from_server);
+            arr_other_modes.push(mode_browser_get_audio_from_ww);
+
+            for (var curr_mode in arr_other_modes) {
+           
+                for (var curr_property in given_msg) {
+
+                    msgs_to_server_by_mode[arr_other_modes[curr_mode]][curr_property] = given_msg[curr_property];
+                }
+            }
+
+            msgs_to_server_by_mode[mode_ww_get_audio_from_server].browser_directed_mode = mode_ww_get_audio_from_server;
+            msgs_to_server_by_mode[mode_browser_get_audio_from_ww].browser_directed_mode = mode_browser_get_audio_from_ww;
         },
         get_msg_to_server_by_mode : function(given_mode) {
 
@@ -204,11 +151,12 @@ function cb_browser_queue_min_reached() {
 var cb_request_another_buffer = (function() { // stens TODO - remove this as it just limits calls for ts
 
     var count_requests = 0;
-    var max_requests = 999999; // limit only to ease troubleshooting
+    // var max_requests = 999999; // limit only to ease troubleshooting
+    var max_requests = 0; // limit only to ease troubleshooting ... set to 0 to ignore
 
     return function(given_source) {
 
-        if (count_requests < max_requests) {
+        if (max_requests === 0 || count_requests < max_requests) {
 
             // if (manage_state.is_early_days()) { // 
             if (((given_source === "early_days" || 
@@ -221,7 +169,7 @@ var cb_request_another_buffer = (function() { // stens TODO - remove this as it 
 
             } else {
 
-                console.log("sorry its NOT early days or Middleburg ...");
+                console.log("its NOT early days or Middleburg ...");
             }
 
         } else {
@@ -394,10 +342,10 @@ var browser_queue_max_size      = null; // browser side maximum queue size
 var browser_queue_min_threshold = null; // triggers browser from consuming its own queue to reading ww queue
 
     // var array_min_thr_N_size = { browser_queue_max_size : 4, browser_queue_min_threshold : 2 };// quickest start
-    // var array_min_thr_N_size = { browser_queue_max_size : 6, browser_queue_min_threshold : 3 };
-    var array_min_thr_N_size = { browser_queue_max_size : 10, browser_queue_min_threshold : 2 };
+    // var array_min_thr_N_size = { browser_queue_max_size : 6, browser_queue_min_threshold : 2 };
+    // var array_min_thr_N_size = { browser_queue_max_size : 10, browser_queue_min_threshold : 2 };// good one
     // var array_min_thr_N_size = { browser_queue_max_size : 12, browser_queue_min_threshold : 3 };
-    // var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 6 };// good
+    var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 2 };// good
     // var array_min_thr_N_size = { browser_queue_max_size : 24, browser_queue_min_threshold : 6 };
     // var array_min_thr_N_size = { browser_queue_max_size : 28, browser_queue_min_threshold : 8 };// slow start
 
@@ -411,9 +359,9 @@ var browser_queue_min_threshold = null; // triggers browser from consuming its o
 
     stream_audio_msg.browser_queue_min_threshold = browser_queue_min_threshold;
     stream_audio_msg.browser_queue_max_size = browser_queue_max_size;
-    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 2; // integer multiple >= 2
+    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 2; // integer multiple >= 2
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 4; // integer multiple >= 2
-    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 6; // integer multiple >= 2
+    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 6; // integer multiple >= 2 # good one
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 8; // integer multiple >= 2
 
     msgs_to_server.mode_stream_audio_to_client = stream_audio_msg;
@@ -539,11 +487,11 @@ var media_manager = (function() {
     // all_media[10] = "Elephant_sounds_mono_cute_clip_rgUFu_hVhlk.wav";
     // all_media[11] = "Elephant_sounds_mono_clip_rgUFu_hVhlk.wav";
     // all_media[12] = "Die_Antwoord_11_doong_doong_30_sec.wav";
-    all_media[13] = "Justice_Genesis_first_30_seconds_tight.wav";
+    all_media[13] = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
     // all_media[14] = "Glenn_Gould_Partita_No_5_BWV_829_Praeambulum_mono-0YvnW_lMNTM.wav";
     // all_media[15] = "Contrabass_Saxophone_mono_hXBeu7o9uUM.wav";
-    all_media[16] = "SHAKUHACHI_Masayuki_Koga_trim_mono-IMi00aV1tdA.wav";
-    // all_media[17] = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
+    all_media[16] = "Justice_Genesis_first_30_seconds_tight.wav";
+    all_media[17] = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
     // all_media[17] = "Chopin_Fantasie_Impromptu_opus_66_mono_clip_APQ2RKECMW8.wav";
 
     return {
@@ -631,20 +579,6 @@ var entry_point = (function() {     //      handle traffic from browser UI
                 if (curr_msg_stop) {
 
                     console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
-                    console.log("deal with prior run .... curr_msg_stop");
                 }
 
                 // ------ stens TODO identify if we need to issue a stop_audio on current request_number
@@ -663,20 +597,7 @@ var entry_point = (function() {     //      handle traffic from browser UI
                 curr_msg_stream.requested_source = media_file;
 
                 console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
-                console.log("just POPulated requested_source");
+
 
                 console.log("\n\n launch_stream_audio \n\n");
                 console.log(curr_msg_stream);

@@ -255,8 +255,6 @@ var set_cb_for_client = function(given_callback) {
     cb_for_client = given_callback;
 };
 
-// var socket_client = function(given_msg) {
-
 var socket_client = (function() {
 
 	websocket_connection.init();
@@ -265,12 +263,7 @@ var socket_client = (function() {
 
 		console.log("socket_client  given_msg ", given_msg);
 
-
-
         shared_utils.show_object(given_msg, "CCCCCCCCCCC   given_msg  ", "total", 3);
-
-
-
 
 	    var given_mode = given_msg.mode;
 

@@ -116,6 +116,8 @@ function cb_receive_buffer_from_server(given_audio_obj_from_server) {
 
 	var curr_mode = manage_buffer_processing.get_mode();
 
+	console.log("cb_receive_buffer_from_server " + curr_mode);
+
 	switch (curr_mode) {
 
 		case "ww_get_audio_from_server" : {
@@ -340,7 +342,7 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 			console.log("received_json.browser_directed_mode " + received_json.browser_directed_mode);
 
-			switch (received_json.browser_directed_mode) {
+			switch (received_json.browser_directed_mode) { // mode 3
 
 				case "browser_get_audio_from_ww" : {
 
@@ -353,7 +355,7 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 					break;
 				}
 
-				case "ww_get_audio_from_server" : {
+				case "ww_get_audio_from_server" : { // mode 2
 
 					// stens TODO - flip callback which retrieves data from server
 
@@ -366,14 +368,17 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 						// ww_client_socket.socket_client(
 						// 	manage_message.get_msg().mode_stream_audio_to_client);
 
-
 						ww_client_socket.socket_client(received_json);
+
+					} else {
+
+						console.log("booo hoo is_production_possible says NNNOOOOOOOOOOO");
 					}
 
 					break;
 				}
 
-				case "browser_get_audio_from_server" : {
+				case "browser_get_audio_from_server" : { // mode 1
 
 					console.log("bsbs bsbsbsbs bsbsbsbs bsbs    browser_get_audio_from_server");
 
