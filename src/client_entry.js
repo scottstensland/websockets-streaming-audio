@@ -96,7 +96,7 @@ var manage_state = (function() {
         },
         request_another_buffer : function() {
 
-            console.log("request_another_buffer " + manage_state.get_state());
+            // console.log("request_another_buffer " + manage_state.get_state());
 
             if (current_browser_mode !== mode_ww_get_audio_from_server) {
 
@@ -107,7 +107,7 @@ var manage_state = (function() {
         },
         set_msg_to_server_by_mode : function(given_mode, given_msg) {
 
-            // setup msgs to server for all 3 modes 
+            // setup msgs to server for all 3 modes
 
             msgs_to_server_by_mode[mode_browser_get_audio_from_server] = given_msg;
             msgs_to_server_by_mode[mode_ww_get_audio_from_server] = {};
@@ -119,10 +119,13 @@ var manage_state = (function() {
             arr_other_modes.push(mode_browser_get_audio_from_ww);
 
             for (var curr_mode in arr_other_modes) {
-           
-                for (var curr_property in given_msg) {
 
-                    msgs_to_server_by_mode[arr_other_modes[curr_mode]][curr_property] = given_msg[curr_property];
+                if (arr_other_modes.hasOwnProperty(curr_mode)) {
+
+                    for (var curr_property in given_msg) {
+
+                        msgs_to_server_by_mode[arr_other_modes[curr_mode]][curr_property] = given_msg[curr_property];
+                    }
                 }
             }
 
@@ -163,7 +166,7 @@ var cb_request_another_buffer = (function() { // stens TODO - remove this as it 
                   given_source === "Middleburg") && manage_audio.get_is_production_possible()) ||
                   given_source === "tell_ww_to_refill") {
 
-                    console.log("cb_request_another_buffer given_source " + given_source);
+                    // console.log("cb_request_another_buffer given_source " + given_source);
 
                     manage_state.request_another_buffer();
 
@@ -213,6 +216,10 @@ var manage_audio = (function() {
 
 	return {
 
+        set_header_info : function(given_headers_obj) {
+
+            web_audio_obj.manage_media_headers.set_values(given_headers_obj);
+        },
         set_BUFF_SIZE_AUDIO_RENDERER : function(given_buff_size) {
 
             web_audio_obj.set_BUFF_SIZE_AUDIO_RENDERER(given_buff_size);
@@ -345,7 +352,7 @@ var browser_queue_min_threshold = null; // triggers browser from consuming its o
     // var array_min_thr_N_size = { browser_queue_max_size : 6, browser_queue_min_threshold : 2 };
     // var array_min_thr_N_size = { browser_queue_max_size : 10, browser_queue_min_threshold : 2 };// good one
     // var array_min_thr_N_size = { browser_queue_max_size : 12, browser_queue_min_threshold : 3 };
-    var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 2 };// good
+    var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 4 };// good
     // var array_min_thr_N_size = { browser_queue_max_size : 24, browser_queue_min_threshold : 6 };
     // var array_min_thr_N_size = { browser_queue_max_size : 28, browser_queue_min_threshold : 8 };// slow start
 
@@ -359,8 +366,8 @@ var browser_queue_min_threshold = null; // triggers browser from consuming its o
 
     stream_audio_msg.browser_queue_min_threshold = browser_queue_min_threshold;
     stream_audio_msg.browser_queue_max_size = browser_queue_max_size;
-    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 2; // integer multiple >= 2
-    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 4; // integer multiple >= 2
+    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 2; // integer multiple >= 2
+    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 4; // integer multiple >= 2
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 6; // integer multiple >= 2 # good one
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 8; // integer multiple >= 2
 
@@ -368,10 +375,15 @@ var browser_queue_min_threshold = null; // triggers browser from consuming its o
 
 }	//	populate_launch_stream_audio_msg
 
+function process_file_headers(received_json) {
+
+    manage_audio.set_header_info(received_json);
+}
+
 function process_ww_directed_mode(received_json) {
 
-    console.log("process_ww_directed_mode");
-    console.log(received_json);
+    // console.log("process_ww_directed_mode");
+    // console.log(received_json);
 
     var ww_directed_mode = received_json.ww_directed_mode;
 
@@ -447,6 +459,10 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
 
             process_ww_directed_mode(received_json);
 
+        } else if (typeof received_json.sample_rate !== "undefined") { 
+
+            process_file_headers(received_json);
+
         } else {
 
             throw new Error("ERROR - ww is not sending JSON with key ww_directed_mode");
@@ -493,6 +509,7 @@ var media_manager = (function() {
     all_media[16] = "Justice_Genesis_first_30_seconds_tight.wav";
     all_media[17] = "Justice_Genesis_mono-y6iHYTjEyKU.wav";
     // all_media[17] = "Chopin_Fantasie_Impromptu_opus_66_mono_clip_APQ2RKECMW8.wav";
+    all_media[18] = "binaural_clapping_stereo_2_ch.wav";
 
     return {
 
@@ -531,7 +548,7 @@ var entry_point = (function() {     //      handle traffic from browser UI
 
     msg_to_ww.browser_directed_mode = "setup_stream_audio_from_server";
 
-    shared_utils.show_object(msg_to_ww, "msg_to_ww SEETTUUPP", "total", 10);
+    // shared_utils.show_object(msg_to_ww, "msg_to_ww SEETTUUPP", "total", 10);
 
     manage_audio.set_BUFF_SIZE_AUDIO_RENDERER(msg_to_ww.mode_stream_audio_to_client.BUFF_SIZE_AUDIO_RENDERER);
     manage_audio.set_queue_min_threshold(msg_to_ww.mode_stream_audio_to_client.browser_queue_min_threshold);
@@ -612,9 +629,9 @@ var entry_point = (function() {     //      handle traffic from browser UI
 
                 var returned_msg = manage_state.get_msg_to_server_by_mode(manage_state.get_state());
 
-                shared_utils.show_object(returned_msg, "returned_msg uuu uuu uuu uuu uuu", "total", 10);
+                // shared_utils.show_object(returned_msg, "returned_msg uuu uuu uuu uuu uuu", "total", 10);
 
-                shared_utils.show_object(curr_msg_stream, "curr_msg_stream MMMMMMMMMMMMMMMMM", "total", 10);
+                // shared_utils.show_object(curr_msg_stream, "curr_msg_stream MMMMMMMMMMMMMMMMM", "total", 10);
 
                 ww_handle.postMessage(JSON.stringify(curr_msg_stream));
 

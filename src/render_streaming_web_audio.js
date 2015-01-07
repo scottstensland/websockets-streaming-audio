@@ -43,7 +43,7 @@ var init_web_audio = (function() {
 
 }());
 
-function setup_onaudioprocess_callback_stream(given_node, cb_populate_memory_chunk, given_buff_size) {
+function setup_onaudioprocess_callback_stream(given_node, cb_populate_memory_chunk, given_buff_size, given_num_channels) {
 
     console.log("TOP setup_onaudioprocess_callback_stream");
 
@@ -56,15 +56,13 @@ function setup_onaudioprocess_callback_stream(given_node, cb_populate_memory_chu
 
         return function(event) {
 
-            console.log("Middleburg  top of rendering callback ----------------------------------");
+            // console.log("Middleburg  top of rendering callback ----------------------------------");
 
             queue_first_in_first_out.set_flag_audio_rendering(true);
 
             if (stop_next_event_loop_iteration || queue_first_in_first_out.get_request_stop()) {
 
                 console.log("stop event loop");
-
-                // given_node = null;
 
                 stop_audio();
                 
@@ -73,67 +71,69 @@ function setup_onaudioprocess_callback_stream(given_node, cb_populate_memory_chu
 
             aggregate_buffer_index += buff_size_audio_renderer;
 
-            // var rendered_everything = false;
-
-            // if (queue_first_in_first_out.get_max_index()) {
-
-            //     console.log("seeing max index of " + queue_first_in_first_out.get_max_index());
-            // }
-
             var max_index = queue_first_in_first_out.get_max_index();
 
-            console.log("aggregate_buffer_index " + aggregate_buffer_index);
-            console.log("             max_index " + max_index);
+            // console.log("aggregate_buffer_index " + aggregate_buffer_index);
+            // console.log("             max_index " + max_index);
 
-            // if (max_index && (! (aggregate_buffer_index <= max_index))) {
             if (max_index && (aggregate_buffer_index > max_index)) {
 
-                console.log("whoo yo yo yo ... limit reached");
-
-                // queue_first_in_first_out.set_stop();
-
-                // rendered_everything = true;
+                console.log("reached end of audio streaming");
 
                 stop_next_event_loop_iteration = true;
             }
 
-            // if (rendered_everything || queue_first_in_first_out.get_flag_stop()) {
+            for (var curr_channel = 0; curr_channel < given_num_channels; curr_channel++) {
 
-            //     console.log("stop event loop");
-
-            //     given_node = null;
-
-            //     stop_audio();
-                
-            //     return;
-            // }
-
-            // stens TODO - setup 2 channels
-            internal_audio_buffer_obj.buffer = event.outputBuffer.getChannelData(0);
-
-            cb_populate_memory_chunk(internal_audio_buffer_obj); // retrieve buffer data from circular queue
-
-
-            // if (rendered_everything || queue_first_in_first_out.get_flag_stop()) {
-
-            //     console.log("stop event loop");
-
-            //     given_node = null;
-
-            //     stop_audio();
-                
-            //     return;
-            // }
-
-            for (var i = 0; i < 1; i++) {
-
-                console.log("audio render " + internal_audio_buffer_obj.buffer[i]);
+                internal_audio_buffer_obj[curr_channel] = event.outputBuffer.getChannelData(curr_channel);
             }
+
+            // retrieve buffer data from queue
+            cb_populate_memory_chunk(internal_audio_buffer_obj, given_num_channels);
 
             cb_request_another_buffer("Middleburg");
         };
     }());
 }           //      setup_onaudioprocess_callback_stream
+
+// ---
+
+var manage_media_headers = (function() {
+
+    var headers_obj = null;
+
+// shared_utils.js:328 process_file_headers  property -->audio_format<--    1
+// shared_utils.js:328 process_file_headers  property -->num_channels<--    1
+// shared_utils.js:328 process_file_headers  property -->sample_rate<--     44100
+// shared_utils.js:328 process_file_headers  property -->byte_rate<--   88200
+// shared_utils.js:328 process_file_headers  property -->bit_depth<--   16
+// shared_utils.js:328 process_file_headers  property -->block_align<--     2
+// shared_utils.js:328 process_file_headers  property -->bits_per_sample<--     16
+
+    return {
+
+        set_values : function (received_headers_info_json) {
+
+            headers_obj = received_headers_info_json;
+
+            // shared_utils.show_object(headers_obj, "headers_obj heheheheh", "total", 10);
+        },
+
+        get_value : function(given_property) {
+
+            // console.log("about to get value given_property " + given_property);
+
+            if (headers_obj && typeof headers_obj[given_property] !== "undefined") {
+
+                return headers_obj[given_property];
+
+            } else {
+
+                throw new Error("ERROR - failed to find headers property : " + given_property);
+            }
+        }
+    };
+}());
 
 // ---
 
@@ -157,18 +157,6 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
     var flag_audio_rendering = false;
 
-    // ----------------- set of state transition variables ----------------- //
-
-    // server fills up ww queue while browser consumes
-    // its own queue undisturbed by server or ww
-    // var mode_ww_get_audio_from_server      = "ww_get_audio_from_server";
-
-    // no server calls here ww sends twice as much data 
-    // to browser as it consumes so browser queue fills
-    // var mode_browser_get_audio_from_ww     = "browser_get_audio_from_ww";
-
-    // var browser_directed_mode = cb_get_state();
-
     return {
         is_production_possible : function() {
 
@@ -176,7 +164,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
             var answer = ((push_index - pop_index) < browser_queue_max_size);
 
-            console.log("is_BB_production_possible  answer " + answer);
+            // console.log("is_BB_production_possible  answer " + answer);
 
             if (flag_index_is_rising && curr_size_queue >= browser_queue_max_size) {
 
@@ -184,7 +172,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
                 cb_browser_queue_is_full(); // communicate this state change to state management
 
-                console.log("NEW browser_directed_mode");
+                // console.log("NEW browser_directed_mode");
             }
 
             return answer;
@@ -194,7 +182,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
             var size_buffer_available = given_audio_obj_from_server.buffer.length;
 
             var offset_index = 0;
-            while (size_buffer_available > offset_index) {
+            while (size_buffer_available > offset_index) { // carve out render sized buffers from given buffer
 
                 // stens TODO - put this into ww not here in browser land
 
@@ -251,27 +239,20 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
             } else {
 
-                console.log("boo hoo queue_first_in_first_out is EMPTY so cannot do a pop");
+                throw new Error("ERROR - boo hoo queue_first_in_first_out is EMPTY so cannot do a pop");
             }
         },
         set_browser_queue_min_threshold : function(given_minimum_threshold) {
 
             browser_queue_min_threshold = given_minimum_threshold;
-
-            console.log("set_browser_queue_min_threshold    browser_queue_min_threshold  ", browser_queue_min_threshold);
         },
         set_browser_queue_max_size : function(given_maximum_queue_size) {
 
             browser_queue_max_size = given_maximum_queue_size;
-
-            console.log("set_browser_queue_max_size    browser_queue_max_size  ", browser_queue_max_size);
         },
         set_cb_browser_queue_is_full : function(given_callback) {
 
             cb_browser_queue_is_full = given_callback;
-
-            console.log("hahahahaha given_callback NAME " + given_callback.name);
-            console.log("hahahahaha cb_browser_queue_is_full NAME " + cb_browser_queue_is_full.name);
         },
         set_cb_browser_queue_min_reached : function(given_callback) {
 
@@ -280,8 +261,6 @@ var queue_first_in_first_out = (function() { // first in first out queue
         set_max_index : function(given_max_index) {
 
             max_index = given_max_index;
-
-            console.log("set_max_index   max_index " + max_index);
         },
         get_max_index : function() {
 
@@ -315,39 +294,55 @@ var set_BUFF_SIZE_AUDIO_RENDERER = function(given_buff_size) {
 
 var get_another_buffer = (function () {
 
-    return (function(given_audio_obj) {
+    return (function(given_audio_obj, num_channels) {
 
-        if (! queue_first_in_first_out.is_pop_possible()) {
+        // pull out all buffers .. see buffer_left  buffer_right
 
-            // stop_audio();
+        // for (var curr_property in given_audio_obj) {
 
-            return;
+        //     if (given_audio_obj.hasOwnProperty(curr_property)) {
 
-        } else {
+        //         console.log("current buffer number : " + curr_property);
+        //     }
+        // }
 
-            var audio_obj_from_queue = queue_first_in_first_out.pop();
+        // stens TODO - believe we want to put a loop here - num_channels
 
-            // if (! (typeof audio_obj_from_queue !== "undefined")) {
-            if (typeof audio_obj_from_queue !== "undefined") {
+        // for (var curr_outer_channel = 0; curr_outer_channel < num_channels; curr_outer_channel++) {
 
-            } else {
+            if (queue_first_in_first_out.is_pop_possible()) {
 
-                throw new Error("ERROR - in get_another_buffer seeing undefined audio_obj_from_queue");
-            }
+                var audio_obj_from_queue = queue_first_in_first_out.pop();
 
-            var size_buff = audio_obj_from_queue.length;
+                if (typeof audio_obj_from_queue === "undefined") {
 
-            for (var i = 0; i < size_buff; i++) {
+                    throw new Error("ERROR - in get_another_buffer seeing undefined audio_obj_from_queue");
+                }
 
-                given_audio_obj.buffer[i] = audio_obj_from_queue.buffer[i];
+                var size_buff = audio_obj_from_queue.length;
+                var curr_channel = 0;
 
-                if (i < 1) {
+                for (var i = 0; i < size_buff; i++) {
 
-                    console.log("FROM  " + audio_obj_from_queue.buffer[i] + 
-                                "  TO  " + given_audio_obj.buffer[i]);
+                    // given_audio_obj.buffer[i] = audio_obj_from_queue.buffer[i]; // pre multi channel
+
+                    given_audio_obj[curr_channel][i] = audio_obj_from_queue.buffer[i];
+
+                    // if (i < 1) {
+
+                    //     console.log("FROM  " + audio_obj_from_queue.buffer[i] + 
+                    //                 "  TO  " + given_audio_obj[curr_channel][i]);
+                    // }
+
+                    curr_channel += 1;
+
+                    if (curr_channel === num_channels) {
+
+                        curr_channel = 0;
+                    }
                 }
             }
-        }
+        // }
     });
 }());
 
@@ -377,24 +372,16 @@ function stop_audio() {
 
 function process_audio_buffer() { // only called upon initially retrieving audio fm svr
 
-    console.log("top process_audio_buffer");
-
-    // if (given_max_index) {
-    //     console.log("aaaaaaaaawwesome  max_index " + given_max_index);
-    //     queue_first_in_first_out.set_max_index(given_max_index);
-    // }
-
     if (! queue_first_in_first_out.get_flag_audio_rendering() && (
         (! queue_first_in_first_out.is_production_possible())) ||
         cb_get_is_streaming_done()) {
 
         queue_first_in_first_out.set_flag_audio_rendering(true);
 
-        console.log("about to request buffer          tell_ww_to_refill");
+        var num_channels = manage_media_headers.get_value("num_channels");
 
-        cb_request_another_buffer("tell_ww_to_refill"); // stens TODO think this should be removed
-
-        streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
+        // streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, 1, 1);
+        streaming_node = audio_context.createScriptProcessor(BUFF_SIZE_AUDIO_RENDERER, num_channels, num_channels);
 
         console.log("BUFF_SIZE_AUDIO_RENDERER ", BUFF_SIZE_AUDIO_RENDERER);
 
@@ -406,11 +393,11 @@ function process_audio_buffer() { // only called upon initially retrieving audio
 
         console.log("OK just set flag_streaming_status    streaming_status_active");
 
-        setup_onaudioprocess_callback_stream(streaming_node, get_another_buffer, BUFF_SIZE_AUDIO_RENDERER);
+        setup_onaudioprocess_callback_stream(streaming_node, get_another_buffer, BUFF_SIZE_AUDIO_RENDERER, num_channels);
 
     } else {
 
-        console.log("jjjjjjjjjjjjjj  early_days");
+        // console.log("jjjjjjjjjjjjjj  early_days");
 
         cb_request_another_buffer("early_days");
     }
@@ -438,7 +425,8 @@ return {
     set_BUFF_SIZE_AUDIO_RENDERER : set_BUFF_SIZE_AUDIO_RENDERER,
     set_cb_request_another_buffer : set_cb_request_another_buffer,
     set_cb_is_streaming_done : set_cb_is_streaming_done,
-    process_audio_buffer : process_audio_buffer
+    process_audio_buffer : process_audio_buffer,
+    manage_media_headers : manage_media_headers
 };
 
 };       //      render_streaming_web_audio

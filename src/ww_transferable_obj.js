@@ -15,8 +15,8 @@ var manage_buffer_processing = (function() {
 
 			curr_mode_send_to_browser_or_ww = given_mode;
 
-			console.log("manage_buffer_processing");
-			console.log(curr_mode_send_to_browser_or_ww);
+			// console.log("manage_buffer_processing");
+			// console.log(curr_mode_send_to_browser_or_ww);
 		},
 		get_mode : function() {
 
@@ -26,9 +26,6 @@ var manage_buffer_processing = (function() {
 }());
 
 function send_to_ww_queue(given_audio_obj_from_server) {
-
-	// console.log("send_to_ww_queue length");
-	// console.log(given_audio_obj_from_server.length);
 
     var curr_buffer_obj = {};
 
@@ -47,7 +44,6 @@ function send_to_ww_queue(given_audio_obj_from_server) {
 	// 	// }
 	// }
 
-    // queue_first_in_first_out.push(given_audio_obj_from_server);
     queue_first_in_first_out.push(curr_buffer_obj);
 
     // ---
@@ -56,12 +52,7 @@ function send_to_ww_queue(given_audio_obj_from_server) {
 
 		var msgs_to_server = manage_message.get_msg().mode_stream_audio_to_client;
 
-
-
-		shared_utils.show_object(msgs_to_server, "ggggggggggggggg msgs_to_server", "total", 10);
-
-
- 
+		// shared_utils.show_object(msgs_to_server, "ggggggggggggggg msgs_to_server", "total", 10);
 
 		ww_client_socket.socket_client(msgs_to_server);
 
@@ -99,20 +90,12 @@ function send_to_browser_queue(given_audio_obj) {
 	// 	// }
 	// }
 
-	console.log("cb " + float_array[0]);
-
-	// console.log(float_array);
-
-	// bbb
-	// stens TODO - need to toggle where server audio is sent to : browser q or ww queue
+	// console.log("cb " + float_array[0]);
 
 	self.postMessage(float_array.buffer, [float_array.buffer]); // sending array back to browser
 }
 
 function cb_receive_buffer_from_server(given_audio_obj_from_server) {
-
-	// console.log("cb_receive_buffer_from_server");
-	// console.log(given_audio_obj_from_server);
 
 	var curr_mode = manage_buffer_processing.get_mode();
 
@@ -148,6 +131,13 @@ function cb_receive_buffer_from_server(given_audio_obj_from_server) {
 	}
 }
 
+function cb_send_file_header(given_json_obj) {
+
+	// console.log("sending file header back to browser");
+
+	self.postMessage(JSON.stringify(given_json_obj));
+}
+
 function cb_stream_is_complete(given_max_index) {
 
 	console.log("cb_stream_is_complete ... given_max_index " + given_max_index);
@@ -165,7 +155,7 @@ function cb_stream_is_complete(given_max_index) {
 
 var queue_first_in_first_out = (function() { // first in first out queue
 
-	console.log("iiiiiiiiiiiiii  TOP queue_first_in_first_out");
+	// console.log("iiiiiiiiiiiiii  TOP queue_first_in_first_out");
 
     var queue_first_in_first_out_obj = {};
     var push_index = 0;
@@ -184,8 +174,8 @@ var queue_first_in_first_out = (function() { // first in first out queue
         	// 	" ... curr_size_ww_queue " + curr_size_ww_queue + 
         	// 	"   ANSWER " + (curr_size_ww_queue < max_size_ww_queue));
 
-        	console.log("kkkkkkkkkkkkkkkkk    is_WW_production_possible ... curr_size_ww_queue " + 
-        				curr_size_ww_queue + "  " + (curr_size_ww_queue < max_size_ww_queue));
+        	// console.log("kkkkkkkkkkkkkkkkk    is_WW_production_possible ... curr_size_ww_queue " + 
+        	// 			curr_size_ww_queue + "  " + (curr_size_ww_queue < max_size_ww_queue));
 
             return (curr_size_ww_queue < max_size_ww_queue);
             // return ((curr_size_ww_queue < max_size_ww_queue) ? true : false);
@@ -206,12 +196,12 @@ var queue_first_in_first_out = (function() { // first in first out queue
             push_index += 1;
             curr_size_ww_queue += 1;   // increment queue size
 
-            console.log("OK push ... curr_size_ww_queue ", curr_size_ww_queue);
+            // console.log("OK push ... curr_size_ww_queue ", curr_size_ww_queue);
         },
         is_consumption_possible : function() {
 
-        	console.log("toooooooooooooop is_WW_consumption_possible ... curr_size_ww_queue " + 
-        				curr_size_ww_queue + "   " + (curr_size_ww_queue > 0));
+        	// console.log("toooooooooooooop is_WW_consumption_possible ... curr_size_ww_queue " + 
+        	// 			curr_size_ww_queue + "   " + (curr_size_ww_queue > 0));
 
             return (curr_size_ww_queue > 0);
         },
@@ -233,7 +223,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
                 curr_size_ww_queue -= 1;   // decrement queue size
 
-                console.log("OK pop ... curr_size_ww_queue " + curr_size_ww_queue);
+                // console.log("OK pop ... curr_size_ww_queue " + curr_size_ww_queue);
 
                 return (queue_first_in_first_out_obj[pop_index++]);
             }
@@ -288,10 +278,10 @@ var manage_message = (function() {
 
 var setup_stream_audio_from_server = function(msgs_to_server) {
 
-	console.log("tttttttttttttt setup_stream_audio_from_server ............................");
+	// console.log("tttttttttttttt setup_stream_audio_from_server ............................");
 
 
-    shared_utils.show_object(msgs_to_server, "ooooooooooooooooooooo  msgs_to_server ", "total", 10);
+    // shared_utils.show_object(msgs_to_server, "ooooooooooooooooooooo  msgs_to_server ", "total", 10);
 
 
 
@@ -301,9 +291,11 @@ var setup_stream_audio_from_server = function(msgs_to_server) {
 
 	ww_client_socket.set_stream_is_complete_cb(cb_stream_is_complete);
 
+	ww_client_socket.set_send_file_header_cb(cb_send_file_header);
+
 	queue_first_in_first_out.set_max_size_ww_queue(msgs_to_server.mode_stream_audio_to_client.ww_queue_max_size);
 
-	console.log("bbbbbbbbbbbbb setup_stream_audio_from_server ............................");
+	// console.log("bbbbbbbbbbbbb setup_stream_audio_from_server ............................");
 };
 
 function drain_ww_queue_send_to_browser() {
@@ -317,7 +309,6 @@ function drain_ww_queue_send_to_browser() {
 			return;
 		}
 
-		// throw new Error("ERROR - should be draining ww queue yet is_consumption_possible says no");
 		return;
 	}
 
@@ -328,15 +319,12 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 	if (typeof event.data === "string") {
 
-		console.log("event.data");
-		console.log(event.data);
+		// console.log("event.data");
+		// console.log(event.data);
 
 		var received_json = JSON.parse(event.data);
 
-
-		shared_utils.show_object(received_json, "WWWWWWWWWWWW received_json", "total", 10);
-
-
+		// shared_utils.show_object(received_json, "WWWWWWWWWWWW received_json", "total", 10);
 
 		if (typeof received_json.browser_directed_mode !== "undefined") {
 
@@ -348,8 +336,6 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 					manage_buffer_processing.set_mode(received_json.browser_directed_mode);
 
-					console.log("eeeeeeeeeeeeeeeeee    browser_get_audio_from_ww");
-
 					drain_ww_queue_send_to_browser();
 
 					break;
@@ -359,20 +345,17 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 					// stens TODO - flip callback which retrieves data from server
 
-					console.log("wswswswswswswswswsws    ww_get_audio_from_server");
+					// console.log("wswswswswswswswswsws    ww_get_audio_from_server");
 
 					manage_buffer_processing.set_mode(received_json.browser_directed_mode);
 
 					if (queue_first_in_first_out.is_production_possible()) {
 
-						// ww_client_socket.socket_client(
-						// 	manage_message.get_msg().mode_stream_audio_to_client);
-
 						ww_client_socket.socket_client(received_json);
 
 					} else {
 
-						console.log("booo hoo is_production_possible says NNNOOOOOOOOOOO");
+						// console.log("booo hoo is_production_possible says NNNOOOOOOOOOOO");
 					}
 
 					break;
@@ -380,7 +363,19 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 				case "browser_get_audio_from_server" : { // mode 1
 
-					console.log("bsbs bsbsbsbs bsbsbsbs bsbs    browser_get_audio_from_server");
+					// console.log("bsbs bsbsbsbs bsbsbsbs bsbs    browser_get_audio_from_server");
+
+					// -----------
+
+					// for (var curr_property in received_json) {
+
+					// 	if (received_json.hasOwnProperty(curr_property)) {
+
+					// 		console.log("received_json property " + curr_property);
+					// 	}
+					// }
+
+					// ------------
 
 					manage_buffer_processing.set_mode(received_json.browser_directed_mode);
 

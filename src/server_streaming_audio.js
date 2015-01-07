@@ -98,9 +98,9 @@ var send_client_source_data_info = function (audio_obj, curr_websocket) {
         all_property_tags[curr_property] = audio_obj[curr_property];
     }
 
-    // console.log("SEND -------- json all property tags --------");
-    // console.log("SEND -------- all_property_tags ", all_property_tags);
-    // console.log("SEND -------- json all property tags --------");
+    console.log("SEND -------- json all property tags --------");
+    console.log("SEND -------- all_property_tags ", all_property_tags);
+    console.log("SEND -------- json all property tags --------");
 
     curr_websocket.send(JSON.stringify(all_property_tags), {binary: false, mask: false});
 };
@@ -361,13 +361,7 @@ var file_manager = (function() {
 
 var route_msg = function(received_json, curr_ws) {
 
-    console.log("received_json");
-    console.log(received_json);
-
-
-    shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
-
-
+    // shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
 
     var requested_action = received_json.requested_action;
 
@@ -417,10 +411,10 @@ var route_msg = function(received_json, curr_ws) {
                 if (request_number === previous_request_number) {
 
 
-                    console.log("request_status  " + request_status);
-                    console.log("request_ongoing " + request_ongoing);
-                    console.log("request_number             " + request_number);
-                    console.log("previous_request_number    " + previous_request_number);
+                    // console.log("request_status  " + request_status);
+                    // console.log("request_ongoing " + request_ongoing);
+                    // console.log("request_number             " + request_number);
+                    // console.log("previous_request_number    " + previous_request_number);
 
 
                     console.log("cool we have already stopped this stream request so ignoring stream request");

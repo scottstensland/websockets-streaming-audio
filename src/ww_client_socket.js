@@ -4,23 +4,19 @@ var ww_client_socket = (function() {      //      inside ww
 
 "use strict";
 
-var cb_for_client;
-var cb_stream_is_complete;
+var cb_for_client = null;
+var cb_stream_is_complete = null;
+var cb_send_file_header = null;
 
 var websocket_connection = (function() {
 
 	var web_socket = null;
 	var flag_connected = false;
 	var server_side_buffer_obj = {};
-    // var max_index = null;
-    // var curr_buffer_index = 0; // rolling total index seen so far - used to limit buffers sent based
-                                // on max_index once identified
 
-    // if (!"WebSocket" in self) {
     if (! ("WebSocket" in self)) {
 
-        alert("boo hoo ... websockets is not available on this browser - use firefox");
-        return;
+        throw new Error("ERROR - boo hoo ... websockets is not available on this browser - use firefox");
     }
 
     if (flag_connected) {
@@ -33,8 +29,6 @@ var websocket_connection = (function() {
 
     var host = location.origin.replace(/^http/, 'ws');
     web_socket = new WebSocket(host);
-
-    // var all_tags_from_server = {};
 
     // following binaryType must be set or you will get this error :
     /* Uncaught TypeError: Failed to construct 'Blob': The 1st argument provided is either null, 
@@ -56,13 +50,13 @@ var websocket_connection = (function() {
 
         if (typeof event.data === "string") {
 
-            console.log('String message received: ' + event.data);
+            // console.log('String message received: ' + event.data);
 
             var received_json = JSON.parse(event.data);
 
-        	console.log("RECEIVED --- ");
-            console.log("RECEIVED --- received_json ", received_json);
-            console.log("RECEIVED --- ");
+        	// console.log("RECEIVED --- ");
+         //    console.log("RECEIVED --- received_json ", received_json);
+         //    console.log("RECEIVED --- ");
 
             // ---
 
@@ -90,7 +84,12 @@ var websocket_connection = (function() {
 
             } else if (typeof received_json.sample_rate !== "undefined") {
 
-                console.log(received_json); // stens TODO - ignore for now
+                // console.log("source media header info");
+                // console.log(received_json);
+
+                // shared_utils.show_object(received_json, "send_file_header  ", "total", 3);
+
+                cb_send_file_header(received_json);
 
             } else if (typeof received_json.max_index !== "undefined") {
 
@@ -231,9 +230,9 @@ var websocket_connection = (function() {
 
 		        var request_msg = JSON.stringify(given_msg);
 
-		        console.log(count_send_request , " SEND -------- ");
-		        console.log(count_send_request , " SEND -------- ", request_msg);
-		        console.log(count_send_request , " SEND -------- ");
+		        // console.log(count_send_request , " SEND -------- ");
+		        // console.log(count_send_request , " SEND -------- ", request_msg);
+		        // console.log(count_send_request , " SEND -------- ");
                 
 		        count_send_request += 1;
 
@@ -243,9 +242,16 @@ var websocket_connection = (function() {
 	};
 }());      //      websocket_connection
 
+var set_send_file_header_cb = function(given_cb) {
+
+    // console.log("set_send_file_header_cb " + given_cb.name);
+
+    cb_send_file_header = given_cb;
+};
+
 var set_stream_is_complete_cb = function(given_cb_stream_is_complete) { // supplied by calling client
 
-    console.log("now SET cb_stream_is_complete to ", given_cb_stream_is_complete.name);
+    // console.log("now SET cb_stream_is_complete to ", given_cb_stream_is_complete.name);
     
     cb_stream_is_complete = given_cb_stream_is_complete; // when server side says stream is done this gets called
 };
@@ -261,13 +267,13 @@ var socket_client = (function() {
 
 	return function(given_msg) {
 
-		console.log("socket_client  given_msg ", given_msg);
+		// console.log("socket_client  given_msg ", given_msg);
 
-        shared_utils.show_object(given_msg, "CCCCCCCCCCC   given_msg  ", "total", 3);
+        // shared_utils.show_object(given_msg, "CCCCCCCCCCC   given_msg  ", "total", 3);
 
 	    var given_mode = given_msg.mode;
 
-	    console.log("socket_client  given_mode ", given_mode);
+	    // console.log("socket_client  given_mode ", given_mode);
 
 	    switch (given_mode) {
 
@@ -302,7 +308,8 @@ return {
 
 	socket_client : socket_client,
 	set_cb_for_client : set_cb_for_client,
-	set_stream_is_complete_cb : set_stream_is_complete_cb
+	set_stream_is_complete_cb : set_stream_is_complete_cb,
+    set_send_file_header_cb : set_send_file_header_cb
 };
 
 }());	//	ww_client_socket
