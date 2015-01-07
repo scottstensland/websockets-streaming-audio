@@ -1,11 +1,13 @@
 websockets-streaming-audio
 ==========================
 
-Stream audio to a Web Audio API enabled browser from Node.js server side using Web Worker and Web Socket.
+Stream audio to a Web Audio API enabled browser from Node.js server using Web Worker and Web Socket
 
 My plan is to make this modular enough to get added to your process as simple API calls - using Angularjs ;-)
 
-I have now introduced a Web Worker to handle all server side calls - this fixed glitches of early versions suffered due to the single threaded browser - This outlines the flow of control :
+I have now introduced a Web Worker to handle all server side calls - this fixed glitches of early versions suffered due to the single threaded browser
+
+This outlines the flow of control :
 
     Browser   <-->   Web Worker   <-->   Web Socket   <-->   Node.js
 
@@ -60,21 +62,20 @@ Using a Web Audio API savvy browser (ff/chrome), point it at URL :
 		 http://localhost:8888 
 ```
 
-then click one of the stream buttons, click reload inbetween hitting another stream button
+then click one of the stream buttons, click reload in-between hitting another stream button
 
-or ignore above and just see this WebGL app deployed live on heroku :
+or ignore above and just see this app deployed live on heroku :
 
 [http://websockets-streaming-audio.herokuapp.com](http://websockets-streaming-audio.herokuapp.com)
 
 
 **Current Limitations**
-- server side source media parser I wrote only handles WAV format, however now that I am using Web Worker I could transition to a compressed format. The bloated ogg decoder enabled using emscripten may go in soon dunno.
+- server side source media parser I wrote only handles WAV format, however now that I am using Web Worker, I could transition to a compressed format. The bloated ogg decoder enabled using emscripten may go in soon dunno.
                      
 - please click reload in between each stream button hit until I teach myself Angularjs ;-)))
 
 **Lessions Learned**
-- To stream using Web Audio API you must offload Web Socket calls
-                       to the server side by the introduction of a Web Worker layer
+- to stream audio using Web Audio API you must offload your Web Socket calls off from the browser address space and into a Web Worker layer or else you will hear audible glitches when the single threaded browser is suddenly interrupted away from babysitting the audio rendering committments just to service responses received from the server side as sent using a Web Socket
 
 
 Feel free to contact me on twitter if you have any questions! :) [@scottstensland](http://twitter.com/scottstensland)

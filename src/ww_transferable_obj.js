@@ -99,7 +99,7 @@ function cb_receive_buffer_from_server(given_audio_obj_from_server) {
 
 	var curr_mode = manage_buffer_processing.get_mode();
 
-	console.log("cb_receive_buffer_from_server " + curr_mode);
+	// console.log("cb_receive_buffer_from_server " + curr_mode);
 
 	switch (curr_mode) {
 
@@ -223,7 +223,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
                 curr_size_ww_queue -= 1;   // decrement queue size
 
-                // console.log("OK pop ... curr_size_ww_queue " + curr_size_ww_queue);
+                console.log("WW queue  " + curr_size_ww_queue);
 
                 return (queue_first_in_first_out_obj[pop_index++]);
             }
@@ -328,7 +328,7 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 		if (typeof received_json.browser_directed_mode !== "undefined") {
 
-			console.log("received_json.browser_directed_mode " + received_json.browser_directed_mode);
+			// console.log("received_json.browser_directed_mode " + received_json.browser_directed_mode);
 
 			switch (received_json.browser_directed_mode) { // mode 3
 

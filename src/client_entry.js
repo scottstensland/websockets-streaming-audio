@@ -172,7 +172,7 @@ var cb_request_another_buffer = (function() { // stens TODO - remove this as it 
 
             } else {
 
-                console.log("its NOT early days or Middleburg ...");
+                // console.log("fat and happy ... queue is full ... Il dolce far niente");
             }
 
         } else {
