@@ -29,7 +29,7 @@ mode 3   Browser seamlessly continues to render audio by consuming its same brow
 
 
 
-[https://github.com/scottstensland/websockets-streaming-audio](github repo)
+[http://github.com/scottstensland/websockets-streaming-audio](github repo)
 
 [![NPM](https://nodei.co/npm/websockets-streaming-audio.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/websockets-streaming-audio/)
 
