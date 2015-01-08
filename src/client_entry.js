@@ -186,7 +186,7 @@ var cb_request_another_buffer = (function() { // stens TODO - remove this as it 
 
 function cb_get_is_streaming_done() {
 
-    console.log("here is is streaming done " + manage_audio.get_is_streaming_done());
+    // console.log("here is is streaming done " + manage_audio.get_is_streaming_done());
 
     return manage_audio.get_is_streaming_done();
 }
@@ -348,11 +348,9 @@ function populate_launch_stream_audio_msg(msgs_to_server) {
 var browser_queue_max_size      = null; // browser side maximum queue size
 var browser_queue_min_threshold = null; // triggers browser from consuming its own queue to reading ww queue
 
-    // var array_min_thr_N_size = { browser_queue_max_size : 4, browser_queue_min_threshold : 2 };// quickest start
-    // var array_min_thr_N_size = { browser_queue_max_size : 6, browser_queue_min_threshold : 2 };
-    // var array_min_thr_N_size = { browser_queue_max_size : 10, browser_queue_min_threshold : 2 };// good one
-    // var array_min_thr_N_size = { browser_queue_max_size : 12, browser_queue_min_threshold : 3 };
-    var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 4 };// good
+    // var array_min_thr_N_size = { browser_queue_max_size : 10, browser_queue_min_threshold : 6 };// good one
+    var array_min_thr_N_size = { browser_queue_max_size : 16, browser_queue_min_threshold : 6 };
+    // var array_min_thr_N_size = { browser_queue_max_size : 18, browser_queue_min_threshold : 6 };// good
     // var array_min_thr_N_size = { browser_queue_max_size : 24, browser_queue_min_threshold : 6 };
     // var array_min_thr_N_size = { browser_queue_max_size : 28, browser_queue_min_threshold : 8 };// slow start
 
@@ -367,8 +365,8 @@ var browser_queue_min_threshold = null; // triggers browser from consuming its o
     stream_audio_msg.browser_queue_min_threshold = browser_queue_min_threshold;
     stream_audio_msg.browser_queue_max_size = browser_queue_max_size;
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 2; // integer multiple >= 2
-    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 4; // integer multiple >= 2
-    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 6; // integer multiple >= 2 # good one
+    // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 4; // integer multiple >= 2
+    stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 6; // integer multiple >= 2 # good one
     // stream_audio_msg.ww_queue_max_size = browser_queue_max_size * 8; // integer multiple >= 2
 
     msgs_to_server.mode_stream_audio_to_client = stream_audio_msg;
