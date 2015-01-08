@@ -31,8 +31,8 @@ basic architecture :
 - browser seamlessly continues to render audio by consuming its same browser buffer queue
 - Web Worker does not interact with Node.js server side in this mode (critical to avoid interruptions)
 - Web Worker begins this mode with a full buffer queue replinished during mode 2
-- Web Audio API event loop callback drives the browser to request WW to send typed array audio buffers which refills the browser buffer queue at twice its consumption rate
-- transition to mode 2 when browser audio buffer queue is full
+- Web Audio API event loop callback drives the browser to request WW to send typed array audio buffers taken from the WW buffer queue which refills the browser buffer queue at twice the browser Web Audio consumption rate
+- transition to mode 2 when browser audio buffer queue becomes full
 
 
 **Installation**
@@ -51,7 +51,7 @@ npm install websockets-streaming-audio
 Change directory into the project folder to install the upstream modules:
 
 ```bash
-cd websockets-streaming-audio
+cd node_modules/websockets-streaming-audio
 npm install
 ```
 
