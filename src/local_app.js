@@ -26,6 +26,16 @@ console.log("here is media_dir ", media_dir);
 
 server_streaming_audio.set_media_dir(media_dir);
 
+
+
+var media_path = cfg.media_path;
+
+console.log("here is media_path ", media_path);
+
+server_streaming_audio.set_media_path(media_path);
+
+
+
 // ---
 
 app.use(express.static(working_dir)); // stens TODO - need to handle 404 file NOT found esp wav file

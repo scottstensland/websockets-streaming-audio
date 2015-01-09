@@ -22,16 +22,17 @@ basic architecture :
 - transition to mode 2 when browser queue is full
 
 **mode 2**
-- browser renders audio using Web Audio API by consuming buffers from browser buffer queue
+- launch Web Audio event loop if not already running
+- browser consumes buffers from browser buffer queue (always the case)
 - browser avoids any interaction with Web Worker or server side
 - Web Worker is told to replenish its own audio buffer queue by requesting buffers from Node.js server side using Web Socket
 - transition to mode 3 when browser audio buffer queue gets too low
 
 **mode 3**
 - browser seamlessly continues to render audio by consuming its same browser buffer queue
-- Web Worker does not interact with Node.js server side in this mode (critical to avoid interruptions)
+- Web Worker does not interact with Node.js server side in this mode (critical to avoid interruption of rendered audio)
 - Web Worker begins this mode with a full buffer queue replinished during mode 2
-- Web Audio API event loop callback drives the browser to request WW to send typed array audio buffers taken from the WW buffer queue which refills the browser buffer queue at twice the browser Web Audio consumption rate
+- Web Audio API event loop callback drives the browser to request Web Worker to send typed array audio buffers taken from the WW buffer queue which refills the browser buffer queue at twice the browser Web Audio consumption rate
 - transition to mode 2 when browser audio buffer queue becomes full
 
 
@@ -75,9 +76,8 @@ then click one of the stream buttons, after a song has played click reload befor
 
 
 **Current Limitations**
-- server side source media parser I wrote only handles WAV format, however now that I am using Web Worker, I could transition to a compressed format. The bloated ogg decoder enabled using emscripten may go in soon dunno
+- server side source media parser I wrote only handles WAV format, however now that I am using Web Worker, I could transition to a compressed format. The bloated ogg decoder enabled using emscripten may go in soon - dunno
 - only streams audio from server side to browser - not other direction - I do plan to enable streaming microphone audio back to server side (or other browser originated audio : synthesized or uploaded file)
-                     
 - please click reload in between each stream button hit until I teach myself Angularjs ;-)))
 
 **Lessions Learned**
@@ -85,7 +85,7 @@ then click one of the stream buttons, after a song has played click reload befor
 - a stepping stone to above point : the browser wants its own buffer queue, do not short change the design by relying on a Web Worker buffer queue to directly supply Web Audio event loop callback demands for time critical fresh audio buffers or else responses back from the server will interrupt the audio playback
 - create two buffer queues : browser based as well as Web Worker based, this assures the real time sensitive audio rendering done by Web Audio API is never interrupted by responses received back from server side
 
-Feel free to contact me via the github Issues forum if you have any questions! :) 
+Feel free to contact me via the github Issues forum if you have any questions!  :-) 
 
 [@scottstensland](http://twitter.com/scottstensland) 
 

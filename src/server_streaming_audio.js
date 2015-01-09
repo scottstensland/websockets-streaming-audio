@@ -43,12 +43,22 @@ var header_chunk_size = 44;
 
 // ---
 
-var media_dir;
+var media_dir = null;
 var set_media_dir = function(given_media_dir) {
 
     media_dir = given_media_dir;
 };
 exports.set_media_dir = set_media_dir;
+
+// ---
+
+var media_path = null;
+var set_media_path = function(given_media_path) {
+
+    media_path = given_media_path;
+};
+exports.set_media_path = set_media_path;
+
 
 // ---
 
@@ -235,7 +245,15 @@ function stream_file_into_socket (received_json, curr_ws) {
         }); 
     };      //      do_stream
 
-    var init_stream = function(media_dir, received_json, curr_ws, media_filename) {
+    // var init_stream = function(media_dir, received_json, curr_ws, media_filename) {
+
+    var init_stream = function(media_dir, media_path, received_json, curr_ws, media_filename) {
+
+        // stens TODO - search for given media filename across both media_dir as well as
+        //              media_path  ... look at ../config/config.global.js
+        //              in particular both 
+        //     config.media_path_relative = "../media";
+        //     config.media_path_absolute = "/home/stens/Dropbox/Documents/data/audio";
 
         streaming_buffer_obj = {
 
@@ -288,16 +306,7 @@ function stream_file_into_socket (received_json, curr_ws) {
         });
     };        //      init_stream
 
-    // init_stream(media_dir, received_json, curr_ws);
-
     // ---
-
-    // var roll_it = function(received_json, curr_ws) {
-
-    //     flag_active = true;
-
-    //     read_stream.resume();
-    // };
 
     var roll_it = function(received_json, curr_ws) {
 
@@ -332,7 +341,9 @@ var file_manager = (function() {
 
                 curr_stream_session = stream_file_into_socket(received_json, curr_ws);
 
-                curr_stream_session.init_stream(media_dir, received_json, curr_ws, media_filename);
+                // curr_stream_session.init_stream(media_dir, received_json, curr_ws, media_filename);
+
+                curr_stream_session.init_stream(media_dir, media_path, received_json, curr_ws, media_filename);
 
             } else {
 
@@ -397,6 +408,8 @@ var route_msg = function(received_json, curr_ws) {
     }
 
     // ---
+
+    // bbbbbbbbbbbbb
 
     switch (requested_action) {
 

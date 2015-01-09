@@ -11,5 +11,8 @@ config.absolute_or_relative = "relative"; // find below media_dir relative to di
 
 config.media_dir = "../media";
 
+config.media_path_relative = "../media";
+config.media_path_absolute = "/home/stens/Dropbox/Documents/data/audio";
+
 // config.media_dir = "/home/stens/Videos/work";
 
