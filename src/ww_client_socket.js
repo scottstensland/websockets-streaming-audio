@@ -87,15 +87,19 @@ var websocket_connection = (function() {
 
     web_socket.onmessage = function(event) {        //      receive message from server side
 
+        console.log("top of onmessage");
+
         if (typeof event.data === "string") {
 
             // console.log('String message received: ' + event.data);
 
             var received_json = JSON.parse(event.data);
 
-        	// console.log("RECEIVED --- ");
-         //    console.log("RECEIVED --- received_json ", received_json);
-         //    console.log("RECEIVED --- ");
+        	console.log("RECEIVED --- ");
+            console.log("RECEIVED --- received_json ");
+            // console.log(received_json);
+            shared_utils.show_object(received_json, "received_json string  ", "total", 3);
+            console.log("RECEIVED --- ");
 
             // ---
 
@@ -207,7 +211,21 @@ var websocket_connection = (function() {
 
     // ---
 
-    flag_connected = true; // stens TODO put this in correct callback above
+    // flag_connected = true; // stens TODO put this in correct callback above
+
+    web_socket.onclose = function(close_event) {
+
+        console.log("NOTICE - onclose with message");
+        console.log(close_event);
+    };
+
+    web_socket.onopen = function(){
+
+        // send some message
+
+        flag_connected = true; // stens TODO put this in correct callback above
+    };
+
 
 	return {
 
@@ -247,7 +265,9 @@ var websocket_connection = (function() {
 
 		        wait_for_socket_connection(web_socket, function() {
 
-		            // console.log("SENDING ------ ", msg);
+                    console.log("SENDING ------ ");
+                    console.log(msg);
+                    console.log("SENDING ------ ");
 
 		            web_socket.send(msg);
 		        });
@@ -259,19 +279,19 @@ var websocket_connection = (function() {
 
 		    return function(given_msg) {
 
-		        // console.log("[][][][][]  ..........  send_request_to_server");
+		        console.log("[][][][][]  ..........  send_request_to_server");
 
-		        // if (!flag_connected) {
+		        if (! flag_connected) {
 
-		        //     console.error("ERROR - no web socket connection");
-		        //     return;
-		        // };
+		            console.error("ERROR - no web socket connection");
+		            return;
+		        }
 
 		        var request_msg = JSON.stringify(given_msg);
 
-		        // console.log(count_send_request , " SEND -------- ");
-		        // console.log(count_send_request , " SEND -------- ", request_msg);
-		        // console.log(count_send_request , " SEND -------- ");
+		        console.log(count_send_request , " SEND -------- ");
+		        console.log(count_send_request , " SEND -------- ", request_msg);
+		        console.log(count_send_request , " SEND -------- ");
                 
 		        count_send_request += 1;
 

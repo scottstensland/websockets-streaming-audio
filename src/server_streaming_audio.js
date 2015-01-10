@@ -214,9 +214,9 @@ function stream_file_into_socket (received_json, curr_ws) {
                             " % sent      num_bytes_sent ", num_bytes_sent, 
                             " out of ", total_media_size, " ----------" );
 
-                // console.log("SEND -------- bin read_from_stream -------- length ", temp_stream_chunk_obj.buffer.length);
-                // shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
-                // console.log("SEND -------- bin read_from_stream --------");
+                console.log("SEND -------- bin read_from_stream -------- length ", temp_stream_chunk_obj.buffer.length);
+                shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
+                console.log("SEND -------- bin read_from_stream --------");
 
                 socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
 
