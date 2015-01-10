@@ -8,6 +8,45 @@ var cb_for_client = null;
 var cb_stream_is_complete = null;
 var cb_send_file_header = null;
 
+
+
+
+
+var console = (function() {
+
+    function getScriptName() {
+        var error = new Error();
+        var source = null;
+        var lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/);
+        var currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] !== "")
+            return source[1];
+        else if((source = currentStackFrameRegex.exec(error.stack.trim())))
+            return source[1];
+        else if(error.fileName !== undefined)
+            return error.fileName;
+    }
+
+    return {
+
+        log : function(given_str) {
+
+            var log_object = {
+
+                type: 'debug',
+                msg: common_utils.source() + given_str,
+                script_name : getScriptName()
+            };
+
+            self.postMessage(log_object);
+        }
+    };
+}());
+
+
+
+
 var websocket_connection = (function() {
 
 	var web_socket = null;
@@ -279,7 +318,7 @@ var socket_client = (function() {
 
 	        case "mode_stream_audio" : {    //  stream audio buffer from server 
 
-	            // console.log('mode_stream_audio  Launch request to stream audio ////////');
+	            console.log('mode_stream_audio  Launch request to stream audio ////////');
 
 	            websocket_connection.send_request_to_server(given_msg);
 

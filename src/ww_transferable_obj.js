@@ -5,20 +5,58 @@ importScripts('ww_client_socket.js');
 
 // ---------------------------------- //
 
-function log(msg) {
+// function log(msg) {
 
-	// var object = {
-	// 	type: 'debug',
-	// 	msg: common_utils.source() + msg + ' [' + common_utils.time() + ']'
-	// };
+// 	// var object = {
+// 	// 	type: 'debug',
+// 	// 	msg: common_utils.source() + msg + ' [' + common_utils.time() + ']'
+// 	// };
 
-	var object = {
-		type: 'debug',
-		msg: common_utils.source() + msg
-	};
+// 	var object = {
+// 		type: 'debug',
+// 		msg: common_utils.source() + msg
+// 	};
 
-  self.postMessage(object);
-}
+//   self.postMessage(object);
+// }
+
+
+
+
+var console = (function() {
+
+    function getScriptName() {
+        var error = new Error();
+        var source = null;
+        var lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/);
+        var currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] !== "")
+            return source[1];
+        else if((source = currentStackFrameRegex.exec(error.stack.trim())))
+            return source[1];
+        else if(error.fileName !== undefined)
+            return error.fileName;
+    }
+
+    return {
+
+        log : function(given_str) {
+
+			var log_object = {
+
+				type: 'debug',
+				msg: common_utils.source() + given_str,
+				script_name : getScriptName()
+			};
+
+			self.postMessage(log_object);
+        }
+    };
+}());
+
+
+
 
 // ---
 
@@ -240,7 +278,7 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
                 curr_size_ww_queue -= 1;   // decrement queue size
 
-                log("WW queue  " + curr_size_ww_queue);
+                // log("WW queue  " + curr_size_ww_queue);
 
                 console.log("WW queue  " + curr_size_ww_queue);
 
@@ -338,7 +376,6 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 	if (typeof event.data === "string") {
 
-		// console.log("event.data");
 		// console.log(event.data);
 
 		var received_json = JSON.parse(event.data);

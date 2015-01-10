@@ -42,7 +42,7 @@ function time() {
 
 function source(s) {
   if (self.importScripts) {
-    return '<span style="color:red;">worker:</span> ';
+    return '<span style="color:red;">worker_log:</span> ';
   } else {
     return '<span style="color:green;">thread:</span> ';
   }

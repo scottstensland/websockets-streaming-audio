@@ -502,7 +502,7 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
     } else if (event.data.type && event.data.type == 'debug') {
 
         // log(event.data.msg);
-        console.log(event.data.msg);
+        console.log(event.data.script_name + " " + event.data.msg);
 
         // console.log("Received msg with debug from ww", event.data);
 
@@ -566,6 +566,7 @@ var console = (function() {
     // shared_utils.show_object(scripts, "scripts", "total", 10);
 
     function getScriptName() {
+
         var error = new Error();
         var source = null;
         var lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/);
@@ -584,9 +585,14 @@ var console = (function() {
 
         log : function(given_str) {
 
-            // common_utils.log(document.currentScript, scriptName + " " + common_utils.source() + given_str);
-            // common_utils.log(document.currentScript.toString() + " " + common_utils.source() + given_str);
-            common_utils.log(getScriptName() + " " + common_utils.source() + given_str);
+            if (typeof given_str === "string" && given_str.indexOf("worker_log") > -1) {
+
+                common_utils.log(given_str);
+
+            } else {
+
+                common_utils.log(getScriptName() + " " + common_utils.source() + given_str);
+            }
         }
     };
 }());
