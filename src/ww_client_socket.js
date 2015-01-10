@@ -161,7 +161,7 @@ var websocket_connection = (function() {
 
             // ---
             /*
-            curr_buffer_index += server_buffer_len; // bbbbbbbbbbbbbbbb
+            curr_buffer_index += server_buffer_len;
 
             console.log("running            max_index " + max_index);
             console.log("running    curr_buffer_index " + curr_buffer_index);
@@ -177,7 +177,7 @@ var websocket_connection = (function() {
 
             cb_for_client(server_side_buffer_obj);
 
-        } else if (event.data instanceof Blob) { // binary    bbb
+        } else if (event.data instanceof Blob) { // binary
 
             console.log('Blob received on client browser side of length data.size ', event.data.size);
 
@@ -217,6 +217,9 @@ var websocket_connection = (function() {
 
         console.log("NOTICE - onclose with message");
         console.log(close_event);
+
+        shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
+
     };
 
     web_socket.onopen = function(){
