@@ -69,6 +69,10 @@ var websocket_connection = (function() {
     var host = location.origin.replace(/^http/, 'ws');
     web_socket = new WebSocket(host);
 
+
+    console.log("Corinde alpha");
+
+
     // following binaryType must be set or you will get this error :
     /* Uncaught TypeError: Failed to construct 'Blob': The 1st argument provided is either null, 
        or an invalid Array object.
@@ -205,8 +209,19 @@ var websocket_connection = (function() {
         }
     };
 
-    web_socket.onerror = function(stream) {
+    web_socket.onerror = function(error_stream) {
         console.log('ERROR - fault on socket');
+
+
+        for (var curr_property in error_stream) {
+
+            if (error_stream.hasOwnProperty(curr_property)) {
+
+                console.log("error property " + curr_property + " -->" + error_stream[curr_property] +
+                    "<-- ");
+            }
+        }
+
     };
 
     // ---
@@ -235,6 +250,8 @@ var websocket_connection = (function() {
 
         // send some message
 
+        console.log("NOTICE - onopen just called");
+
         flag_connected = true; // stens TODO put this in correct callback above
     };
 
@@ -254,10 +271,13 @@ var websocket_connection = (function() {
 		    // InvalidStateError: Failed to execute 'send' on 'WebSocket': Still in CONNECTING state
 		    // since I moved web socket init logic out of page reload
 
-		    function wait_for_socket_connection(socket, callback){
+		    function wait_for_socket_connection(socket, callback) {
 
 		        setTimeout(
-		            function(){
+		            function() {
+
+                        console.log("Corinde beta");
+
 		                if (socket.readyState === 1) {
 		                    if(callback !== undefined){
 		                        callback();
@@ -360,9 +380,9 @@ var socket_client = (function() {
 	            console.log('mode_stream_audio  Launch request to stream audio ////////');
 
 
-                // websocket_connection.close_socket(); // troubleshooting only
+                websocket_connection.close_socket(); // troubleshooting only
 
-	            websocket_connection.send_request_to_server(given_msg);
+	            // websocket_connection.send_request_to_server(given_msg);
 
 	            break;
 	        }
