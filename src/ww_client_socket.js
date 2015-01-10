@@ -216,9 +216,18 @@ var websocket_connection = (function() {
     web_socket.onclose = function(close_event) {
 
         console.log("NOTICE - onclose with message");
-        console.log(close_event);
+        // console.log(close_event);
 
-        shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
+        // shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
+
+        for (var curr_property in close_event) {
+
+            if (close_event.hasOwnProperty(curr_property)) {
+
+                console.log("curr_property " + curr_property + " -->" + close_event[curr_property] +
+                    "<-- ");
+            }
+        }
 
     };
 
@@ -300,7 +309,14 @@ var websocket_connection = (function() {
 
 		        send_message(request_msg);
 		    };
-		}())
+		}()),
+        close_socket : function() {
+
+            console.log("NOTICE - about to close socket intentionally");
+
+            web_socket.close();
+
+        }
 	};
 }());      //      websocket_connection
 
@@ -342,6 +358,9 @@ var socket_client = (function() {
 	        case "mode_stream_audio" : {    //  stream audio buffer from server 
 
 	            console.log('mode_stream_audio  Launch request to stream audio ////////');
+
+
+                // websocket_connection.close_socket(); // troubleshooting only
 
 	            websocket_connection.send_request_to_server(given_msg);
 
