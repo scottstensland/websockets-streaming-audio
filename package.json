@@ -1,6 +1,6 @@
 {
     "name": "websockets-streaming-audio",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "author": "Scott Stensland <scottstensland@gmail.com> (http://catfoodnation.com/)",
     "bugs": {
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
@@ -17,6 +17,7 @@
     },
     "homepage": "https://github.com/scottstensland",
     "keywords": [
+        "Node.js",
         "websockets",
         "webworkers",
         "webaudio",

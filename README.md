@@ -23,13 +23,13 @@ basic architecture :
 
 **mode 2**
 - launch Web Audio event loop if not already running
-- browser consumes buffers from browser buffer queue (always the case)
+- browser consumes audio buffers from browser buffer queue
 - browser avoids any interaction with Web Worker or server side
 - Web Worker is told to replenish its own audio buffer queue by requesting buffers from Node.js server side using Web Socket
 - transition to mode 3 when browser audio buffer queue gets too low
 
 **mode 3**
-- browser seamlessly continues to render audio by consuming its same browser buffer queue
+- browser seamlessly continues to render audio by consuming browser buffer queue
 - Web Worker does not interact with Node.js server side in this mode (critical to avoid interruption of rendered audio)
 - Web Worker begins this mode with a full buffer queue replinished during mode 2
 - Web Audio API event loop callback drives the browser to request Web Worker to send typed array audio buffers taken from the WW buffer queue which refills the browser buffer queue at twice the browser Web Audio consumption rate

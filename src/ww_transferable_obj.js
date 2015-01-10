@@ -5,6 +5,23 @@ importScripts('ww_client_socket.js');
 
 // ---------------------------------- //
 
+function log(msg) {
+
+	// var object = {
+	// 	type: 'debug',
+	// 	msg: common_utils.source() + msg + ' [' + common_utils.time() + ']'
+	// };
+
+	var object = {
+		type: 'debug',
+		msg: common_utils.source() + msg
+	};
+
+  self.postMessage(object);
+}
+
+// ---
+
 var manage_buffer_processing = (function() {
 
 	var curr_mode_send_to_browser_or_ww = null;
@@ -222,6 +239,8 @@ var queue_first_in_first_out = (function() { // first in first out queue
             if (pop_index < push_index) {
 
                 curr_size_ww_queue -= 1;   // decrement queue size
+
+                log("WW queue  " + curr_size_ww_queue);
 
                 console.log("WW queue  " + curr_size_ww_queue);
 

@@ -12,6 +12,40 @@ var streaming_status_active     = "streaming_status_active";
 var streaming_status_done       = "streaming_status_done";
 var flag_streaming_status       = streaming_status_ready;
 
+
+
+var console = (function() {
+
+    // shared_utils.show_object(scripts, "scripts", "total", 10);
+
+    function getScriptName() {
+        var error = new Error()
+          , source
+          , lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/)
+          , currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] != "")
+            return source[1];
+        else if((source = currentStackFrameRegex.exec(error.stack.trim())))
+            return source[1];
+        else if(error.fileName != undefined)
+            return error.fileName;
+    }
+
+    return {
+
+        log : function(given_str) {
+
+            // common_utils.log(document.currentScript, scriptName + " " + common_utils.source() + given_str);
+            // common_utils.log(document.currentScript.toString() + " " + common_utils.source() + given_str);
+            common_utils.log(getScriptName() + " " + common_utils.source() + given_str);
+        }
+    };
+}());
+
+
+
+
 var init_web_audio = (function() {
 
 	if (typeof audio_context !== "undefined") {

@@ -3,7 +3,36 @@ var client_entry = (function() {
 	
 "use strict";
 
-var ww_handle = new Worker("ww_transferable_obj.js");
+// var ww_handle = new Worker("ww_transferable_obj.js");
+
+window.onerror = function(message, url, lineNumber) {  
+
+// https://stackoverflow.com/questions/5328154/catch-all-javascript-errors-and-send-them-to-server
+
+
+    var err_msg = "\nERROR - " + message + "\nURL " + url + "\nlineNumber " + lineNumber;
+    console.log(err_msg);
+    // console.error(err_msg);
+
+    // throw new Error(err_msg);
+
+    return true;
+}; 
+
+var ww_handle = null;
+
+try {
+
+    ww_handle = new Worker("ww_transferable_obj.js");
+
+} catch(err_event) {
+
+    var err_msg = "ERROR - failed to create Web Worker : " + err_event;
+    console.log(err_msg);
+    // console.error(err_msg);
+
+    // throw new Error(err_msg);
+}
 
 var callback_send_audio_to_audio_player = null;
 var retrieved_audio_buffer_obj = {};
@@ -472,7 +501,8 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
 
     } else if (event.data.type && event.data.type == 'debug') {
 
-        log(event.data.msg);
+        // log(event.data.msg);
+        console.log(event.data.msg);
 
         // console.log("Received msg with debug from ww", event.data);
 
@@ -525,9 +555,54 @@ var media_manager = (function() {
     };
 }());
 
+
+var console = (function() {
+
+// var scripts = document.getElementsByTagName('script');
+// var lastScript = scripts[scripts.length-1];
+// var scriptName = lastScript.src;
+
+// bbb
+    // shared_utils.show_object(scripts, "scripts", "total", 10);
+
+    function getScriptName() {
+        var error = new Error();
+        var source = null;
+        var lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/);
+        var currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+        // if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] != "")
+        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] !== "")
+            return source[1];
+        else if((source = currentStackFrameRegex.exec(error.stack.trim())))
+            return source[1];
+        else if(error.fileName !== undefined)
+            return error.fileName;
+    }
+
+    return {
+
+        log : function(given_str) {
+
+            // common_utils.log(document.currentScript, scriptName + " " + common_utils.source() + given_str);
+            // common_utils.log(document.currentScript.toString() + " " + common_utils.source() + given_str);
+            common_utils.log(getScriptName() + " " + common_utils.source() + given_str);
+        }
+    };
+}());
+
+
+// var log = function(given_str) {
+
+//     common_utils.log(common_utils.source() + given_str);
+// };
+
+
+
 var entry_point = (function() {     //      handle traffic from browser UI
 
-	console.log("entry_point");
+    // log("entry_point");
+    console.log("entry_point");
 
     var msg_to_ww = {};
 
