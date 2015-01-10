@@ -52,6 +52,35 @@ var wss = new WebSocketServer({
 
 console.log("websocket server created");
 
+wss.on("headers", function (headers) {
+
+    for (var curr_property in headers) {
+
+        if (headers.hasOwnProperty(curr_property)) {
+
+            console.log("headers property " + curr_property + " -->" + headers[curr_property] +
+                "<-- ");
+        }
+    }
+});
+
+
+
+
+wss.on("error", function (error) {
+
+    for (var curr_property in error) {
+
+        if (error.hasOwnProperty(curr_property)) {
+
+            console.log("error property " + curr_property + " -->" + error[curr_property] +
+                "<-- ");
+        }
+    }
+});
+
+
+
 wss.on("connection", function(ws) {
 
     var ID_timeout;
