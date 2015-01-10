@@ -12,7 +12,7 @@ var cb_send_file_header = null;
 
 
 
-var console = (function() {
+var ignore_console = (function() {
 
     function getScriptName() {
         var error = new Error();
@@ -380,9 +380,9 @@ var socket_client = (function() {
 	            console.log('mode_stream_audio  Launch request to stream audio ////////');
 
 
-                websocket_connection.close_socket(); // troubleshooting only
+                // websocket_connection.close_socket(); // troubleshooting only
 
-	            // websocket_connection.send_request_to_server(given_msg);
+	            websocket_connection.send_request_to_server(given_msg);
 
 	            break;
 	        }

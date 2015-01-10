@@ -556,7 +556,7 @@ var media_manager = (function() {
 }());
 
 
-var console = (function() {
+var ignore_console = (function() {
 
 // var scripts = document.getElementsByTagName('script');
 // var lastScript = scripts[scripts.length-1];

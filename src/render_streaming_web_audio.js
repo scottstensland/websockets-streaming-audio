@@ -14,23 +14,26 @@ var flag_streaming_status       = streaming_status_ready;
 
 
 
-var console = (function() {
+var ignore_console = (function() {
 
     // shared_utils.show_object(scripts, "scripts", "total", 10);
 
     function getScriptName() {
-        var error = new Error()
-          , source
-          , lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/)
-          , currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
 
-        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] != "")
+        var error = new Error();
+        var source = null;
+        var lastStackFrameRegex = new RegExp(/.+\/(.*?):\d+(:\d+)*$/);
+        var currentStackFrameRegex = new RegExp(/getScriptName \(.+\/(.*):\d+:\d+\)/);
+
+        // if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] != "")
+        if((source = lastStackFrameRegex.exec(error.stack.trim())) && source[1] !== "")
             return source[1];
         else if((source = currentStackFrameRegex.exec(error.stack.trim())))
             return source[1];
-        else if(error.fileName != undefined)
+        else if(error.fileName !== undefined)
             return error.fileName;
     }
+
 
     return {
 

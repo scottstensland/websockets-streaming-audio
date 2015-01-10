@@ -23,7 +23,7 @@ importScripts('ww_client_socket.js');
 
 
 
-var console = (function() {
+var ignore_console = (function() {
 
     function getScriptName() {
         var error = new Error();

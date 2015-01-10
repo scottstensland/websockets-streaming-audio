@@ -1,6 +1,6 @@
 {
     "name": "websockets-streaming-audio",
-    "version": "1.0.28",
+    "version": "1.0.29",
     "author": "Scott Stensland <scottstensland@gmail.com> (http://catfoodnation.com/)",
     "bugs": {
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
