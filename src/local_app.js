@@ -77,6 +77,8 @@ wss.on("headers", function (headers) {
 
 wss.on("error", function (error) {
 
+    console.error("ERROR - seeing fault on WebSocketServer : ");
+
     for (var curr_property in error) {
 
         if (error.hasOwnProperty(curr_property)) {
@@ -105,11 +107,11 @@ wss.on("connection", function(ws) {
     }());
 
     console.log("websocket connection open");
-    
+
 
     ws.on("message", function(received_data) {
 
-        console.log("\n\nReceived message --------------------" + received_data);
+        // console.log("\n\nReceived message --------------------" + received_data);
 
         var received_json;
 

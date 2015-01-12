@@ -492,7 +492,8 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
 
         } else {
 
-            throw new Error("ERROR - ww is not sending JSON with key ww_directed_mode");
+            // throw new Error("ERROR - ww is not sending JSON with key ww_directed_mode");
+            console.log("ERROR - ww is not sending JSON with key ww_directed_mode");
         }
 
     } else if (event.data instanceof Blob) {
@@ -508,7 +509,13 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
 
     } else {
 
-        throw new Error("ERROR - received unknown from ww - here is event.data ", event);
+        console.log("ERROR - received unknown from ww - here is event.data ");
+        // console.log(event.data);
+
+
+        shared_utils.show_object(event.data, "event.data", "total", 10);
+
+
     }
 };
 
@@ -563,7 +570,6 @@ var console = (function() {
 // var lastScript = scripts[scripts.length-1];
 // var scriptName = lastScript.src;
 
-// bbb
     // shared_utils.show_object(scripts, "scripts", "total", 10);
 
     function getScriptName() {

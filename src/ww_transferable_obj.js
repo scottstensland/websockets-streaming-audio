@@ -22,8 +22,8 @@ importScripts('ww_client_socket.js');
 
 
 
-// var ignore_console = (function() {
-var console = (function() {
+var ignore_console = (function() {
+// var console = (function() {
 
     function getScriptName() {
         var error = new Error();
@@ -362,6 +362,9 @@ function drain_ww_queue_send_to_browser() {
 		if (queue_first_in_first_out.get_streaming_is_done()) {
 
 			console.log("streaming_is_done and ww queue is empty so just return");
+
+			// bbbbbbbbbb  link flag_connection_active from client socket to
+			//		avoid loop
 
 			return;
 		}

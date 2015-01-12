@@ -12,8 +12,8 @@ var cb_send_file_header = null;
 
 
 
-// var ignore_console = (function() {
-var console = (function() {
+var ignore_console = (function() {
+// var console = (function() {
 
     function getScriptName() {
         var error = new Error();
@@ -54,6 +54,15 @@ var websocket_connection = (function() {
 	var flag_connected = false;
 	var server_side_buffer_obj = {};
 
+    var MAX_CONN_RETRY = 1000;
+    var counter_retry_connection = 0;
+
+    var retry_delay_time = 5; // init with this number of miliseconds ... exponentially 
+                              // increase upon hickups
+
+
+    var flag_connection_active = true; // start OK if closed then becomes false
+
     if (! ("WebSocket" in self)) {
 
         throw new Error("ERROR - boo hoo ... websockets is not available on this browser - use firefox");
@@ -71,7 +80,7 @@ var websocket_connection = (function() {
     web_socket = new WebSocket(host);
 
 
-    console.log("Corinde alpha");
+    // console.log("Corinde alpha");
 
 
     // following binaryType must be set or you will get this error :
@@ -92,7 +101,7 @@ var websocket_connection = (function() {
 
     web_socket.onmessage = function(event) {        //      receive message from server side
 
-        console.log("top of onmessage");
+        // console.log("top of onmessage");
 
         if (typeof event.data === "string") {
 
@@ -100,11 +109,10 @@ var websocket_connection = (function() {
 
             var received_json = JSON.parse(event.data);
 
-        	console.log("RECEIVED --- ");
-            console.log("RECEIVED --- received_json ");
-            // console.log(received_json);
-            shared_utils.show_object(received_json, "received_json string  ", "total", 3);
-            console.log("RECEIVED --- ");
+        	// console.log("RECEIVED --- ");
+         //    console.log("RECEIVED --- received_json ");
+         //    shared_utils.show_object(received_json, "received_json string  ", "total", 3);
+         //    console.log("RECEIVED --- ");
 
             // ---
 
@@ -232,6 +240,9 @@ var websocket_connection = (function() {
     web_socket.onclose = function(close_event) {
 
         console.log("NOTICE - onclose with message");
+
+        flag_connection_active = false;
+
         // console.log(close_event);
 
         // shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
@@ -244,6 +255,21 @@ var websocket_connection = (function() {
                     "<-- ");
             }
         }
+
+        // bbbbbbbbbbbbbbbb  
+        // send browser stop message
+
+
+        var streaming_is_done_msg = {
+
+            streaming_is_done : "yes",
+            max_index : 0
+        };
+
+        console.log("streaming_is_done_msg");
+        console.log(streaming_is_done_msg);
+
+        self.postMessage(streaming_is_done_msg);
 
     };
 
@@ -277,7 +303,7 @@ var websocket_connection = (function() {
 		        setTimeout(
 		            function() {
 
-                        console.log("Corinde beta");
+                        // console.log("Corinde beta");
 
 		                if (socket.readyState === 1) {
 		                    if(callback !== undefined){
@@ -289,18 +315,35 @@ var websocket_connection = (function() {
 
 		                    console.log("... waiting for web socket connection to come online");
 
+                            counter_retry_connection += 1;
+
+                            if (counter_retry_connection > MAX_CONN_RETRY) {
+
+                                var error_msg = "ERROR - connection retry count limit reached";
+
+                                console.log(error_msg);
+
+                                flag_connection_active = false;
+
+                                retry_delay_time *= 2; // exponentially increase delay time
+
+                                web_socket.close();
+
+                                cb_stream_is_complete(0); // intentionally stop 
+                            }
+
 		                    wait_for_socket_connection(socket,callback);
 		                }
-		            }, 5);
+		            }, retry_delay_time);
 		    }
 
 		    function send_message(msg) {
 
 		        wait_for_socket_connection(web_socket, function() {
 
-                    console.log("SENDING ------ ");
-                    console.log(msg);
-                    console.log("SENDING ------ ");
+                    // console.log("SENDING ------ ");
+                    // console.log(msg);
+                    // console.log("SENDING ------ ");
 
 		            web_socket.send(msg);
 		        });
@@ -312,7 +355,7 @@ var websocket_connection = (function() {
 
 		    return function(given_msg) {
 
-		        console.log("[][][][][]  ..........  send_request_to_server");
+		        // console.log("[][][][][]  ..........  send_request_to_server");
 
 		        if (! flag_connected) {
 
@@ -322,9 +365,9 @@ var websocket_connection = (function() {
 
 		        var request_msg = JSON.stringify(given_msg);
 
-		        console.log(count_send_request , " SEND -------- ");
-		        console.log(count_send_request , " SEND -------- ", request_msg);
-		        console.log(count_send_request , " SEND -------- ");
+		        // console.log(count_send_request , " SEND -------- ");
+		        // console.log(count_send_request , " SEND -------- ", request_msg);
+		        // console.log(count_send_request , " SEND -------- ");
                 
 		        count_send_request += 1;
 
@@ -378,7 +421,7 @@ var socket_client = (function() {
 
 	        case "mode_stream_audio" : {    //  stream audio buffer from server 
 
-	            console.log('mode_stream_audio  Launch request to stream audio ////////');
+	            // console.log('mode_stream_audio  Launch request to stream audio ////////');
 
 
                 // websocket_connection.close_socket(); // troubleshooting only
