@@ -10,9 +10,7 @@ var cb_send_file_header = null;
 
 
 
-
-
-var ignore_console = (function() {
+var send_console_to_browser = (function() {
 // var console = (function() {
 
     function getScriptName() {
@@ -65,7 +63,8 @@ var websocket_connection = (function() {
 
     if (! ("WebSocket" in self)) {
 
-        throw new Error("ERROR - boo hoo ... websockets is not available on this browser - use firefox");
+        send_console_to_browser.log("ERROR - boo hoo ... websockets is not available on this browser - use firefox");
+        return;
     }
 
     if (flag_connected) {
@@ -74,7 +73,7 @@ var websocket_connection = (function() {
         return; // already connected
     }
 
-    console.log("very cool web sockets are supported by your browser");
+    send_console_to_browser.log("very cool web sockets are supported by your browser");
 
     var host = location.origin.replace(/^http/, 'ws');
     web_socket = new WebSocket(host);
@@ -136,7 +135,7 @@ var websocket_connection = (function() {
                 var error_msg = received_json.error_msg;
                 var requested_source = received_json.requested_source;
 
-                throw new Error(error_msg + "  " + requested_source); // sent back to browser html
+                send_console_to_browser.log(error_msg + "  " + requested_source); // sent back to browser html
 
             } else if (typeof received_json.sample_rate !== "undefined") {
 
@@ -157,9 +156,10 @@ var websocket_connection = (function() {
 
             } else {
 
-                console.error(received_json);
+                send_console_to_browser.log("ERROR - invalid JSON ");
+                send_console_to_browser.log(received_json);
 
-                throw new Error("ERROR - invalid JSON ");
+                // throw new Error("ERROR - invalid JSON ");
             }
 
         } else if (event.data instanceof ArrayBuffer) {
@@ -219,15 +219,16 @@ var websocket_connection = (function() {
     };
 
     web_socket.onerror = function(error_stream) {
-        console.log('ERROR - fault on socket');
 
+        send_console_to_browser.log('ERROR - fault on socket');
 
         for (var curr_property in error_stream) {
 
             if (error_stream.hasOwnProperty(curr_property)) {
 
-                console.log("error property " + curr_property + " -->" + error_stream[curr_property] +
-                    "<-- ");
+                send_console_to_browser.log("error property " + 
+                                curr_property + " -->" + error_stream[curr_property] +
+                                                "<-- ");
             }
         }
 
@@ -239,7 +240,7 @@ var websocket_connection = (function() {
 
     web_socket.onclose = function(close_event) {
 
-        console.log("NOTICE - onclose with message");
+        send_console_to_browser.log("NOTICE - onclose with message");
 
         flag_connection_active = false;
 
@@ -251,14 +252,11 @@ var websocket_connection = (function() {
 
             if (close_event.hasOwnProperty(curr_property)) {
 
-                console.log("curr_property " + curr_property + " -->" + close_event[curr_property] +
-                    "<-- ");
+                send_console_to_browser.log("curr_property " + 
+                                        curr_property + " -->" + close_event[curr_property] +
+                                                        "<-- ");
             }
         }
-
-        // bbbbbbbbbbbbbbbb  
-        // send browser stop message
-
 
         var streaming_is_done_msg = {
 
@@ -266,8 +264,8 @@ var websocket_connection = (function() {
             max_index : 0
         };
 
-        console.log("streaming_is_done_msg");
-        console.log(streaming_is_done_msg);
+        send_console_to_browser.log("streaming_is_done_msg");
+        send_console_to_browser.log(streaming_is_done_msg);
 
         self.postMessage(streaming_is_done_msg);
 
@@ -277,7 +275,7 @@ var websocket_connection = (function() {
 
         // send some message
 
-        console.log("NOTICE - onopen just called");
+        send_console_to_browser.log("NOTICE - onopen just called");
 
         flag_connected = true; // stens TODO put this in correct callback above
     };
@@ -359,7 +357,7 @@ var websocket_connection = (function() {
 
 		        if (! flag_connected) {
 
-		            console.error("ERROR - no web socket connection");
+		            send_console_to_browser.error("ERROR - no web socket connection");
 		            return;
 		        }
 
@@ -376,7 +374,7 @@ var websocket_connection = (function() {
 		}()),
         close_socket : function() {
 
-            console.log("NOTICE - about to close socket intentionally");
+            send_console_to_browser.log("NOTICE - about to close socket intentionally");
 
             web_socket.close();
 

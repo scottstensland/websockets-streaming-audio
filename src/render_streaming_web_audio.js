@@ -270,7 +270,8 @@ var queue_first_in_first_out = (function() { // first in first out queue
 
                 curr_browser_queue_size -= 1;
 
-                console.log("             browser queue " + curr_browser_queue_size);
+                // bbbb useful logging
+                // console.log("             browser queue " + curr_browser_queue_size);
 
                 return audio_from_server_obj[pop_index++];
 

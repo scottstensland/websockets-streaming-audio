@@ -22,7 +22,20 @@ importScripts('ww_client_socket.js');
 
 
 
-var ignore_console = (function() {
+// var console = (function() {
+
+//     return {
+
+//         log : function(given_str) {
+
+//             send_console_to_browser(given_str);
+//         }
+//     };
+// }());
+
+
+
+var send_console_to_browser = (function() {
 // var console = (function() {
 
     function getScriptName() {
@@ -195,7 +208,7 @@ function cb_send_file_header(given_json_obj) {
 
 function cb_stream_is_complete(given_max_index) {
 
-	console.log("cb_stream_is_complete ... given_max_index " + given_max_index);
+	send_console_to_browser.log("cb_stream_is_complete ... given_max_index " + given_max_index);
 
 	// bbbbbbbbbbbb
 
@@ -492,20 +505,20 @@ self.onmessage = function(event) {	//    retrieved a message from browser
 
 				default : {
 
-					throw new Error("ERROR - invalid browser_directed_mode : " + 
+					send_console_to_browser.log("ERROR - invalid browser_directed_mode : " + 
 									received_json.browser_directed_mode);
 				}
 			}
 
 		} else {
 
-			throw new Error("ERROR - ww did receive string from browser" +
+			send_console_to_browser.log("ERROR - ww did receive string from browser" +
 						"... yet NOT seeing browser_directed_mode");
 		}
 
 	} else {
 
-		throw new Error("ERROR - ww received NON string from browser" +
+		send_console_to_browser.log("ERROR - ww received NON string from browser" +
 					"... maybe event.data instanceof ArrayBuffer ");
 	}
 };
