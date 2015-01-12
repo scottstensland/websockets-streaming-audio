@@ -13,8 +13,8 @@ var streaming_status_done       = "streaming_status_done";
 var flag_streaming_status       = streaming_status_ready;
 
 
-
-var ignore_console = (function() {
+// var ignore_console = (function() {
+var console = (function() {
 
     // shared_utils.show_object(scripts, "scripts", "total", 10);
 

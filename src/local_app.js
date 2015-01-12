@@ -3,6 +3,8 @@ var launch_server = function(working_dir) {
 
 "use strict";
 
+console.log("TOP of launch_server");
+
 console.log(require('../package.json').name, require('../package.json').version);
 
 var server_streaming_audio = require("./server_streaming_audio.js");
@@ -46,11 +48,17 @@ server.listen(port);
 
 console.log("http server listening on %d", port);
 
+
+
+console.log("about to call new WebSocketServer");
+
 var wss = new WebSocketServer({
     server: server
 });
 
 console.log("websocket server created");
+
+
 
 wss.on("headers", function (headers) {
 
@@ -83,6 +91,8 @@ wss.on("error", function (error) {
 
 wss.on("connection", function(ws) {
 
+    console.log("OK cool ... just opened up a client connection ...");
+
     var ID_timeout;
     (function run() {  //  run immediately ... then repeat after delay
 
@@ -95,10 +105,11 @@ wss.on("connection", function(ws) {
     }());
 
     console.log("websocket connection open");
+    
 
     ws.on("message", function(received_data) {
 
-        // console.log("\n\nReceived message --------------------" + received_data);
+        console.log("\n\nReceived message --------------------" + received_data);
 
         var received_json;
 

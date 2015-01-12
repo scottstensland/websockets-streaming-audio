@@ -12,7 +12,8 @@ var cb_send_file_header = null;
 
 
 
-var ignore_console = (function() {
+// var ignore_console = (function() {
+var console = (function() {
 
     function getScriptName() {
         var error = new Error();

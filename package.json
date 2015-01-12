@@ -1,6 +1,6 @@
 {
     "name": "websockets-streaming-audio",
-    "version": "1.0.30",
+    "version": "1.0.31",
     "author": "Scott Stensland <scottstensland@gmail.com> (http://catfoodnation.com/)",
     "bugs": {
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
@@ -25,12 +25,12 @@
         "streaming"
     ],
     "license": "ISC",
-    "main": "src/app.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/scottstensland/websockets-streaming-audio.git"
     },
     "scripts": {
+        "start_min": "node src_min/app.js",
         "start": "node src/app.js",
         "test": "make"
     },
