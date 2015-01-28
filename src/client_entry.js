@@ -35,7 +35,7 @@ try {
 }
 
 var callback_send_audio_to_audio_player = null;
-var retrieved_audio_buffer_obj = {};
+// var retrieved_audio_buffer_obj = {};
 
 var array_stats_for_launch = [];
 var startTime = 0;
@@ -220,6 +220,11 @@ function cb_get_is_streaming_done() {
     return manage_audio.get_is_streaming_done();
 }
 
+function output_stored_media() {
+
+    send_audio_to_server.output_media();
+}
+
 var manage_audio = (function() {
 
 	var web_audio_obj = Object.create(render_streaming_web_audio());
@@ -242,6 +247,15 @@ var manage_audio = (function() {
     // var max_index = null;
 
     // var stop_next_event_loop_iteration = false;
+
+    // ------------ below testing only ------------ //
+
+    web_audio_obj.set_send_audio_to_server(output_stored_media);
+
+    // bbbbbbbbbbb
+
+    // ------------ above testing only ------------ //
+
 
 	return {
 
@@ -267,7 +281,7 @@ var manage_audio = (function() {
 
             given_msg_to_ww.browser_directed_mode = "mode_stop_streaming";
 
-            console.log(given_msg_to_ww);
+            // console.log(given_msg_to_ww);
 
             ww_handle.postMessage(JSON.stringify(given_msg_to_ww));
 
@@ -414,7 +428,7 @@ function process_ww_directed_mode(received_json) {
 
     var ww_directed_mode = received_json.ww_directed_mode;
 
-    console.log(ww_directed_mode);
+    // console.log(ww_directed_mode);
 
     switch (ww_directed_mode) {
 
@@ -453,6 +467,69 @@ function process_ww_directed_mode(received_json) {
     }
 }
 
+
+var send_audio_to_server = (function() {
+
+    var array_this_media = [];
+
+    return {
+
+        store_this_buffer : function (retrieved_audio_buffer_obj) {
+
+            array_this_media.push(retrieved_audio_buffer_obj);
+        },
+        output_media : function() {
+
+            // return;
+
+
+            // return array_this_media;
+
+            var saveByteArray = (function () {
+
+                var a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+
+                return function (data, name) {
+                    
+                    var blob = new Blob(data, {type: "octet/stream"}),
+                        url = window.URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = name;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                };
+            }());
+
+
+            // return;
+
+
+            console.log("aaaaaaaaaaaaaaaaaa cb_send_audio_to_server");
+
+            console.log("array_retrieved_media_buffers length " + array_this_media.length);
+
+            // bbbbbbbbbbbb
+
+            for (var curr_element in array_this_media) {
+
+                var curr_buffer = array_this_media[curr_element];
+
+                console.log(curr_element + " length " + curr_buffer.buffer.length);
+            }
+
+            // ---
+
+
+// var sampleBytes = base64ToArrayBuffer('R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs');
+// saveByteArray([sampleBytes], 'black1x1.gif');
+
+
+        }
+    };
+}());
+
 ww_handle.onmessage = function(event) {  // handle traffic from ww
 
     if (event.data instanceof ArrayBuffer) {
@@ -474,9 +551,19 @@ ww_handle.onmessage = function(event) {  // handle traffic from ww
 
         array_stats_for_launch.push(stats_this_launch);
 
+        var retrieved_audio_buffer_obj = {};
+
         retrieved_audio_buffer_obj.buffer = new Float32Array(data_from_ww);
 
         callback_send_audio_to_audio_player(retrieved_audio_buffer_obj, manage_state.is_early_days());
+
+        // ---------  following testing only --------- //
+
+        // now send this array buffer back to server side
+
+        send_audio_to_server.store_this_buffer(retrieved_audio_buffer_obj);
+
+        // bbbbbbbbbbbbbbb
 
     } else if (typeof event.data === "string") {
 

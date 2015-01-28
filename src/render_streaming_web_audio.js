@@ -6,6 +6,7 @@ var gain_node;
 var streaming_node;
 var BUFF_SIZE_AUDIO_RENDERER = null;
 var cb_request_another_buffer = null;
+var cb_send_audio_to_server = null;
 
 var streaming_status_ready      = "streaming_status_ready";
 var streaming_status_active     = "streaming_status_active";
@@ -389,6 +390,17 @@ var set_cb_request_another_buffer = function(given_callback) {
     cb_request_another_buffer = given_callback;
 };
 
+function set_send_audio_to_server(send_audio_to_server) {
+
+    cb_send_audio_to_server = send_audio_to_server;
+}
+
+function output_stored_media_as_downloaded_file () {
+
+    cb_send_audio_to_server();
+}
+
+
 function stop_audio() {
 
     // queue_first_in_first_out.set_stop();
@@ -406,6 +418,10 @@ function stop_audio() {
     flag_streaming_status = streaming_status_ready; // get ready for next time
 
     console.log("OK just set flag_streaming_status = streaming_status_ready");
+
+    // ----------------  testing only ---------------- //
+
+    output_stored_media_as_downloaded_file();
 }
 
 function process_audio_buffer() { // only called upon initially retrieving audio fm svr
@@ -463,6 +479,7 @@ return {
     set_BUFF_SIZE_AUDIO_RENDERER : set_BUFF_SIZE_AUDIO_RENDERER,
     set_cb_request_another_buffer : set_cb_request_another_buffer,
     set_cb_is_streaming_done : set_cb_is_streaming_done,
+    set_send_audio_to_server : set_send_audio_to_server,
     process_audio_buffer : process_audio_buffer,
     manage_media_headers : manage_media_headers
 };

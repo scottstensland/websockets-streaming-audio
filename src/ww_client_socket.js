@@ -200,10 +200,10 @@ var websocket_connection = (function() {
             // var binary_bytes = new ArrayBuffer(e.data);
             var server_buffer = new Blob(event.data);
             // var image = context.createImageData(canvas.width, canvas.height);
-            for (var i = 0; i < 200; i++) {
+            // for (var i = 0; i < 200; i++) {
 
-                console.log(server_buffer[i]);
-            }
+            //     console.log(server_buffer[i]);
+            // }
 
             // ---
 
@@ -231,7 +231,6 @@ var websocket_connection = (function() {
                                                 "<-- ");
             }
         }
-
     };
 
     // ---

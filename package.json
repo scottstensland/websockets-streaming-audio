@@ -1,6 +1,6 @@
 {
     "name": "websockets-streaming-audio",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "author": "Scott Stensland <scottstensland@gmail.com> (http://catfoodnation.com/)",
     "bugs": {
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
@@ -31,6 +31,7 @@
     },
     "scripts": {
         "start_min": "node src_min/app.js",
+        "start_loki": "node src/app_loki.js",
         "start": "node src/app.js",
         "test": "make"
     },

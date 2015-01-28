@@ -207,6 +207,15 @@ function stream_file_into_socket (received_json, curr_ws) {
                     curr_index += curr_buffer.length;
                 }
 
+                // ---
+
+                // for (var index = 0; index < 4; index += 1) {
+
+                //     console.log(temp_stream_chunk_obj.buffer[index]);
+                // }
+
+                // ---
+
                 num_read_send_gulps += 1;
                 num_bytes_sent += temp_stream_chunk_obj.buffer.length;
 
@@ -218,7 +227,12 @@ function stream_file_into_socket (received_json, curr_ws) {
                 // shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
                 // console.log("SEND -------- bin read_from_stream --------");
 
+                // stens TODO 20150115
                 socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
+
+                // below error happens if we use below parms to send
+                // WebSocket connection to 'ws://localhost:8888/' failed: A server must not mask any frames that it sends to the client
+                // socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: true}); // binary buffer
 
                 flag_active = false;
 
@@ -373,6 +387,12 @@ var file_manager = (function() {
 var route_msg = function(received_json, curr_ws) {
 
     // shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
+
+
+    // console.log("received_json");
+    // console.log(received_json);
+
+
 
     var requested_action = received_json.requested_action;
 
