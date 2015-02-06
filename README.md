@@ -79,6 +79,7 @@ then click one of the stream buttons, after a song has played click reload befor
 - server side source media parser I wrote only handles WAV format, however now that I am using Web Worker, I could transition to a compressed format. The bloated ogg decoder enabled using emscripten may go in soon - dunno
 - only streams audio from server side to browser - not other direction - I do plan to enable streaming microphone audio back to server side (or other browser originated audio : synthesized or uploaded file)
 - please click reload in between each stream button hit until I teach myself Angularjs ;-)))
+- on mobile it works OK using Android lollipop with mozilla nightly 38.0a1 (2015-02-01) and above - anything earlier fails to correctly implement web sockets inside web workers ... and even firefox ver 38 is a bit shady ;-) ... I do not use iOS so dunno how that phone handles this system
 
 **Lessions Learned**
 - to stream audio using Web Audio API you must offload your Web Socket calls to a Web Worker layer or else you will hear audible glitches when the single threaded browser is suddenly interrupted away from babysitting the audio rendering committments just to service responses received from the server side as sent using Web Socket
@@ -86,6 +87,5 @@ then click one of the stream buttons, after a song has played click reload befor
 - create two buffer queues : browser based as well as Web Worker based, this assures the real time sensitive audio rendering done by Web Audio API is never interrupted by responses received back from server side
 
 Feel free to contact me via the github Issues forum if you have any questions!  :-) 
-
-[@scottstensland](http://twitter.com/scottstensland) 
+... my twitter name is same as my github name
 
