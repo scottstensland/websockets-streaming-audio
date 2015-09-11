@@ -89,3 +89,7 @@ then click one of the stream buttons, after a song has played click reload befor
 Feel free to contact me via the github Issues forum if you have any questions!  :-) 
 ... my twitter name is same as my github name
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/scottstensland/websockets-streaming-audio/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
