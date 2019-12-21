@@ -119,6 +119,8 @@ var send_client_source_data_info = function (audio_obj, curr_websocket) {
 
 var stop_streaming = function(received_json, curr_ws) {
 
+    console.log("inside stop_streaming about to call streaming_is_done")
+
     streaming_is_done(0, curr_ws);
 };
 
@@ -156,11 +158,11 @@ function stream_file_into_socket (received_json, curr_ws) {
                 max_index : total_media_size
             };
 
-            // console.log("media_info ", media_info);
+            console.log("media_info ", media_info);
 
-            // console.log("SEND -------- json max_index --------");
-            // console.log("SEND -------- json max_index -------- ", media_info);
-            // console.log("SEND -------- json max_index --------");
+            console.log("SEND -------- json max_index --------");
+            console.log("SEND -------- json max_index -------- ", media_info);
+            console.log("SEND -------- json max_index --------");
 
             curr_ws.send(JSON.stringify(media_info));
 
@@ -183,6 +185,8 @@ function stream_file_into_socket (received_json, curr_ws) {
             // ---
 
             var read_from_stream = function(socket_conn) {
+
+                console.log("inside read_from_stream ")
 
                 var curr_buffer = new Buffer.alloc(BUFFER_SIZE_STREAMING);
 
@@ -209,10 +213,10 @@ function stream_file_into_socket (received_json, curr_ws) {
 
                 // ---
 
-                // for (var index = 0; index < 4; index += 1) {
+                for (var index = 0; index < 4; index += 1) {
 
-                //     console.log(temp_stream_chunk_obj.buffer[index]);
-                // }
+                    console.log(temp_stream_chunk_obj.buffer[index]);
+                }
 
                 // ---
 
@@ -223,9 +227,9 @@ function stream_file_into_socket (received_json, curr_ws) {
                             " % sent      num_bytes_sent ", num_bytes_sent, 
                             " out of ", total_media_size, " ----------" );
 
-                // console.log("SEND -------- bin read_from_stream -------- length ", temp_stream_chunk_obj.buffer.length);
-                // shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
-                // console.log("SEND -------- bin read_from_stream --------");
+                console.log("SEND -------- bin read_from_stream -------- length ", temp_stream_chunk_obj.buffer.length);
+                shared_utils.show_object(temp_stream_chunk_obj, "temp_stream_chunk_obj", "total", 10);
+                console.log("SEND -------- bin read_from_stream --------");
 
                 // stens TODO 20150115
                 socket_conn.send(temp_stream_chunk_obj.buffer, {binary: true, mask: false}); // binary buffer
@@ -244,6 +248,8 @@ function stream_file_into_socket (received_json, curr_ws) {
 
             read_stream.on('readable', function() {
 
+                console.log("inside readable  callback ")
+
                 if (flag_active) {
 
                     read_from_stream(curr_ws);
@@ -251,6 +257,8 @@ function stream_file_into_socket (received_json, curr_ws) {
             });
 
             read_stream.on('end', function() {
+
+                console.log("inside end  callback ")
 
                 streaming_is_done(total_media_size, curr_ws);
 
@@ -279,7 +287,7 @@ function stream_file_into_socket (received_json, curr_ws) {
 
         var requested_input_filename = path.join(__dirname, media_dir, media_filename);
 
-        // console.log("requested_input_filename " + requested_input_filename);
+        console.log("requested_input_filename " + requested_input_filename);
 
         if (! fs.existsSync(requested_input_filename)) {
 
@@ -386,7 +394,7 @@ var file_manager = (function() {
 
 var route_msg = function(received_json, curr_ws) {
 
-    // shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
+    shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
 
 
     // console.log("received_json");
@@ -435,9 +443,9 @@ var route_msg = function(received_json, curr_ws) {
 
         case "stream_audio_to_client" : {
 
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
 
             if (request_status === request_ongoing) {
 
