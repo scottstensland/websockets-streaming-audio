@@ -1,0 +1,46 @@
+
+
+browser console 
+shows this warning
+
+
+An AudioContext was prevented from starting automatically. It must be created or resumed after a user gesture on the page. render_streaming_web_audio.js:68:24
+
+	which points to code
+
+
+src/render_streaming_web_audio.js
+
+        audio_context = new AudioContext();  //  cool audio context established
+
+
+
+SOLUTION 
+
+	https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
+
+
+
+
+
+// One-liner to resume playback when user interacted with the page.
+document.querySelector('button').addEventListener('click', function() {
+  context.resume().then(() => {
+    console.log('Playback resumed successfully');
+  });
+});
+
+
+
+
+	........
+
+
+	function touchStarted() {
+  		if (getAudioContext().state !== 'running') {
+    		getAudioContext().resume();
+  		}
+	}
+
+
+

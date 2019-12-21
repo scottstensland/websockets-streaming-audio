@@ -52,6 +52,15 @@ var console = (function() {
 
 var init_web_audio = (function() {
 
+
+/*
+	function touchStarted() {
+  		if (getAudioContext().state !== 'running') {
+    		getAudioContext().resume();
+  		}
+	}
+*/
+
 	if (typeof audio_context !== "undefined") {
 
         return;     //      audio_context already defined
@@ -65,6 +74,10 @@ var init_web_audio = (function() {
                               window.oAudioContext      ||
                               window.msAudioContext;
 
+        // if (getAudioContext().state !== 'running') {
+        //     getAudioContext().resume();
+        // }
+
         audio_context = new AudioContext();  //  cool audio context established
 
     } catch (e) {
@@ -76,10 +89,49 @@ var init_web_audio = (function() {
         throw new Error(error_msg);
     }
 
+	// touchStarted();
+
     gain_node = audio_context.createGain(); // Declare gain node
     gain_node.connect(audio_context.destination); // Connect gain node to speakers
 
 }());
+
+function kickstart_audiocontext() {
+
+
+    if (typeof audio_context !== "undefined") {
+
+        return;     //      audio_context already defined
+    }
+
+    try {
+
+        window.AudioContext = window.AudioContext       ||
+                              window.webkitAudioContext ||
+                              window.mozAudioContext    ||
+                              window.oAudioContext      ||
+                              window.msAudioContext;
+
+        // if (getAudioContext().state !== 'running') {
+        //     getAudioContext().resume();
+        // }
+
+        audio_context = new AudioContext();  //  cool audio context established
+
+    } catch (e) {
+
+        var error_msg = "Web Audio API is not supported by this browser\n" +
+                        " ... http://caniuse.com/#feat=audio-api";
+        console.error(error_msg);
+        alert(error_msg);
+        throw new Error(error_msg);
+    }
+
+    // touchStarted();
+
+    gain_node = audio_context.createGain(); // Declare gain node
+    gain_node.connect(audio_context.destination); // Connect gain node to speakers
+}
 
 function setup_onaudioprocess_callback_stream(given_node, cb_populate_memory_chunk, given_buff_size, given_num_channels) {
 
@@ -425,6 +477,14 @@ function stop_audio() {
 }
 
 function process_audio_buffer() { // only called upon initially retrieving audio fm svr
+
+
+    // if (getAudioContext().state !== 'running') {  //  sssssssssssssssssssssssss
+    //     getAudioContext().resume();
+    // }
+
+    kickstart_audiocontext();
+
 
     if (! queue_first_in_first_out.get_flag_audio_rendering() && (
         (! queue_first_in_first_out.is_production_possible())) ||
