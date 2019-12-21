@@ -426,6 +426,12 @@ function stop_audio() {
 
 function process_audio_buffer() { // only called upon initially retrieving audio fm svr
 
+
+  audio_context.resume().then(() => {
+    console.log('Playback resumed successfully');
+  });
+
+
     if (! queue_first_in_first_out.get_flag_audio_rendering() && (
         (! queue_first_in_first_out.is_production_possible())) ||
         cb_get_is_streaming_done()) {
