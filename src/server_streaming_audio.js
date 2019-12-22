@@ -184,7 +184,11 @@ function stream_file_into_socket (received_json, curr_ws) {
 
             var read_from_stream = function(socket_conn) {
 
-                var curr_buffer = new Buffer(BUFFER_SIZE_STREAMING);
+                // var curr_buffer = new Buffer(BUFFER_SIZE_STREAMING); 
+                //  above gives below using node 12.14.0
+                // (node:1680422) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+
+                var curr_buffer = new Buffer.alloc(BUFFER_SIZE_STREAMING);
 
                 while ((curr_buffer = read_stream.read())) {
 
