@@ -69,9 +69,7 @@ NODE_ENV=production npm start
 
 Using a Web Audio API savvy browser (ff/chrome), point it at URL :
 
-```bash
-		 http://localhost:8888 
-```
+http://localhost:8888 
 
 then click one of the stream buttons, after a song has played click reload before hitting another stream button - I am still learning front ends ;-)
 

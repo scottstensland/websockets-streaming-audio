@@ -47,6 +47,7 @@ var server = http.createServer(app);
 server.listen(port);
 
 console.log("http server listening on %d", port);
+console.log("http://localhost:%d", port);
 
 
 
