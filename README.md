@@ -60,6 +60,11 @@ Launch the nodejs app:
 
 ```bash
 npm start
+
+NODE_ENV=dev npm start
+
+NODE_ENV=production npm start
+
 ```
 
 Using a Web Audio API savvy browser (ff/chrome), point it at URL :
@@ -72,7 +77,7 @@ then click one of the stream buttons, after a song has played click reload befor
 
 ... OR ignore above and just see this app deployed live on heroku :
 
-[http://websockets-streaming-audio.herokuapp.com](http://websockets-streaming-audio.herokuapp.com)
+[https://fierce-waters-00266.herokuapp.com](https://fierce-waters-00266.herokuapp.com)
 
 
 **Current Limitations**
