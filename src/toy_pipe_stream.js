@@ -1,0 +1,5 @@
+
+
+readableSrc.pipe(writableDest)
+
+
