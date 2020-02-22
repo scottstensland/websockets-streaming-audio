@@ -108,9 +108,9 @@ var send_client_source_data_info = function (audio_obj, curr_websocket) {
         all_property_tags[curr_property] = audio_obj[curr_property];
     }
 
-    // console.log("SEND -------- json all property tags --------");
-    // console.log("SEND -------- all_property_tags ", all_property_tags);
-    // console.log("SEND -------- json all property tags --------");
+    console.log("SEND -------- json all property tags --------");
+    console.log("SEND -------- all_property_tags ", all_property_tags);
+    console.log("SEND -------- json all property tags --------");
 
     curr_websocket.send(JSON.stringify(all_property_tags), {binary: false, mask: false});
 };
@@ -156,11 +156,11 @@ function stream_file_into_socket (received_json, curr_ws) {
                 max_index : total_media_size
             };
 
-            // console.log("media_info ", media_info);
+            console.log("media_info ", media_info);
 
-            // console.log("SEND -------- json max_index --------");
-            // console.log("SEND -------- json max_index -------- ", media_info);
-            // console.log("SEND -------- json max_index --------");
+            console.log("SEND -------- json max_index --------");
+            console.log("SEND -------- json max_index -------- ", media_info);
+            console.log("SEND -------- json max_index --------");
 
             curr_ws.send(JSON.stringify(media_info));
 
@@ -393,8 +393,8 @@ var route_msg = function(received_json, curr_ws) {
     // shared_utils.show_object(received_json, "SSSSSSS received_json  ", "total", 3);
 
 
-    // console.log("received_json");
-    // console.log(received_json);
+    console.log("received_json");
+    console.log(received_json);
 
 
 
@@ -439,19 +439,19 @@ var route_msg = function(received_json, curr_ws) {
 
         case "stream_audio_to_client" : {
 
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
-            // console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
+            console.log("RECEIVED ---------- stream_audio_to_client request_status ", request_status);
 
             if (request_status === request_ongoing) {
 
                 if (request_number === previous_request_number) {
 
 
-                    // console.log("request_status  " + request_status);
-                    // console.log("request_ongoing " + request_ongoing);
-                    // console.log("request_number             " + request_number);
-                    // console.log("previous_request_number    " + previous_request_number);
+                    console.log("request_status  " + request_status);
+                    console.log("request_ongoing " + request_ongoing);
+                    console.log("request_number             " + request_number);
+                    console.log("previous_request_number    " + previous_request_number);
 
 
                     console.log("cool we have already stopped this stream request so ignoring stream request");
@@ -485,24 +485,24 @@ var route_msg = function(received_json, curr_ws) {
 
         case "stop_streaming" : {
 
-            // if (request_status === request_ongoing &&
-            //     streaming_buffer_obj.curr_state === stream_status_prior) {
+            if (request_status === request_ongoing &&
+                streaming_buffer_obj.curr_state === stream_status_prior) {
 
-            //     console.log("request_status  " + request_status);
-            //     console.log("request_ongoing " + request_ongoing);
-            //     console.log("streaming_buffer_obj.curr_state " + streaming_buffer_obj.curr_state);
-            //     console.log("stream_status_prior             " + stream_status_prior);
+                console.log("request_status  " + request_status);
+                console.log("request_ongoing " + request_ongoing);
+                console.log("streaming_buffer_obj.curr_state " + streaming_buffer_obj.curr_state);
+                console.log("stream_status_prior             " + stream_status_prior);
 
-            //     console.log("cool we have already stopped this stream request so ignoring stop request");
+                console.log("cool we have already stopped this stream request so ignoring stop request");
 
-            // } else {
+            } else {
 
                 console.log("RECEIVED ---------- stop_streaming");
                 console.log("RECEIVED ---------- stop_streaming");
                 console.log("RECEIVED ---------- stop_streaming");
 
                 stop_streaming(received_json, curr_ws);
-            // }
+            }
 
             break;
         }

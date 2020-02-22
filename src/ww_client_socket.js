@@ -108,10 +108,10 @@ var websocket_connection = (function() {
 
             var received_json = JSON.parse(event.data);
 
-        	// console.log("RECEIVED --- ");
-         //    console.log("RECEIVED --- received_json ");
-         //    shared_utils.show_object(received_json, "received_json string  ", "total", 3);
-         //    console.log("RECEIVED --- ");
+        	console.log("RECEIVED --- ");
+            console.log("RECEIVED --- received_json ");
+            shared_utils.show_object(received_json, "received_json string  ", "total", 3);
+            console.log("RECEIVED --- ");
 
             // ---
 
@@ -139,8 +139,8 @@ var websocket_connection = (function() {
 
             } else if (typeof received_json.sample_rate !== "undefined") {
 
-                // console.log("source media header info");
-                // console.log(received_json);
+                console.log("source media header info");
+                console.log(received_json);
 
                 // shared_utils.show_object(received_json, "send_file_header  ", "total", 3);
 
@@ -164,9 +164,9 @@ var websocket_connection = (function() {
 
         } else if (event.data instanceof ArrayBuffer) {
 
-            // console.log("RECEIVED --- ");
-            // console.log("RECEIVED --- ArrayBuffer received: " + event.data);
-            // console.log("RECEIVED --- ");
+            console.log("RECEIVED --- ");
+            console.log("RECEIVED --- ArrayBuffer received: " + event.data);
+            console.log("RECEIVED --- ");
 
             server_side_buffer_obj.buffer = new Float32Array(event.data);
 
@@ -243,9 +243,9 @@ var websocket_connection = (function() {
 
         flag_connection_active = false;
 
-        // console.log(close_event);
+        console.log(close_event);
 
-        // shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
+        shared_utils.show_object(close_event, "ceoeoeoeoeoe   close_event  ", "total", 3);
 
         for (var curr_property in close_event) {
 
@@ -338,9 +338,9 @@ var websocket_connection = (function() {
 
 		        wait_for_socket_connection(web_socket, function() {
 
-                    // console.log("SENDING ------ ");
-                    // console.log(msg);
-                    // console.log("SENDING ------ ");
+                    console.log("SENDING ------ ");
+                    console.log(msg);
+                    console.log("SENDING ------ ");
 
 		            web_socket.send(msg);
 		        });
@@ -352,7 +352,7 @@ var websocket_connection = (function() {
 
 		    return function(given_msg) {
 
-		        // console.log("[][][][][]  ..........  send_request_to_server");
+		        console.log("[][][][][]  ..........  send_request_to_server");
 
 		        if (! flag_connected) {
 
@@ -362,9 +362,9 @@ var websocket_connection = (function() {
 
 		        var request_msg = JSON.stringify(given_msg);
 
-		        // console.log(count_send_request , " SEND -------- ");
-		        // console.log(count_send_request , " SEND -------- ", request_msg);
-		        // console.log(count_send_request , " SEND -------- ");
+		        console.log(count_send_request , " SEND -------- ");
+		        console.log(count_send_request , " SEND -------- ", request_msg);
+		        console.log(count_send_request , " SEND -------- ");
                 
 		        count_send_request += 1;
 
@@ -406,19 +406,19 @@ var socket_client = (function() {
 
 	return function(given_msg) {
 
-		// console.log("socket_client  given_msg ", given_msg);
+		console.log("socket_client  given_msg ", given_msg);
 
-        // shared_utils.show_object(given_msg, "CCCCCCCCCCC   given_msg  ", "total", 3);
+        shared_utils.show_object(given_msg, "CCCCCCCCCCC   given_msg  ", "total", 3);
 
 	    var given_mode = given_msg.mode;
 
-	    // console.log("socket_client  given_mode ", given_mode);
+	    console.log("socket_client  given_mode ", given_mode);
 
 	    switch (given_mode) {
 
 	        case "mode_stream_audio" : {    //  stream audio buffer from server 
 
-	            // console.log('mode_stream_audio  Launch request to stream audio ////////');
+	            console.log('mode_stream_audio  Launch request to stream audio ////////');
 
 
                 // websocket_connection.close_socket(); // troubleshooting only
