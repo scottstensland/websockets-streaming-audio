@@ -3,7 +3,8 @@
 const WebSocket = require('ws');
  
 
-const ws_port = 8888
+// const ws_port = 8888
+const ws_port = 8080
 
 var ws_url = 'ws://localhost:' + ws_port
 

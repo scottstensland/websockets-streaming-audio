@@ -69,13 +69,13 @@ NODE_ENV=production npm start
 
 Using a Web Audio API savvy browser (ff/chrome), point it at URL :
 
-http://localhost:8888 
+http://localhost:8080 
 
 then click one of the stream buttons, after a song has played click reload before hitting another stream button - I am still learning front ends ;-)
 
 ... OR ignore above and just see this app deployed live on heroku :
 
-[https://fierce-waters-00266.herokuapp.com](https://fierce-waters-00266.herokuapp.com)
+[http://0dayallday.com:8080](http://0dayallday.com:8080)
 
 
 **Current Limitations**
