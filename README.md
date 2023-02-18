@@ -75,7 +75,7 @@ then click one of the stream buttons, after a song has played click reload befor
 
 ... OR ignore above and just see this app deployed live on my vm:
 
-[http://0dayallday.com:8080](http://0dayallday.com:8080)
+[https://0dayallday.com/](https://0dayallday.com/)
 
 
 **Current Limitations**
