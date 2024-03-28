@@ -7,7 +7,7 @@
     },
     "dependencies": {
         "ws": ">=8.8.0",
-        "express": "^4.17.2",
+        "express": "^4.19.2",
         "audio-utils": "2.x.x",
         "shared-utils": "2.x.x",
         "bufferutil": "^4.0.6",
