@@ -6,7 +6,7 @@
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
     },
     "dependencies": {
-        "ws": ">=8.8.0",
+        "ws": ">=8.17.1",
         "express": "^4.19.2",
         "audio-utils": "2.x.x",
         "shared-utils": "2.x.x",
