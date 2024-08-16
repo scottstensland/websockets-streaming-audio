@@ -11,7 +11,7 @@
         "audio-utils": "2.x.x",
         "shared-utils": "2.x.x",
         "bufferutil": "^4.0.6",
-        "utf-8-validate": "^5.0.9"
+        "utf-8-validate": ">=6.0.4"
     },
     "description": "Click a browser button to launch a node.js process on the server side which streams audio using web sockets back to the browser which is then rendered using web audio API   My plan is to make this modular enough to get added to your process as simple API calls",
     "engines": {
