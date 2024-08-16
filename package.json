@@ -1,6 +1,6 @@
 {
     "name": "websockets-streaming-audio",
-    "version": "2.1.5",
+    "version": "2.1.6",
     "author": "Scott Stensland <scottstensland@gmail.com> ( https://stackoverflow.com/users/147175/scott-stensland )",
     "bugs": {
         "url": "https://github.com/scottstensland/websockets-streaming-audio/issues"
