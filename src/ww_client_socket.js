@@ -75,8 +75,8 @@ var websocket_connection = (function() {
 
     send_console_to_browser.log("very cool web sockets are supported by your browser");
 
-    var host = location.origin.replace(/^http/, 'ws');
-    web_socket = new WebSocket(host);
+    web_socket = new WebSocket(`${self.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${self.location.host}/`);
+    // web_socket = new WebSocket(`${self.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${self.location.host}/streamaudio/`);
 
 
     // console.log("Corinde alpha");
