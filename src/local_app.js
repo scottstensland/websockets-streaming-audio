@@ -1,157 +1,119 @@
+const fs = require("fs");
+const path = require("path");
+const http = require("http");
+const express = require("express");
+const { Server: WebSocketServer } = require("ws");
+const server_streaming_audio = require("./server_streaming_audio.js");
+const cfg = require("../config");
 
-var launch_server = function(working_dir) {
+const launch_server = (working_dir) => {
+    "use strict";
 
-"use strict";
+    console.log("TOP of launch_server");
+    const pkg = require('../package.json');
+    console.log(pkg.name, pkg.version);
 
-console.log("TOP of launch_server");
+    const app = express();
+    const port = process.env.PORT || 8080;
 
-console.log(require('../package.json').name, require('../package.json').version);
+    const media_dir = cfg.media_dir;
+    console.log("here is media_dir ", media_dir);
+    server_streaming_audio.set_media_dir(media_dir);
 
-var server_streaming_audio = require("./server_streaming_audio.js");
+    const media_path = cfg.media_path;
+    console.log("here is media_path ", media_path);
+    server_streaming_audio.set_media_path(media_path);
 
-console.log("server_streaming_audio ", server_streaming_audio);
+    // API endpoint to dynamically discover WAV files in the media folder
+    app.get("/api/media", (req, res) => {
+        // Resolve target media directory (usually working_dir/../media)
+        const fullMediaDir = path.resolve(working_dir, media_dir);
+        
+        fs.readdir(fullMediaDir, (err, files) => {
+            if (err) {
+                console.error("Error reading media directory:", err);
+                return res.status(500).json({ error: "Failed to read media files" });
+            }
 
+            const wavFiles = files
+                .filter(file => file.toLowerCase().endsWith(".wav"))
+                .map(file => {
+                    try {
+                        const stats = fs.statSync(path.join(fullMediaDir, file));
+                        return {
+                            name: file,
+                            size: stats.size
+                        };
+                    } catch (e) {
+                        return {
+                            name: file,
+                            size: 0
+                        };
+                    }
+                });
 
-var WebSocketServer = require("ws").Server;
-var http = require("http");
-var express = require("express");
-var app = express();
-// var port = process.env.PORT || 8888;
-var port = process.env.PORT || 8080;
-
-// ---
-
-var cfg = require("../config");
-
-var media_dir = cfg.media_dir;
-
-console.log("here is media_dir ", media_dir);
-
-server_streaming_audio.set_media_dir(media_dir);
-
-
-
-var media_path = cfg.media_path;
-
-console.log("here is media_path ", media_path);
-
-server_streaming_audio.set_media_path(media_path);
-
-
-
-// ---
-
-app.use(express.static(working_dir)); // stens TODO - need to handle 404 file NOT found esp wav file
-
-var server = http.createServer(app);
-
-server.listen(port);
-
-console.log("http server listening on %d", port);
-console.log("http://localhost:%d", port);
-
-
-
-console.log("about to call new WebSocketServer");
-
-var wss = new WebSocketServer({
-    server: server
-});
-
-console.log("websocket server created");
-
-
-
-wss.on("headers", function (headers) {
-
-    for (var curr_property in headers) {
-
-        if (headers.hasOwnProperty(curr_property)) {
-
-            console.log("headers property " + curr_property + " -->" + headers[curr_property] +
-                "<-- ");
-        }
-    }
-});
-
-
-
-
-wss.on("error", function (error) {
-
-    console.error("ERROR - seeing fault on WebSocketServer : ");
-
-    for (var curr_property in error) {
-
-        if (error.hasOwnProperty(curr_property)) {
-
-            console.log("error property " + curr_property + " -->" + error[curr_property] +
-                "<-- ");
-        }
-    }
-});
-
-
-
-wss.on("connection", function(ws) {
-
-    console.log("OK cool ... just opened up a client connection ...");
-
-    var ID_timeout;
-    (function run() {  //  run immediately ... then repeat after delay
-
-        console.log(process.memoryUsage());
-
-        ws.send(JSON.stringify(process.memoryUsage()), function() {});
-
-        // ID_timeout = setTimeout(run, 60000);
-        ID_timeout = setTimeout(run, 360000);
-    }());
-
-    console.log("websocket connection open");
-
-
-    ws.on("message", function(received_data) {
-
-        // console.log("\n\nReceived message --------------------" + received_data);
-
-        var received_json;
-
-        try {
-
-            received_json = JSON.parse(received_data);
-
-        } catch (error) {
-
-            var error_msg = "ERROR - received NON JSON message -->" + error + "<--" +
-                            "received_data : " + received_data;
-
-            console.error(error_msg);
-            return;
-        }
-
-        server_streaming_audio.route_msg(received_json, ws);
+            res.json(wavFiles);
+        });
     });
 
-    // ---
+    app.use(express.static(working_dir));
 
-    ws.on("error", function(event) {
-
-        var error_msg = "ERROR on on on error : " + event;
-        console.error(error_msg);
+    const server = http.createServer(app);
+    server.listen(port, () => {
+        console.log(`http server listening on ${port}`);
+        console.log(`http://localhost:${port}`);
     });
 
-    // ---
+    console.log("about to call new WebSocketServer");
+    const wss = new WebSocketServer({ server });
+    console.log("websocket server created");
 
-    ws.on("close", function() {
-
-        console.log("websocket connection close");
-        clearTimeout(ID_timeout);
+    wss.on("headers", (headers) => {
+        for (const curr_property of Object.keys(headers)) {
+            console.log(`headers property ${curr_property} -->${headers[curr_property]}<-- `);
+        }
     });
-});
 
-};      //      launch_server
+    wss.on("error", (error) => {
+        console.error("ERROR - seeing fault on WebSocketServer : ");
+        for (const curr_property of Object.keys(error)) {
+            console.log(`error property ${curr_property} -->${error[curr_property]}<-- `);
+        }
+    });
+
+    wss.on("connection", (ws) => {
+        console.log("OK cool ... just opened up a client connection ...");
+
+        let ID_timeout;
+        const run = () => {
+            console.log(process.memoryUsage());
+            ws.send(JSON.stringify(process.memoryUsage()), () => {});
+            ID_timeout = setTimeout(run, 360000);
+        };
+        run();
+
+        console.log("websocket connection open");
+
+        ws.on("message", (received_data) => {
+            let received_json;
+            try {
+                received_json = JSON.parse(received_data);
+            } catch (error) {
+                console.error(`ERROR - received NON JSON message -->${error}<-- received_data : ${received_data}`);
+                return;
+            }
+            server_streaming_audio.route_msg(received_json, ws);
+        });
+
+        ws.on("error", (event) => {
+            console.error(`ERROR on websocket connection: ${event}`);
+        });
+
+        ws.on("close", () => {
+            console.log("websocket connection close");
+            clearTimeout(ID_timeout);
+        });
+    });
+};
 
 exports.launch_server = launch_server;
-
-

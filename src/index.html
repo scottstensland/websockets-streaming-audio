@@ -1,181 +1,414 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<link href="common.css" rel="stylesheet" type="text/css">
-<!-- <input type="file" id="text_file_input" /> -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro-Future Vector Audio Deck</title>
+    <link href="common.css" rel="stylesheet" type="text/css">
+</head>
+<body>
 
-<!--  see source code   https://github.com/scottstensland/websockets-streaming-audio   -->
+    <div class="deck-container">
+        <!-- Deck Header -->
+        <header class="deck-header">
+            <div class="deck-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                VECTOR_STREAM_DECK
+            </div>
+            <div class="deck-model-tag">MODEL WS-2180</div>
+        </header>
 
-see source code
+        <!-- Playlist Panel -->
+        <section class="deck-panel">
+            <div class="panel-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                Media Cassette Rack
+            </div>
+            <div class="playlist-drawer">
+                <div style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem; text-align: center; padding: 1rem;">
+                    [SCANNING DISK...]
+                </div>
+            </div>
+        </section>
 
-<br>
-<br>
+        <!-- Vector Oscilloscope CRT Panel -->
+        <section class="deck-panel">
+            <div class="panel-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                CRT Vector Scope
+            </div>
 
+            <!-- Oscilloscope Viewport -->
+            <div class="crt-viewport">
+                <div class="crt-grid"></div>
+                <canvas id="visualizer"></canvas>
+                <div class="crt-modes">
+                    <button class="crt-mode-btn active" data-mode="wave">Wave</button>
+                    <button class="crt-mode-btn" data-mode="bars">Freq</button>
+                    <button class="crt-mode-btn" data-mode="rings">Vector</button>
+                </div>
+            </div>
 
-<a href="https://github.com/scottstensland/websockets-streaming-audio" target="_blank">https://github.com/scottstensland/websockets-streaming-audio</a>
+            <!-- Controls Row -->
+            <div class="deck-controls-row">
+                <div class="deck-info-display" id="deck-display">
+                    [SYSTEM READY]
+                </div>
 
-<br>
-<br>
+                <div class="knob-buttons">
+                    <button class="knob-btn btn-play" title="Start playback">Play</button>
+                    <button class="knob-btn btn-stop" title="Stop playback">Stop</button>
+                    <button class="knob-btn btn-reload" onclick="location.reload();" title="Hard reboot">Reset</button>
+                </div>
 
-click on button   stream 13
+                <div class="slider-knob-container">
+                    <span>VOL</span>
+                    <input type="range" class="deck-slider" id="volume-slider" min="0" max="1" step="0.05" value="1">
+                </div>
+            </div>
 
-<br>
+            <!-- Dynamic VU Meters -->
+            <div class="vu-meters-panel">
+                <div class="vu-container">
+                    <div class="vu-header">
+                        <span>BROWSER BUFFER</span>
+                        <span id="browser-val">0 / 10</span>
+                    </div>
+                    <div class="vu-meter-bar" id="browser-vu"></div>
+                </div>
 
-to stream audio to your Web Audio API enabled browser from a nodejs server side using Web Worker and Web Socket 
+                <div class="vu-container">
+                    <div class="vu-header">
+                        <span>WORKER BUFFER</span>
+                        <span id="worker-val">0 / 40</span>
+                    </div>
+                    <div class="vu-meter-bar" id="worker-vu"></div>
+                </div>
+            </div>
+        </section>
 
-<br>
-<br>
+        <!-- Handshake State indicators -->
+        <section class="deck-states-row">
+            <div class="deck-state-card" id="step-mode1">
+                <div class="state-indicator-lamp"></div>
+                <div class="state-meta">
+                    <div class="state-meta-title">MODE 1: BROWSER PRELOAD</div>
+                    <div class="state-meta-desc">Direct WebSocket piping into local browser queue.</div>
+                </div>
+            </div>
+            <div class="deck-state-card" id="step-mode2">
+                <div class="state-indicator-lamp"></div>
+                <div class="state-meta">
+                    <div class="state-meta-title">MODE 2: WORKER REFILL</div>
+                    <div class="state-meta-desc">Worker replenishes itself from server while browser renders.</div>
+                </div>
+            </div>
+            <div class="deck-state-card" id="step-mode3">
+                <div class="state-indicator-lamp"></div>
+                <div class="state-meta">
+                    <div class="state-meta-title">MODE 3: BROWSER CONSUME</div>
+                    <div class="state-meta-desc">Worker drains to browser buffer. WebSocket remains idle.</div>
+                </div>
+            </div>
+        </section>
 
+        <!-- Diagnostics Screen -->
+        <section class="deck-terminal-panel">
+            <div class="terminal-title-bar">System Handshake & Telemetry Monitor</div>
+            <div id="result" class="deck-terminal-screen"></div>
+        </section>
+    </div>
 
-    <button onclick="location.reload();">r e l o a d</button>
-    <!-- <button onclick="client_main.entry_point('stop_audio')">s t o p</button> -->
-    <!-- <button onclick="client_main.entry_point('launch_stream_audio_loops')">stream loop</button> -->
-    <!-- <button onclick="client_main.entry_point('launch_audio_browser_synthesized')">synth audio</button> -->
-    <!-- <button onclick="client_main.entry_point('launch_stream_audio')">stream audio</button> -->
+    <!-- Script Imports -->
+    <script type="text/javascript" src="common_utils.js"></script>
+    <script type="text/javascript" src="shared_utils.js"></script>
+    <script type="text/javascript" src="render_streaming_web_audio.js"></script>
+    <script type="text/javascript" src="client_entry.js"></script>
 
-    <!-- <p> -->
-    <!-- <br> -->
-    <!-- <button onclick="client_entry.entry_point('stop_audio')">s t o p</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio')">stream audio</button> -->
+    <script type="text/javascript">
+        let selectedTrackName = "";
+        let visualizerMode = "wave";
 
-    <p>
-    <br>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set up dynamic LED VU segments
+            createVUSegments("browser-vu", 15);
+            createVUSegments("worker-vu", 15);
 
-    <button onclick="client_entry.entry_point('stop_audio')">s t o p</button>
+            // Register event callbacks into client entry
+            client_entry.registerOnTracksLoaded(renderPlaylist);
+            client_entry.registerOnQueueUpdate(updateQueueUI);
+            client_entry.registerOnStateChange(updateStateUI);
+            client_entry.registerOnHeader(updateHeaderUI);
 
-    <p>
-    <br>
+            // Retrieve audio files
+            client_entry.fetchTracks();
 
-    <!-- <button onclick="client_entry.entry_point('pause_audio')">p a u s e</button> -->
-    
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 0)">stream 0</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 1)">stream 1</button> -->
-    <button onclick="client_entry.entry_point('launch_stream_audio', 2)">stream 2</button>
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 3)">stream 3</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 4)">stream 4</button> -->
-    <button onclick="client_entry.entry_point('launch_stream_audio', 5)">stream 5</button>
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 6)">stream 6</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 7)">stream 7</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 8)">stream 8</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 9)">stream 9</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 10)">stream 10</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 11)">stream 11</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 12)">stream 12</button> -->
-    <button onclick="client_entry.entry_point('launch_stream_audio', 13)">stream 13</button>
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 14)">stream 14</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 15)">stream 15</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 16)">stream 16</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 17)">stream 17</button> -->
-    <!-- <button onclick="client_entry.entry_point('launch_stream_audio', 18)">stream 18</button> -->
+            // Screen Auto-scroll setup
+            const term = document.getElementById("result");
+            const observer = new MutationObserver(() => {
+                term.scrollTop = term.scrollHeight;
+            });
+            observer.observe(term, { childList: true });
 
+            // CRT Vector Loop activation
+            startOscilloscope();
+        });
 
+        // Initialize VU LED bars
+        const createVUSegments = (containerId, count) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            for (let i = 0; i < count; i++) {
+                const seg = document.createElement("div");
+                seg.className = "vu-segment";
+                if (i < 10) {
+                    seg.classList.add("green");
+                } else if (i < 13) {
+                    seg.classList.add("orange");
+                } else {
+                    seg.classList.add("red");
+                }
+                container.appendChild(seg);
+            }
+        };
 
+        const updateVULedBar = (containerId, size, max) => {
+            const container = document.getElementById(containerId);
+            const segments = container.querySelectorAll(".vu-segment");
+            const ratio = max ? size / max : 0;
+            const activeSegmentsCount = Math.min(segments.length, Math.ceil(ratio * segments.length));
 
-<pre id="result"></pre>
+            segments.forEach((seg, idx) => {
+                if (idx < activeSegmentsCount) {
+                    seg.classList.add("active");
+                } else {
+                    seg.classList.remove("active");
+                }
+            });
+        };
 
+        // Render Playlist
+        const renderPlaylist = (tracks) => {
+            const container = document.querySelector(".playlist-drawer");
+            container.innerHTML = "";
 
+            if (tracks.length === 0) {
+                container.innerHTML = `<div style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem; text-align: center; padding: 1rem;">[NO WAVE FILES FOUND]</div>`;
+                return;
+            }
 
-<!-- // <script type="text/javascript" src="page_stats_feedback.js"></script> -->
-<script type="text/javascript" src="common_utils.js"></script>
-<!-- <script type="text/javascript" src="audio_utils.js"></script> -->
-<script type="text/javascript" src="shared_utils.js"></script>
+            tracks.forEach(track => {
+                const sizeMB = (track.size / (1024 * 1024)).toFixed(2);
+                const card = document.createElement("div");
+                card.className = "cassette-card";
+                if (selectedTrackName === track.name) card.classList.add("active");
 
+                card.innerHTML = `
+                    <div class="track-info">
+                        <div class="cassette-label" title="${track.name}">${track.name}</div>
+                        <div class="cassette-meta">${sizeMB} MB • WAV</div>
+                    </div>
+                    <div class="indicator-dot"></div>
+                `;
 
-<!-- <script type="text/javascript" src="get_audio_buffer.js"></script> -->
-<!-- <script type="text/javascript" src="toy_media_player.js"></script>   -->
-<!-- <script type="text/javascript" src="render_audio.js"></script>   -->
-<!-- <script type="text/javascript" src="client_main.js"></script> -->
+                card.addEventListener("click", () => {
+                    selectTrack(track.name);
+                });
 
+                container.appendChild(card);
+            });
+        };
 
+        const selectTrack = (trackName) => {
+            if (selectedTrackName === trackName) return;
 
+            selectedTrackName = trackName;
+            document.querySelectorAll(".cassette-card").forEach(card => {
+                const name = card.querySelector(".cassette-label").textContent;
+                if (name === trackName) {
+                    card.classList.add("active");
+                } else {
+                    card.classList.remove("active");
+                }
+            });
 
-<script type="text/javascript" src="render_streaming_web_audio.js"></script>
-<script type="text/javascript" src="client_entry.js"></script>
+            document.getElementById("deck-display").textContent = "[LOADING HEADERS]";
+            client_entry.playTrack(trackName);
+        };
 
+        // Actions
+        document.querySelector(".btn-play").addEventListener("click", () => {
+            if (selectedTrackName) {
+                client_entry.playTrack(selectedTrackName);
+            } else {
+                const firstCard = document.querySelector(".cassette-card");
+                if (firstCard) {
+                    const firstTrackName = firstCard.querySelector(".cassette-label").textContent;
+                    selectTrack(firstTrackName);
+                }
+            }
+        });
 
+        document.querySelector(".btn-stop").addEventListener("click", () => {
+            client_entry.stopTrack();
+            document.getElementById("deck-display").textContent = "[STOPPED]";
+        });
 
-<style>
+        const volumeSlider = document.getElementById("volume-slider");
+        volumeSlider.addEventListener("input", (e) => {
+            client_entry.setVolume(parseFloat(e.target.value));
+        });
 
+        // Visualizer mode picker
+        document.querySelectorAll(".crt-mode-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll(".crt-mode-btn").forEach(b => b.classList.remove("active"));
+                e.target.classList.add("active");
+                visualizerMode = e.target.dataset.mode;
+            });
+        });
 
-/*
-  body {
-    font-family: "Droid Sans", Arial, sans-serif;
-    padding: 2em;
-  }
-  button {
-    display: inline-block;
-  
+        // Callbacks
+        const updateQueueUI = (status) => {
+            document.getElementById("browser-val").textContent = `${status.browser_queue_size} / ${status.browser_queue_max}`;
+            updateVULedBar("browser-vu", status.browser_queue_size, status.browser_queue_max);
 
+            document.getElementById("worker-val").textContent = `${status.worker_queue_size} / ${status.worker_queue_max}`;
+            updateVULedBar("worker-vu", status.worker_queue_size, status.worker_queue_max);
+        };
 
+        const updateStateUI = (mode) => {
+            document.querySelectorAll(".deck-state-card").forEach(card => card.classList.remove("active"));
+            if (mode === "browser_get_audio_from_server") {
+                document.getElementById("step-mode1").classList.add("active");
+                document.getElementById("deck-display").textContent = "[PRELOAD FEEDING]";
+            } else if (mode === "ww_get_audio_from_server") {
+                document.getElementById("step-mode2").classList.add("active");
+                document.getElementById("deck-display").textContent = "[WW WORKER REFILL]";
+            } else if (mode === "browser_get_audio_from_ww") {
+                document.getElementById("step-mode3").classList.add("active");
+                document.getElementById("deck-display").textContent = "[WW DRAINING TO FB]";
+            }
+        };
 
-  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3));
-  background: -webkit-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
-  background: -moz-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
-  background: -ms-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
-  background: -o-linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
-  
-  background: linear-gradient(#F9F9F9 40%, #E3E3E3 70%);
+        const updateHeaderUI = (headers) => {
+            const stereo = headers.num_channels === 2 ? "STEREO" : "MONO";
+            document.getElementById("deck-display").textContent = `[PLAYING] ${headers.sample_rate}Hz ${stereo}`;
+        };
 
+        // Canvas animation
+        const canvas = document.getElementById("visualizer");
+        const ctx = canvas.getContext("2d");
 
+        const resizeCanvas = () => {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        };
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
 
-  border: 1px solid #999;
-  border-radius: 3px;
-  padding: 5px 8px;
-  outline: none;
-  white-space: nowrap;
-   
-  user-select: none;
-  cursor: pointer;
-  text-shadow: 1px 1px #fff;
-  font-weight: 700;
-  font-size: 10pt;
-  }
-  button:hover {
-    border-color: black;
-  }
-  button:active {
-  
+        const startOscilloscope = () => {
+            const draw = () => {
+                requestAnimationFrame(draw);
 
+                const w = canvas.width;
+                const h = canvas.height;
 
-  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#E3E3E3), to(#F9F9F9));
-  background: -webkit-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
-  background: -moz-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
-  background: -ms-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
-  background: -o-linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
-  
-  background: linear-gradient(#E3E3E3 40%, #F9F9F9 70%);
+                // Phosphor decay shadow trailing
+                ctx.fillStyle = "rgba(2, 4, 6, 0.2)";
+                ctx.fillRect(0, 0, w, h);
 
+                const freqData = client_entry.getFrequencyData();
+                const waveData = client_entry.getWaveformData();
 
+                // Set Phosphor vector glow styling
+                ctx.strokeStyle = "#39ff14";
+                ctx.shadowColor = "rgba(57, 255, 20, 0.7)";
+                ctx.shadowBlur = 6;
 
-  }
-  section {
-    margin-top: 2em;
-  }
-  .down {
-    margin-top: 17em;
-  }
-  #result {
-    max-height: 800px;
-    overflow: auto;
-  }
-*/
-</style>
+                if (visualizerMode === "wave") {
+                    if (!waveData) {
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(0, h / 2);
+                        ctx.lineTo(w, h / 2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                        return;
+                    }
 
-<script type="text/javascript">
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
 
-// window.addEventListener('load', function(e) {
-//   client_main.init();
-// }, false);
+                    const sliceWidth = w / waveData.length;
+                    let x = 0;
 
-  
-    // document.getElementById("text_file_input").addEventListener('change', client_main.read_one_text_file, false);
+                    for (let i = 0; i < waveData.length; i++) {
+                        const v = waveData[i] / 128.0;
+                        const y = v * h / 2;
 
-</script>
-  </head>
-  <body>
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        x += sliceWidth;
+                    }
+                    ctx.lineTo(w, h / 2);
+                    ctx.stroke();
 
+                } else if (visualizerMode === "bars") {
+                    if (!freqData) {
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(0, h / 2);
+                        ctx.lineTo(w, h / 2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                        return;
+                    }
 
-  </body>
+                    ctx.lineWidth = 2;
+                    const barCount = 40;
+                    const barWidth = w / barCount;
+                    const step = Math.floor(freqData.length / barCount);
 
+                    for (let i = 0; i < barCount; i++) {
+                        const idx = i * step;
+                        const val = freqData[idx];
+                        const barHeight = (val / 255) * h * 0.75;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(i * barWidth + barWidth/2, h);
+                        ctx.lineTo(i * barWidth + barWidth/2, h - barHeight);
+                        ctx.stroke();
+                    }
+                } else if (visualizerMode === "rings") {
+                    let sum = 0;
+                    if (freqData) {
+                        for (let i = 0; i < freqData.length; i++) {
+                            sum += freqData[i];
+                        }
+                    }
+                    const average = sum / (freqData ? freqData.length : 1);
+                    const baseRadius = Math.min(w, h) * 0.25;
+                    const radius = baseRadius + (average / 255) * baseRadius * 0.6;
+
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(w / 2, h / 2, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(w / 2, h / 2, radius * 1.3, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+
+                ctx.shadowBlur = 0; // reset glow for other operations
+            };
+            draw();
+        };
+    </script>
+</body>
 </html>
-
