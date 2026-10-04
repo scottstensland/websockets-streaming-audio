@@ -11,6 +11,7 @@
         "express": "^5.2.1",
         "shared-utils": "^2.0.1",
         "utf-8-validate": "^6.0.6",
+        "websockets-streaming-audio": "^2.1.10",
         "ws": "^8.22.0"
     },
     "description": "Click a browser button to launch a node.js process on the server side which streams audio using web sockets back to the browser which is then rendered using web audio API   My plan is to make this modular enough to get added to your process as simple API calls",
